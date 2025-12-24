@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="Client.Views.ChatPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="600">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="50"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <DockPanel Background="White">
+            <TextBlock VerticalAlignment="Center" Text="{Binding ChatName}" TextAlignment="Left" Margin="5"/>
+        </DockPanel>
+        <ListBox ItemsSource="{Binding Messages}" Grid.Row="1">
+            <ListBox.ItemTemplate>
+                <DataTemplate>
+                    <Border CornerRadius="15" HorizontalAlignment="{Binding IsMe}">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="{Binding Username}"/>
+                            <TextBlock Text="{Binding Message}"/>
+                            <TextBlock Text="{Binding When}"/>
+                        </StackPanel>
+                    </Border>
+                </DataTemplate>
+            </ListBox.ItemTemplate>
+        </ListBox>
+        <DockPanel Grid.Row="2">
+            <Button Content="Send" Width="50" DockPanel.Dock="Right"/>
+            <TextBox TextAlignment="Left" Padding="10"/>
+        </DockPanel>
+    </Grid>
+</UserControl>
