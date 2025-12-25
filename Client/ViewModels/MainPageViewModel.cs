@@ -30,7 +30,6 @@ namespace Client.ViewModels
                 OnChatSelected(value);
             }
         }
-        public event Action<Chat> ContactSelected = null!;
         public MainPageViewModel(Mediator messenger)
         {
             mediator = messenger;

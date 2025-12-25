@@ -1,4 +1,4 @@
-﻿namespace Shared;
+﻿namespace Client.Connection;
 
 public sealed record Request(
     RequestMethod Method,

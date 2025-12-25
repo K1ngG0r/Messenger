@@ -2,20 +2,22 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
-using Shared;
+using Client.Connection;
 
-namespace Server;
+namespace Client.Connection;
 
 public class UdpServer
 {
     private readonly IPEndPoint _serverEndPoint;
     private readonly UdpClient _udpClient;
 
+    private IPresentationService _ps;
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
 
-    public UdpServer(int port)
+    public UdpServer(int port, IPresentationService ps)
     {
+        _ps = ps;
         _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
         _udpClient = new UdpClient(_serverEndPoint);
     }
@@ -30,26 +32,26 @@ public class UdpServer
         await ReceiveAsync(linketToken.Token);
     }
 
-    public Task StopAsync()
+    public void Stop()
     {
-        if (!_started) return Task.CompletedTask;
+        if (!_started) return;
 
         _started = false;
         _cts.Cancel();
-        Console.WriteLine("Сервер остановлен");
-        return Task.CompletedTask;
+        _ps.DisplayMessage("Сервер остановлен");
+        return;
     }
 
     private async Task ReceiveAsync(CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Сервер запущен: {_udpClient.Client.LocalEndPoint}");
+        _ps.DisplayMessage($"Сервер запущен: {_udpClient.Client.LocalEndPoint}");
         while (!cancellationToken.IsCancellationRequested)
         {
             var result = await _udpClient.ReceiveAsync(cancellationToken);
 
             var remoteEndPoint = result.RemoteEndPoint;
             var requestBytes = result.Buffer;
-            Console.WriteLine($"Входящее подключение {remoteEndPoint}");
+            _ps.DisplayMessage($"Входящее подключение {remoteEndPoint}");
 
             _ = ClientHanlderAsync(remoteEndPoint, requestBytes, cancellationToken);
         }
@@ -58,10 +60,10 @@ public class UdpServer
     private async Task ClientHanlderAsync(IPEndPoint remoteEndPoint, byte[] requestBytes, CancellationToken cancellationToken)
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
-        Console.WriteLine(requestString);
+        _ps.DisplayMessage(requestString);
         var request = JsonSerializer.Deserialize<Request>(requestString);
 
-        Response response = request.Method switch
+        Response response = request?.Method switch
         {
             RequestMethod.Time => new Response(ResponseStatusCode.Ok, DateTime.Now.ToString()),
             _ => new Response(ResponseStatusCode.Failed, "Команда не распознана")
