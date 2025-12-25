@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Client.Data
 {
-    class AppDBContext : DbContext
+    public class AppDBContext : DbContext
     {
         public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatMessage> Messages { get; set; }

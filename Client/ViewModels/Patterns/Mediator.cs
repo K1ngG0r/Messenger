@@ -7,9 +7,15 @@ using System.Threading.Tasks;
 
 namespace Client.ViewModels.Patterns
 {
-    public class Mediator
+    public interface IMediator
     {
-        private readonly Dictionary<Type, List<Action<object?>>> _listeners = new ();
+        public void Register<MessageType>(Action<object?> action) where MessageType : MediatorMessage;
+        public void Unregister<MessageType>(Action<object?> action) where MessageType : MediatorMessage;
+        public void Send<MessageType>(MessageType message) where MessageType : MediatorMessage;
+    }
+    public class Mediator : IMediator
+    {
+        private readonly Dictionary<Type, List<Action<object?>>> _listeners = new();
         public void Register<MessageType>(Action<object?> action) where MessageType : MediatorMessage
         {
             Type messageType = typeof(MessageType);
@@ -29,25 +35,17 @@ namespace Client.ViewModels.Patterns
             Type messageType = typeof(MessageType);
             if (!_listeners.TryGetValue(messageType, out List<Action<object?>>? actions))
                 return;
-            foreach(var action in actions)
+            foreach (var action in actions)
                 action.Invoke(message);
         }
     }
     public abstract class MediatorMessage;
     public class ChatSelectedMessage : MediatorMessage
     {
-        public Chat SelectedChat { get; set; }
-        public ChatSelectedMessage(Chat chat)
+        public int ChatId { get; set; }
+        public ChatSelectedMessage(int chatId)
         {
-            SelectedChat = chat;
-        }
-    }
-    public class SendNewMessageMessage : MediatorMessage
-    {
-        public ChatMessage Message { get; set; }
-        public SendNewMessageMessage(ChatMessage message)
-        {
-            Message = message;
+            ChatId = chatId;
         }
     }
 }

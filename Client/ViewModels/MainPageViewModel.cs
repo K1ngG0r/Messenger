@@ -11,14 +11,28 @@ namespace Client.ViewModels
 {
     public class MainPageViewModel : ViewModel
     {
-        private Mediator mediator;
+        private Mediator _mediator;
+        private ChatService _chatService;
         private ChatViewModel? selectedContact;
-        public ObservableCollection<ChatViewModel> ChatsList { get; set; } = new();
-        public string SearchText { get; set; } = string.Empty;
-        public void UpdateChatsList(List<Chat> chats)
+        private ObservableCollection<ChatViewModel> chatsList = new();
+        private string searchText = string.Empty;
+        public ObservableCollection<ChatViewModel> ChatsList
         {
-            ChatsList = new ObservableCollection<ChatViewModel>(
-                chats.Select(x=>new ChatViewModel(x)));
+            get => chatsList;
+            set
+            {
+                chatsList = value;
+                OnPropertyChanged();
+            }
+        }
+        public string SearchText
+        {
+            get => searchText;
+            set
+            {
+                searchText = value;
+                OnPropertyChanged();
+            }
         }
         public ChatViewModel? SelectedChat
         {
@@ -30,15 +44,23 @@ namespace Client.ViewModels
                 OnChatSelected(value);
             }
         }
-        public MainPageViewModel(Mediator messenger)
+        public MainPageViewModel(Mediator messenger, ChatService chatService)
         {
-            mediator = messenger;
+            _chatService = chatService;
+            _mediator = messenger;
+            LoadChats().Wait();
+        }
+        private async Task LoadChats()
+        {
+            ChatsList = new ObservableCollection<ChatViewModel>(
+                (await _chatService.LoadChatsListAsync())
+                    .Select(x=>new ChatViewModel(x)));
         }
         private void OnChatSelected(ChatViewModel? chat)
         {
             if (chat is null)
                 return;
-            mediator.Send(new ChatSelectedMessage(chat.Chat));
+            _mediator.Send(new ChatSelectedMessage(chat.Chat.Id));
         }
     }
 }

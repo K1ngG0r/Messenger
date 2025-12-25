@@ -23,19 +23,17 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
+            var me = new User("Me", "me");
+
             var context = new AppDBContext();
-            init(context);
-            var chatsList = context.Chats
-                .Include(x => x.Messages)
-                    .ThenInclude(x=>x.Who)
-                .ToList();
-                
-            //MessageBox.Show(context.Messages.ToList().Count.ToString());
+            //init(context);
+            
             var mediator = new Mediator();
-            var chatPageViewModel = new ChatPageViewModel(mediator);
-            var mainPageViewModel = new MainPageViewModel(mediator);
+            var chatService = new ChatService(context);
+            var userService = new CurrentUserService(me);
+            var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
+            var mainPageViewModel = new MainPageViewModel(mediator, chatService);
             var mainWindowViewModel = new MainWindowViewModel(mainPageViewModel, chatPageViewModel);
-            mainPageViewModel.UpdateChatsList(chatsList);
             DataContext = mainWindowViewModel;
         }
         private void init(AppDBContext context)

@@ -12,10 +12,21 @@ namespace Client.ViewModels
 {
     public class ChatPageViewModel : ViewModel
     {
-        private Mediator mediator;
+        private ChatService _chatService;
+        private CurrentUserService _userService;
+        private Mediator _mediator;
         private Chat? chat;
         private string draftMessage = string.Empty;
-        public ObservableCollection<ChatMessageViewModel> Messages { get; set; } = new();
+        private ObservableCollection<ChatMessageViewModel> messages = new();
+        public ObservableCollection<ChatMessageViewModel> Messages
+        {
+            get => messages;
+            set
+            {
+                messages = value;
+                OnPropertyChanged();
+            }
+        }
         public string ChatName
         {
             get => chat?.ChatName ?? string.Empty;
@@ -30,38 +41,39 @@ namespace Client.ViewModels
             }
         }
         public Command SendMessageCommand { get; set; }
-        public void UpdateChat(Chat newChat)
+        public async Task UpdateChat(int chatId)
         {
-            chat = newChat;
+            chat = await _chatService.LoadChatAsync(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
-                newChat.Messages.Select(x => new ChatMessageViewModel(x)));
-            OnPropertyChanged(nameof(Messages));
+                chat.Messages.Select(x => new ChatMessageViewModel(x)));
             OnPropertyChanged(nameof(ChatName));
         }
-        public ChatPageViewModel(Mediator messenger)
+        public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)
         {
-            mediator = messenger;
+            _chatService = chatService;
+            _userService = userService;
+            _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
-            mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
+            _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
         }
-        private void OnSendMessage()
+        private async void OnSendMessage()
         {
             if (DraftMessage == string.Empty)
                 return;
             if (chat is null)
                 return;
-            var message = new ChatMessage(chat, new User("",""),
+            var message = new ChatMessage(chat, _userService.CurrentUser,
                 DraftMessage, DateTime.Now);
             Messages.Add(new ChatMessageViewModel(message));
-            mediator.Send(new SendNewMessageMessage(message));
+            await _chatService.SendMessage(message);
             DraftMessage = string.Empty;
         }
-        private void HandleChatSelectedMessage(object? newChatObject)
+        private async void HandleChatSelectedMessage(object? newChatObject)
         {
             ChatSelectedMessage? chatSelectedMessage = (ChatSelectedMessage?)newChatObject;
             if (chatSelectedMessage is null)
                 return;
-            UpdateChat(chatSelectedMessage.SelectedChat);
+            await UpdateChat(chatSelectedMessage.ChatId);
         }
     }
 }
