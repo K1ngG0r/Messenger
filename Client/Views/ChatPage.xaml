@@ -16,15 +16,29 @@
             <TextBlock VerticalAlignment="Center" Text="{Binding ChatName}" TextAlignment="Left" Margin="5"/>
         </DockPanel>
         <ListBox ItemsSource="{Binding Messages}" Grid.Row="1">
+            <ListBox.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <VirtualizingStackPanel/>
+                </ItemsPanelTemplate>
+            </ListBox.ItemsPanel>
+            <ListBox.ItemContainerStyle>
+                <Style TargetType="ListBoxItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                </Style>
+            </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Border CornerRadius="15" HorizontalAlignment="{Binding IsMe}">
-                        <StackPanel Orientation="Vertical">
-                            <TextBlock Text="{Binding Name}"/>
-                            <TextBlock Text="{Binding Message}"/>
-                            <TextBlock Text="{Binding When}"/>
-                        </StackPanel>
-                    </Border>
+                    <DockPanel HorizontalAlignment="Stretch">
+                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" DockPanel.Dock="{Binding IsMe}">
+                            <StackPanel Orientation="Vertical" Margin="5">
+                                <TextBlock Text="{Binding Name}"/>
+                                <TextBlock Text="{Binding Username}"/>
+                                <TextBlock Text="{Binding Message}"/>
+                                <TextBlock Text="{Binding When}"/>
+                            </StackPanel>
+                        </Border>
+                    </DockPanel>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
