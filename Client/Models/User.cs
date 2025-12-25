@@ -9,6 +9,17 @@ namespace Client.Models
     public class User
     {
         public int Id { get; set; }
-        public string Username { get; set; } = string.Empty;
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        //аватарка
+        public User(string name, string username)
+        {
+            Name = name;
+            Username = username;
+        }
+        public User()
+        {
+
+        }
     }
 }

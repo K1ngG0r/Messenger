@@ -11,8 +11,10 @@ namespace Client.ViewModels
     public class ChatMessageViewModel:ViewModel
     {
         public string Message { get; set; }
+        public string Name { get; set; }
         public string Username { get; set; }
         public DateTime When { get; set; }
+        public string State { get; set; }
         public HorizontalAlignment IsMe
         {
             get 
@@ -23,8 +25,10 @@ namespace Client.ViewModels
         public ChatMessageViewModel(ChatMessage message)
         {
             Message = message.Message;
-            Username = message.Who?.Username ?? "error name";
+            Username = message.Who.Username;
             When = message.When;
+            Name = message.Who.Name;
+            State = message.State.ToString();
         }
     }
 }

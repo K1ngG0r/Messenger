@@ -11,14 +11,14 @@ namespace Client.Models
         public int Id { get; set; }
         public string ChatName { get; set; } = string.Empty;
         public List<ChatMessage> Messages { get; set; } = new ();
-        public Chat(int id, string chatName, List<ChatMessage> messages)
+        public Chat(string chatName, List<ChatMessage> messages)
         {
-            Id = id;
             ChatName = chatName;
             Messages = messages;
         }
         public Chat()
         {
+
         }
     }
     /*

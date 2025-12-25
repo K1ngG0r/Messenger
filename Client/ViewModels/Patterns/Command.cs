@@ -7,10 +7,10 @@ using System.Windows.Input;
 
 namespace Client.ViewModels.Patterns
 {
-    /*public class Command : ICommand
+    public class Command : ICommand
     {
         public event EventHandler? CanExecuteChanged;
-        public Action Implemention { get; set; }
+        private Action Implemention { get; set; }
         public Command(Action implemention)
         {
             Implemention = implemention;
@@ -25,5 +25,5 @@ namespace Client.ViewModels.Patterns
         {
             Implemention?.Invoke();
         }
-    }*/
+    }
 }

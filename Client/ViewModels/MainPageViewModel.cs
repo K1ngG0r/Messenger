@@ -14,7 +14,7 @@ namespace Client.ViewModels
         private Mediator mediator;
         private ChatViewModel? selectedContact;
         public ObservableCollection<ChatViewModel> ChatsList { get; set; } = new();
-        public string SearchText { get; set; }
+        public string SearchText { get; set; } = string.Empty;
         public void UpdateChatsList(List<Chat> chats)
         {
             ChatsList = new ObservableCollection<ChatViewModel>(

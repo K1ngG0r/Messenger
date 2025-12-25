@@ -24,7 +24,7 @@ namespace Client
         {
             InitializeComponent();
             var context = new AppDBContext();
-            //init(context);
+            init(context);
             var chatsList = context.Chats
                 .Include(x => x.Messages)
                     .ThenInclude(x=>x.Who)
@@ -40,21 +40,9 @@ namespace Client
         }
         private void init(AppDBContext context)
         {
-            var user = new User()
-            {
-                Username = "Me"
-            };
-            var chat = new Chat()
-            {
-                ChatName = "Chat 1"
-            };
-            var message = new ChatMessage()
-            {
-                Message = "Message 1",
-                When = DateTime.Now,
-                Who = user,
-                Chat = chat
-            };
+            var user = new User("Me","meusername");
+            var chat = new Chat("Chat 1", new List<ChatMessage>());
+            var message = new ChatMessage(chat, user, "hello!",DateTime.Now);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             chat.Messages.Add(message);
@@ -65,20 +53,16 @@ namespace Client
         }
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
-            // 1. Получаем ссылку на ColumnDefinition, которую мы хотим изменить
             ColumnDefinition col1 = this.column1;
 
-            // 2. Получаем текущую ширину столбца (как GridLength)
             GridLength currentWidth = col1.Width;
 
-            // 3. Проверяем, что ширина задана в фиксированных единицах (Pixels, т.е. Star/Auto игнорируем для простоты)
             if (currentWidth.GridUnitType == GridUnitType.Pixel)
             {
                 double newWidth = currentWidth.Value + e.HorizontalChange;
 
-                // Ограничения: не даем ширине стать слишком маленькой или слишком большой
                 double minWidth = 50;
-                double maxWidth = this.Width - 100; // Макс ширина окна минус запас
+                double maxWidth = this.Width - 100;
 
                 if (newWidth > minWidth && newWidth < maxWidth)
                 {

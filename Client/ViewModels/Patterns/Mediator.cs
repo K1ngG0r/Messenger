@@ -34,12 +34,20 @@ namespace Client.ViewModels.Patterns
         }
     }
     public abstract class MediatorMessage;
-    public class ChatSelectedMessage:MediatorMessage
+    public class ChatSelectedMessage : MediatorMessage
     {
         public Chat SelectedChat { get; set; }
         public ChatSelectedMessage(Chat chat)
         {
             SelectedChat = chat;
+        }
+    }
+    public class SendNewMessageMessage : MediatorMessage
+    {
+        public ChatMessage Message { get; set; }
+        public SendNewMessageMessage(ChatMessage message)
+        {
+            Message = message;
         }
     }
 }

@@ -14,12 +14,22 @@ namespace Client.ViewModels
     {
         private Mediator mediator;
         private Chat? chat;
+        private string draftMessage = string.Empty;
         public ObservableCollection<ChatMessageViewModel> Messages { get; set; } = new();
         public string ChatName
         {
             get => chat?.ChatName ?? string.Empty;
         }
-
+        public string DraftMessage
+        {
+            get => draftMessage;
+            set
+            {
+                draftMessage = value;
+                OnPropertyChanged();
+            }
+        }
+        public Command SendMessageCommand { get; set; }
         public void UpdateChat(Chat newChat)
         {
             chat = newChat;
@@ -31,11 +41,23 @@ namespace Client.ViewModels
         public ChatPageViewModel(Mediator messenger)
         {
             mediator = messenger;
+            SendMessageCommand = new Command(OnSendMessage);
             mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
+        }
+        private void OnSendMessage()
+        {
+            if (DraftMessage == string.Empty)
+                return;
+            if (chat is null)
+                return;
+            var message = new ChatMessage(chat, new User("",""),
+                DraftMessage, DateTime.Now);
+            Messages.Add(new ChatMessageViewModel(message));
+            mediator.Send(new SendNewMessageMessage(message));
+            DraftMessage = string.Empty;
         }
         private void HandleChatSelectedMessage(object? newChatObject)
         {
-
             ChatSelectedMessage? chatSelectedMessage = (ChatSelectedMessage?)newChatObject;
             if (chatSelectedMessage is null)
                 return;
