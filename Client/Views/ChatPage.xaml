@@ -29,8 +29,12 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <DockPanel HorizontalAlignment="Stretch">
-                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" DockPanel.Dock="{Binding IsMe}">
+                    <Grid HorizontalAlignment="Stretch">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe}">
                             <StackPanel Orientation="Vertical" Margin="5">
                                 <TextBlock Text="{Binding Name}"/>
                                 <TextBlock Text="{Binding Username}"/>
@@ -38,7 +42,7 @@
                                 <TextBlock Text="{Binding When}"/>
                             </StackPanel>
                         </Border>
-                    </DockPanel>
+                    </Grid>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>

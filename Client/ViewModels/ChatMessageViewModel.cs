@@ -17,11 +17,11 @@ namespace Client.ViewModels
         public string Username { get; set; }
         public DateTime When { get; set; }
         public string State { get; set; }
-        public Dock IsMe
+        public int IsMe
         {
             get 
             {
-                return (Username == _currentUser) ? Dock.Right : Dock.Left;
+                return (Username == _currentUser) ? 0 : 1;
             }
         }
         public ChatMessageViewModel(ChatMessage message, string currentUser="me")
