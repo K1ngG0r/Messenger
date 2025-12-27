@@ -42,7 +42,7 @@ public class UdpServer
         _ps.DisplayMessage("Сервер остановлен");
         return;
     }
-    public void Send()
+    public void SendAsync()
     {
 
     }

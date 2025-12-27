@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Client.Models;
 
 namespace Client.Connection
 {
@@ -20,6 +21,11 @@ namespace Client.Connection
             Request? request = JsonSerializer.Deserialize<Request?>(message);
             if (request == null)
                 return;
+
+        }
+        public void SendMessage(Chat to, ChatMessage message)
+        {
+
         }
     }
 }

@@ -65,7 +65,7 @@ namespace Client.ViewModels
             var message = new ChatMessage(chat, _userService.CurrentUser,
                 DraftMessage, DateTime.Now);
             Messages.Add(new ChatMessageViewModel(message));
-            await _chatService.SendMessage(message);
+            await _chatService.SendMessage(chat, message);
             DraftMessage = string.Empty;
         }
         private async void HandleChatSelectedMessage(object? newChatObject)

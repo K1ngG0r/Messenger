@@ -1,6 +1,7 @@
 ﻿namespace Client.Connection;
 
 public sealed record Request(
+    string key,
     RequestMethod Method,
     string Body);
 

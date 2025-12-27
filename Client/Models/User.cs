@@ -11,6 +11,7 @@ namespace Client.Models
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
+        public string PublicKey { get; set; } = null!;
         //аватарка
         public User(string name, string username)
         {

@@ -1,4 +1,5 @@
-﻿using Client.Data;
+﻿using Client.Connection;
+using Client.Data;
 using Client.Models;
 using Client.ViewModels;
 using Client.ViewModels.Patterns;
@@ -27,9 +28,10 @@ namespace Client
 
             var context = new AppDBContext();
             init(context);
-            
+
+            var clientConnection = new ClientConnection();
             var mediator = new Mediator();
-            var chatService = new ChatService(context);
+            var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);
             var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
             var mainPageViewModel = new MainPageViewModel(mediator, chatService);
