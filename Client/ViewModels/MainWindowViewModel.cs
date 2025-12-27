@@ -12,10 +12,14 @@ namespace Client.ViewModels
     {
         public MainPageViewModel MainPageViewModel { get; set; }
         public ChatPageViewModel ChatPageViewModel { get; set; }
-        public MainWindowViewModel(MainPageViewModel mainPageViewModel, ChatPageViewModel chatPageViewModel)
+        public SettingsPageViewModel SettingsPageViewModel { get; set; }
+        public MainWindowViewModel(MainPageViewModel mainPageViewModel,
+            ChatPageViewModel chatPageViewModel,
+            SettingsPageViewModel settingsPageViewModel)
         {
             MainPageViewModel = mainPageViewModel;
             ChatPageViewModel = chatPageViewModel;
+            SettingsPageViewModel = settingsPageViewModel;
         }
     }
 }

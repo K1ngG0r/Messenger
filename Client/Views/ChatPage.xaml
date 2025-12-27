@@ -29,10 +29,11 @@
             </ListBox.ItemContainerStyle>
             <ListBox.ItemTemplate>
                 <DataTemplate>
-                    <Grid HorizontalAlignment="Stretch">
+                    <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
                         <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe}">
                             <StackPanel Orientation="Vertical" Margin="5">

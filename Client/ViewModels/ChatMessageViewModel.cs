@@ -21,7 +21,7 @@ namespace Client.ViewModels
         {
             get 
             {
-                return (Username == _currentUser) ? 0 : 1;
+                return (Username == _currentUser) ? 0 : 2;
             }
         }
         public ChatMessageViewModel(ChatMessage message, string currentUser="me")

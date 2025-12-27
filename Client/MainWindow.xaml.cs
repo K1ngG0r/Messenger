@@ -33,7 +33,11 @@ namespace Client
             var userService = new CurrentUserService(me);
             var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
             var mainPageViewModel = new MainPageViewModel(mediator, chatService);
-            var mainWindowViewModel = new MainWindowViewModel(mainPageViewModel, chatPageViewModel);
+            var settingsPageViewModel = new SettingsPageViewModel();
+            var mainWindowViewModel = new MainWindowViewModel(
+                mainPageViewModel,
+                chatPageViewModel,
+                settingsPageViewModel);
             DataContext = mainWindowViewModel;
         }
         private void init(AppDBContext context)
