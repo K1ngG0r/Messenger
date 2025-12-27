@@ -14,6 +14,7 @@ public class UdpServer
     private IPresentationService _ps;
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
+    public Action<string> OnReceive;
 
     public UdpServer(int port, IPresentationService ps)
     {
@@ -41,7 +42,10 @@ public class UdpServer
         _ps.DisplayMessage("Сервер остановлен");
         return;
     }
+    public void Send()
+    {
 
+    }
     private async Task ReceiveAsync(CancellationToken cancellationToken)
     {
         _ps.DisplayMessage($"Сервер запущен: {_udpClient.Client.LocalEndPoint}");
@@ -61,16 +65,6 @@ public class UdpServer
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
         _ps.DisplayMessage(requestString);
-        var request = JsonSerializer.Deserialize<Request>(requestString);
-
-        Response response = request?.Method switch
-        {
-            RequestMethod.Time => new Response(ResponseStatusCode.Ok, DateTime.Now.ToString()),
-            _ => new Response(ResponseStatusCode.Failed, "Команда не распознана")
-        };
-
-        var responseString = JsonSerializer.Serialize(response);
-        var responseBytes = Encoding.UTF8.GetBytes(responseString);
-        await _udpClient.SendAsync(responseBytes, remoteEndPoint, cancellationToken);
+        OnReceive?.Invoke(requestString);
     }
 }

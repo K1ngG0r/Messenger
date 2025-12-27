@@ -10,10 +10,14 @@ public sealed record Response(
 
 public enum RequestMethod
 {
-    Time = 0
+    Register,
+    Login,
+    Send,
+    Update,
+    Load
 }
 public enum ResponseStatusCode
 {
-    Ok = 0,
-    Failed = 1
+    Ok,
+    Failed
 }

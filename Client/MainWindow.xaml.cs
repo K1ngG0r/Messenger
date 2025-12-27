@@ -26,7 +26,7 @@ namespace Client
             var me = new User("Me", "me");
 
             var context = new AppDBContext();
-            //init(context);
+            init(context);
             
             var mediator = new Mediator();
             var chatService = new ChatService(context);
