@@ -6,7 +6,7 @@ using Client.Connection;
 
 namespace Client.Connection;
 
-public class UdpServer
+public class UdpConnection
 {
     private readonly IPEndPoint _serverEndPoint;
     private readonly UdpClient _udpClient;
@@ -16,7 +16,7 @@ public class UdpServer
     private CancellationTokenSource _cts = new CancellationTokenSource();
     public Action<string> OnReceive;
 
-    public UdpServer(int port, IPresentationService ps)
+    public UdpConnection(int port, IPresentationService ps)
     {
         _ps = ps;
         _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);

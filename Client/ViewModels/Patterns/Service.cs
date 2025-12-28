@@ -19,7 +19,7 @@ namespace Client.ViewModels.Patterns
         }
         public async Task<List<Chat>> LoadChatsListAsync()
         {
-            return await Task.Run(()=>_context.Chats.ToList());
+            return _context.Chats.ToList();
 
             /*var cts = new CancellationTokenSource();
             var task = Task.Run(() => _context.Chats.ToListAsync());

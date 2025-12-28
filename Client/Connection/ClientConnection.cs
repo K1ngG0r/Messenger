@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -10,11 +11,13 @@ namespace Client.Connection
 {
     public class ClientConnection
     {
-        private UdpServer server;
+        private IPEndPoint connectedServer;
+        private UdpConnection udpConnection;
+        public event Action<Chat, ChatMessage> NewMessage;
         public ClientConnection() 
         {
-            server = new UdpServer(1234, new NullPresentationService());
-            server.OnReceive += HandleMessage;
+            udpConnection = new UdpConnection(1234, new NullPresentationService());
+            udpConnection.OnReceive += HandleMessage;
         }
         private void HandleMessage(string message)
         {

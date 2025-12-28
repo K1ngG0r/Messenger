@@ -24,7 +24,7 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me");
+            var me = new User("Me", "me", "");
 
             var context = new AppDBContext();
             init(context);
@@ -44,7 +44,7 @@ namespace Client
         }
         private void init(AppDBContext context)
         {
-            var user = new User("Me","meusername");
+            var user = new User("Me","meusername","");
             var chat = new Chat("Chat 1", new List<ChatMessage>());
             var message = new ChatMessage(chat, user, "hello!",DateTime.Now);
             context.Database.EnsureDeleted();
