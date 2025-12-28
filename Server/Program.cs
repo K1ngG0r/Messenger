@@ -1,9 +1,16 @@
-﻿using Server;
+﻿
+namespace Server;
 
-var CancellationToken = new CancellationToken();
+internal class Program
+{
+    static async Task Main(string[] args)
+    {
+        var CancellationToken = new CancellationToken();
 
-var server = new UdpServer(9000);
-await server.StartAsync(CancellationToken);
+        var server = new UdpServer(9000);
+        await server.StartAsync(CancellationToken);
 
-Console.ReadLine();
-await server.StopAsync();
+        Console.ReadLine();
+        await server.StopAsync();
+    }
+}

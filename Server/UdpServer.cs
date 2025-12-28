@@ -1,7 +1,8 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using Shared;
 
 namespace Server;
@@ -57,18 +58,11 @@ public class UdpServer
 
     private async Task ClientHanlderAsync(IPEndPoint remoteEndPoint, byte[] requestBytes, CancellationToken cancellationToken)
     {
-        var requestString = Encoding.UTF8.GetString(requestBytes);
-        Console.WriteLine(requestString);
-        var request = JsonSerializer.Deserialize<Request>(requestString);
-
-        Response response = request.Method switch
-        {
-            RequestMethod.Time => new Response(ResponseStatusCode.Ok, DateTime.Now.ToString()),
-            _ => new Response(ResponseStatusCode.Failed, "Команда не распознана")
-        };
+        string response = MessageHandler.RequestHandler(requestBytes, cancellationToken);
 
         var responseString = JsonSerializer.Serialize(response);
         var responseBytes = Encoding.UTF8.GetBytes(responseString);
+
         await _udpClient.SendAsync(responseBytes, remoteEndPoint, cancellationToken);
     }
 }
