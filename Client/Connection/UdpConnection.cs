@@ -18,9 +18,9 @@ public class UdpConnection
 
     public UdpConnection(int port, IPresentationService ps)
     {
-        _ps = ps;
-        _udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-        _udpClient = new UdpClient(_udpClientEndPoint);
+        //_ps = ps;
+        //_udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        //_udpClient = new UdpClient(_udpClientEndPoint);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)

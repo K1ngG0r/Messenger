@@ -48,8 +48,10 @@
             </ListBox.ItemTemplate>
         </ListBox>
         <DockPanel Grid.Row="2">
-            <Button Content="Send" Width="50" Command="{Binding SendMessageCommand}" DockPanel.Dock="Right"/>
+            <Button Content="Send" Width="50" Command="{Binding SendMessageCommand}" DockPanel.Dock="Right">
+            </Button>
             <TextBox Text="{Binding DraftMessage, Mode=TwoWay}" TextAlignment="Left" Padding="10"/>
+
         </DockPanel>
     </Grid>
 </UserControl>

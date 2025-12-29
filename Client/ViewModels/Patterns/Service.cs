@@ -19,7 +19,8 @@ namespace Client.ViewModels.Patterns
         }
         public async Task<List<Chat>> LoadChatsListAsync()
         {
-            return await Task.Factory.StartNew(()=>_context.Chats.ToList());
+            var task = Task.Run(_context.Chats.ToList);
+            return task.Result;
         }
         public async Task SendMessageAsync(Chat to, ChatMessage message)
         {

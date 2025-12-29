@@ -13,8 +13,8 @@ namespace Client.Connection
     {
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
-        public event Action<Chat, ChatMessage> NewMessage;
-        public event Action<Chat, ChatMessage> NewChat;
+        public event Action<Chat, ChatMessage> NewMessage = null!;
+        public event Action<Chat, ChatMessage> NewChat = null!;
         public ClientConnection(IPEndPoint serverIP) 
         {
             connectedServer = serverIP;
