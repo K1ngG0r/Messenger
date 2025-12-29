@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 using Client.Models;
 using Client.ViewModels.Patterns;
 
@@ -27,6 +28,7 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
+        public SolidColorBrush? BackgroundChatImage => (chat is null) ? null : new SolidColorBrush(Colors.Gray);
         public string ChatName => chat?.ChatName ?? string.Empty;
         public string ImagePath => chat?.ChatImagePath ?? string.Empty;
         public string DraftMessage
@@ -46,6 +48,7 @@ namespace Client.ViewModels
                 chat.Messages.Select(x => new ChatMessageViewModel(x, _userService)));
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(ImagePath));
+            OnPropertyChanged(nameof(BackgroundChatImage));
         }
         public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)
         {

@@ -35,7 +35,8 @@
                                     Height="50" 
                                     CornerRadius="25"
                                     ClipToBounds="True"
-                                    Margin="5">
+                                    Margin="5"
+                                    Background="Gray">
                                 <Image Source="{Binding ImagePath}" 
                                        Stretch="UniformToFill">
                                     <Image.Clip>
