@@ -14,8 +14,10 @@ namespace Client.Connection
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
         public event Action<Chat, ChatMessage> NewMessage;
-        public ClientConnection() 
+        public event Action<Chat, ChatMessage> NewChat;
+        public ClientConnection(IPEndPoint serverIP) 
         {
+            connectedServer = serverIP;
             udpConnection = new UdpConnection(1234, new NullPresentationService());
             udpConnection.OnReceive += HandleMessage;
         }
@@ -26,9 +28,9 @@ namespace Client.Connection
                 return;
 
         }
-        public void SendMessage(Chat to, ChatMessage message)
+        public async Task SendMessageAsync(Chat to, ChatMessage message)
         {
-
+            //await udpConnection.SendAsync()
         }
     }
 }

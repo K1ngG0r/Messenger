@@ -5,6 +5,7 @@ using Client.ViewModels;
 using Client.ViewModels.Patterns;
 using Client.Views;
 using Microsoft.EntityFrameworkCore;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -24,12 +25,12 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me", "");
+            var me = new User("Me", "me", "public key");
 
             var context = new AppDBContext();
             init(context);
-
-            var clientConnection = new ClientConnection();
+            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
+            var clientConnection = new ClientConnection(serverIP);
             var mediator = new Mediator();
             var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);

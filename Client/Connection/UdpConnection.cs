@@ -8,19 +8,19 @@ namespace Client.Connection;
 
 public class UdpConnection
 {
-    private readonly IPEndPoint _serverEndPoint;
+    private readonly IPEndPoint _udpClientEndPoint;
     private readonly UdpClient _udpClient;
 
     private IPresentationService _ps;
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
-    public Action<string> OnReceive;
+    public Action<string> OnReceive = null!;
 
     public UdpConnection(int port, IPresentationService ps)
     {
         _ps = ps;
-        _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-        _udpClient = new UdpClient(_serverEndPoint);
+        _udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        _udpClient = new UdpClient(_udpClientEndPoint);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
@@ -42,9 +42,9 @@ public class UdpConnection
         _ps.DisplayMessage("Сервер остановлен");
         return;
     }
-    public void SendAsync()
+    public async Task SendAsync(string message, IPEndPoint endPoint)
     {
-
+        await _udpClient.SendAsync(Encoding.UTF8.GetBytes(message), endPoint);
     }
     private async Task ReceiveAsync(CancellationToken cancellationToken)
     {
@@ -57,11 +57,11 @@ public class UdpConnection
             var requestBytes = result.Buffer;
             _ps.DisplayMessage($"Входящее подключение {remoteEndPoint}");
 
-            _ = ClientHanlderAsync(remoteEndPoint, requestBytes, cancellationToken);
+            ClientHanlde(remoteEndPoint, requestBytes);
         }
     }
 
-    private async Task ClientHanlderAsync(IPEndPoint remoteEndPoint, byte[] requestBytes, CancellationToken cancellationToken)
+    private void ClientHanlde(IPEndPoint remoteEndPoint, byte[] requestBytes)
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
         _ps.DisplayMessage(requestString);

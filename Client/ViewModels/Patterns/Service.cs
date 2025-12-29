@@ -19,23 +19,14 @@ namespace Client.ViewModels.Patterns
         }
         public async Task<List<Chat>> LoadChatsListAsync()
         {
-            return _context.Chats.ToList();
-
-            /*var cts = new CancellationTokenSource();
-            var task = Task.Run(() => _context.Chats.ToListAsync());
-            Task.Delay(5000).Wait();
-            cts.Cancel();
-            if (task.IsCompleted)
-            {
-                return task.Result;
-            }
-            return new List<Chat>();*/
+            return await Task.Factory.StartNew(()=>_context.Chats.ToList());
         }
-        public async Task SendMessage(Chat to,ChatMessage message)
+        public async Task SendMessageAsync(Chat to, ChatMessage message)
         {
             var chat = message.Chat;
-            _connection.SendMessage(chat, message);
+            await _connection.SendMessageAsync(chat, message);
             _context.Messages.Add(message);//доработать
+            await _context.SaveChangesAsync();
         }
         public ChatService(AppDBContext context, ClientConnection connection)
         {
