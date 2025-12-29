@@ -12,7 +12,7 @@ namespace Client.Models
         public string ChatName { get; set; } = null!;
         public string ChatImagePath { get; set; } = null!;
         public List<ChatMessage> Messages { get; set; } = null!;
-        public Chat(string chatName, List<ChatMessage> messages, string chatImagePath ="cache/DefaultAvatar.png")
+        public Chat(string chatName, List<ChatMessage> messages, string chatImagePath = "/cache/DefaultAvatar.png")
         {
             ChatName = chatName;
             ChatImagePath = chatImagePath;

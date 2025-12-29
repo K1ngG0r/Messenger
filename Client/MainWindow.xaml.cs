@@ -25,10 +25,10 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me", "public key");
+            var me = new User("Me", "me", imagePath: "/cache/MyAvatar.png");
 
             var context = new AppDBContext();
-            init(context);
+            //init(context, me);
             IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
             var clientConnection = new ClientConnection(serverIP);
             var mediator = new Mediator();
@@ -43,17 +43,18 @@ namespace Client
                 settingsPageViewModel);
             DataContext = mainWindowViewModel;
         }
-        private void init(AppDBContext context)
+        private void init(AppDBContext context, User user)
         {
-            var user = new User("Me","meusername");
+            var otherUser = new User("Mike", "mikename");
             var chat = new Chat("Chat 1", new());
-            var message = new ChatMessage(chat, user, "hello!",DateTime.Now);
+            var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
+            var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-            chat.Messages.Add(message);
+            chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Users.Add(user);
             context.Chats.Add(chat);
-            context.Messages.Add(message);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
         }
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)

@@ -45,6 +45,7 @@ namespace Client.ViewModels
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => new ChatMessageViewModel(x, _userService)));
             OnPropertyChanged(nameof(ChatName));
+            OnPropertyChanged(nameof(ImagePath));
         }
         public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)
         {

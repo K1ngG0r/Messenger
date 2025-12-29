@@ -31,6 +31,18 @@
                 <DataTemplate>
                     <Border CornerRadius="10" Background="LightBlue">
                         <StackPanel Orientation="Horizontal">
+                            <Border Width="50" 
+                                    Height="50" 
+                                    CornerRadius="25"
+                                    ClipToBounds="True"
+                                    Margin="5">
+                                <Image Source="{Binding ImagePath}" 
+                                       Stretch="UniformToFill">
+                                    <Image.Clip>
+                                        <EllipseGeometry Center="25,25" RadiusX="25" RadiusY="25"/>
+                                    </Image.Clip>
+                                </Image>
+                            </Border>
                             <TextBlock Margin="10" Text="{Binding ChatName}" FontSize="16"/>
                         </StackPanel>
                     </Border>
