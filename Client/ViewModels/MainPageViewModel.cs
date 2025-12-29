@@ -41,7 +41,7 @@ namespace Client.ViewModels
             {
                 selectedContact = value;
                 OnPropertyChanged();
-                OnChatSelected(value);
+                OnChatSelected(value?.Chat);
             }
         }
         public MainPageViewModel(Mediator messenger, ChatService chatService)
@@ -56,11 +56,11 @@ namespace Client.ViewModels
                 (await _chatService.LoadChatsListAsync())
                     .Select(x=>new ChatViewModel(x)));
         }
-        private void OnChatSelected(ChatViewModel? chat)
+        private void OnChatSelected(Chat? chat)
         {
             if (chat is null)
                 return;
-            _mediator.Send(new ChatSelectedMessage(chat.Chat.Id));
+            _mediator.Send(new ChatSelectedMessage(chat.Id));
         }
     }
 }

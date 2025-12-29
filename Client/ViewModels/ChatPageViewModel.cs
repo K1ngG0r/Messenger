@@ -27,10 +27,8 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
-        public string ChatName
-        {
-            get => chat?.ChatName ?? string.Empty;
-        }
+        public string ChatName => chat?.ChatName ?? string.Empty;
+        public string ImagePath => chat?.ChatImagePath ?? string.Empty;
         public string DraftMessage
         {
             get => draftMessage;
@@ -45,7 +43,7 @@ namespace Client.ViewModels
         {
             chat = await _chatService.LoadChatAsync(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
-                chat.Messages.Select(x => new ChatMessageViewModel(x)));
+                chat.Messages.Select(x => new ChatMessageViewModel(x, _userService)));
             OnPropertyChanged(nameof(ChatName));
         }
         public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)
@@ -64,7 +62,7 @@ namespace Client.ViewModels
                 return;
             var message = new ChatMessage(chat, _userService.CurrentUser,
                 DraftMessage, DateTime.Now);
-            Messages.Add(new ChatMessageViewModel(message));
+            Messages.Add(new ChatMessageViewModel(message, _userService));
             await _chatService.SendMessageAsync(chat, message);
             DraftMessage = string.Empty;
         }

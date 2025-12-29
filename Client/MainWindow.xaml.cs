@@ -45,8 +45,8 @@ namespace Client
         }
         private void init(AppDBContext context)
         {
-            var user = new User("Me","meusername","");
-            var chat = new Chat("Chat 1", new List<ChatMessage>());
+            var user = new User("Me","meusername");
+            var chat = new Chat("Chat 1", new());
             var message = new ChatMessage(chat, user, "hello!",DateTime.Now);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();

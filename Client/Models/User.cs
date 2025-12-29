@@ -12,10 +12,12 @@ namespace Client.Models
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
         public string PublicKey { get; set; } = null!;
-        //аватарка
-        public User(string name, string username, string publicKey)
+        public string ImagePath { get; set; } = null!;
+        public User(string name, string username, 
+            string imagePath = "cache/DefaultAvatar.png", string publicKey = "")
         {
             Name = name;
+            ImagePath = imagePath;
             Username = username;
             PublicKey = publicKey;
         }

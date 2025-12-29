@@ -10,11 +10,9 @@ namespace Client.ViewModels
     public class ChatViewModel:ViewModel
     {
         public Chat Chat { get; set; }
-        public string ChatName
-        {
-            get => Chat.ChatName;
-        }
-        //аватарка
+        public string ChatName => Chat.ChatName;
+        public string ImagePath => Chat.ChatImagePath;
+        public string LastMessage => Chat.Messages.LastOrDefault()?.Message ?? string.Empty;
         public ChatViewModel(Chat info)
         {
             Chat = info;

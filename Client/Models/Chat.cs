@@ -9,11 +9,13 @@ namespace Client.Models
     public class Chat
     {
         public int Id { get; set; }
-        public string ChatName { get; set; } = string.Empty;
-        public List<ChatMessage> Messages { get; set; } = new ();
-        public Chat(string chatName, List<ChatMessage> messages)
+        public string ChatName { get; set; } = null!;
+        public string ChatImagePath { get; set; } = null!;
+        public List<ChatMessage> Messages { get; set; } = null!;
+        public Chat(string chatName, List<ChatMessage> messages, string chatImagePath ="cache/DefaultAvatar.png")
         {
             ChatName = chatName;
+            ChatImagePath = chatImagePath;
             Messages = messages;
         }
         public Chat()

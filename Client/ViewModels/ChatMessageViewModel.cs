@@ -1,4 +1,5 @@
 ﻿using Client.Models;
+using Client.ViewModels.Patterns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,27 +12,25 @@ namespace Client.ViewModels
 {
     public class ChatMessageViewModel:ViewModel
     {
-        private string _currentUser;
-        public string Message { get; set; }
-        public string Name { get; set; }
-        public string Username { get; set; }
-        public DateTime When { get; set; }
-        public string State { get; set; }
+        private CurrentUserService userService;
+        private ChatMessage chatMessage;
+        public string Message => chatMessage.Message;
+        public string Name => chatMessage.Who.Name;
+        public string Username => chatMessage.Who.Username;
+        public DateTime When => chatMessage.When;
+        public string State => chatMessage.State.ToString();
+        public string ImagePath => chatMessage.Who.ImagePath;
         public int IsMe
         {
             get 
             {
-                return (Username == _currentUser) ? 0 : 2;
+                return (Username == userService.CurrentUser.Username) ? 0 : 2;
             }
         }
-        public ChatMessageViewModel(ChatMessage message, string currentUser="me")
+        public ChatMessageViewModel(ChatMessage message, CurrentUserService user)
         {
-            _currentUser = currentUser;
-            Message = message.Message;
-            Username = message.Who.Username;
-            When = message.When;
-            Name = message.Who.Name;
-            State = message.State.ToString();
+            chatMessage = message;
+            userService = user;
         }
     }
 }
