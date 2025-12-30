@@ -45,7 +45,7 @@ namespace Client.ViewModels
         {
             chat = await _chatService.LoadChatAsync(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
-                chat.Messages.Select(x => new ChatMessageViewModel(x, _userService)));
+                chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(ImagePath));
             OnPropertyChanged(nameof(BackgroundChatImage));
@@ -64,11 +64,23 @@ namespace Client.ViewModels
                 return;
             if (chat is null)
                 return;
-            var message = new ChatMessage(chat, _userService.CurrentUser,
-                DraftMessage, DateTime.Now);
-            Messages.Add(new ChatMessageViewModel(message, _userService));
-            await _chatService.SendMessageAsync(chat, message);
+
+            var message = await _chatService.SendMessageAsync(chat,
+                new ChatMessage(chat, _userService.CurrentUser,
+                    DraftMessage, DateTime.Now));
+
+            Messages.Add(RegisterChatMessageViewModel(new ChatMessageViewModel(message, _userService)));
             DraftMessage = string.Empty;
+        }
+        private ChatMessageViewModel RegisterChatMessageViewModel(ChatMessageViewModel vm)
+        {
+            vm.DeletionRequested += OnChatMessageDeletionRequested;
+            return vm;
+        }
+        private void OnChatMessageDeletionRequested(int messageId)
+        {
+            Messages.Remove(Messages.First(x => x.ChatMessage.Id == messageId));
+            _chatService.DeleteMessage(messageId);
         }
         private async void HandleChatSelectedMessage(object? newChatObject)
         {

@@ -14,7 +14,7 @@ public class UdpConnection
     private IPresentationService _ps;
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
-    public Action<string> OnReceive = null!;
+    public Action<string> DataReceived = null!;
 
     public UdpConnection(int port, IPresentationService ps)
     {
@@ -65,6 +65,6 @@ public class UdpConnection
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
         _ps.DisplayMessage(requestString);
-        OnReceive?.Invoke(requestString);
+        DataReceived?.Invoke(requestString);
     }
 }

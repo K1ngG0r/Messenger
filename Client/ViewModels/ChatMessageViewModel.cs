@@ -13,13 +13,15 @@ namespace Client.ViewModels
     public class ChatMessageViewModel:ViewModel
     {
         private CurrentUserService userService;
-        private ChatMessage chatMessage;
-        public string Message => chatMessage.Message;
-        public string Name => chatMessage.Who.Name;
-        public string Username => chatMessage.Who.Username;
-        public DateTime When => chatMessage.When;
-        public string State => chatMessage.State.ToString();
-        public string ImagePath => chatMessage.Who.ImagePath;
+        public ChatMessage ChatMessage;
+        public string Message => ChatMessage.Message;
+        public string Name => ChatMessage.Who.Name;
+        public string Username => ChatMessage.Who.Username;
+        public DateTime When => ChatMessage.When;
+        public string State => ChatMessage.State.ToString();
+        public string ImagePath => ChatMessage.Who.ImagePath;
+        public Command DeleteCommand { get; set; }
+        public event Action<int> DeletionRequested = null!;
         public int IsMe
         {
             get 
@@ -29,8 +31,13 @@ namespace Client.ViewModels
         }
         public ChatMessageViewModel(ChatMessage message, CurrentUserService user)
         {
-            chatMessage = message;
+            ChatMessage = message;
             userService = user;
+            DeleteCommand = new Command(OnDeleteCommand);
+        }
+        private void OnDeleteCommand()
+        {
+            DeletionRequested?.Invoke(ChatMessage.Id);
         }
     }
 }

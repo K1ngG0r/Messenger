@@ -45,14 +45,24 @@ namespace Client
         }
         private void init(AppDBContext context, User user)
         {
-            var otherUser = new User("Mike", "mikename");
-            var chat = new Chat("Chat 1", new());
-            var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
-            var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+            
+            var otherUser = new User("Mike", "mikename");
+            var chat = new Chat("Mike", new());
+            var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
+            var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Users.Add(user);
+            context.Chats.Add(chat);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.SaveChanges();
+
+            otherUser = new User("Sam", "samname");
+            chat = new Chat("Sam", new());
+            message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
+            message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
+            chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Chats.Add(chat);
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();

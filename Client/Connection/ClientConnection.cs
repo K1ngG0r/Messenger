@@ -19,7 +19,7 @@ namespace Client.Connection
         {
             connectedServer = serverIP;
             udpConnection = new UdpConnection(1234, new NullPresentationService());
-            udpConnection.OnReceive += HandleMessage;
+            udpConnection.DataReceived += HandleMessage;
         }
         private void HandleMessage(string message)
         {

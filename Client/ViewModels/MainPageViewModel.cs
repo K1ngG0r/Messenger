@@ -48,12 +48,12 @@ namespace Client.ViewModels
         {
             _chatService = chatService;
             _mediator = messenger;
-            LoadChats().Wait();
+            LoadChats();
         }
-        private async Task LoadChats()
+        private void LoadChats()
         {
             ChatsList = new ObservableCollection<ChatViewModel>(
-                (await _chatService.LoadChatsListAsync())
+                _chatService.LoadChatsList()
                     .Select(x=>new ChatViewModel(x)));
         }
         private void OnChatSelected(Chat? chat)

@@ -10,24 +10,30 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-        public async Task<Chat> LoadChatAsync(int chatId)
+        public void DeleteMessage(int messageId)
         {
+            var messageToDelete = _context.Messages
+                .First(x => x.Id == messageId);
+            _context.Remove(messageToDelete);
+            _context.SaveChanges();
+        }
+        public async Task<Chat> LoadChatAsync(int chatId)
+        { 
             return await _context.Chats
                 .Include(x => x.Messages)
                     .ThenInclude(x => x.Who)
                 .FirstAsync(x => x.Id == chatId);
         }
-        public async Task<List<Chat>> LoadChatsListAsync()
+        public List<Chat> LoadChatsList()
         {
-            var task = Task.Run(_context.Chats.ToList);
-            return task.Result;
+            return _context.Chats.ToList();
         }
-        public async Task SendMessageAsync(Chat to, ChatMessage message)
+        public async Task<ChatMessage> SendMessageAsync(Chat to, ChatMessage message)
         {
-            var chat = message.Chat;
-            await _connection.SendMessageAsync(chat, message);
-            _context.Messages.Add(message);//доработать
+            await _connection.SendMessageAsync(to, message);
+            var result = _context.Messages.Add(message).Entity;
             await _context.SaveChangesAsync();
+            return result;
         }
         public ChatService(AppDBContext context, ClientConnection connection)
         {

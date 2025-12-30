@@ -57,8 +57,9 @@
                         </Grid.ColumnDefinitions>
                         <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe}">
                             <StackPanel Orientation="Vertical" Margin="5">
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Width="50" 
+                                <DockPanel>
+                                    <Border DockPanel.Dock="Left"
+                                        Width="50" 
                                         Height="50" 
                                         CornerRadius="25"
                                         ClipToBounds="True"
@@ -70,8 +71,15 @@
                                             </Image.Clip>
                                         </Image>
                                     </Border>
-                                    <TextBlock Text="{Binding Name}" Margin="5"/>
-                                </StackPanel>
+                                    <TextBlock Text="{Binding Name}" Margin="5" DockPanel.Dock="Left"/>
+                                    <Button DockPanel.Dock="Right"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top"
+                                            Width="20"
+                                            Height="20"
+                                            Content="-"
+                                            Command="{Binding DeleteCommand}"/>
+                                </DockPanel>
                                 <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
                                 <TextBlock Text="{Binding When}" TextAlignment="Right"/>
                             </StackPanel>
