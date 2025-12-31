@@ -13,24 +13,31 @@ namespace Client.Connection
     {
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
-        public event Action<Chat, ChatMessage> NewMessage = null!;
-        public event Action<Chat, ChatMessage> NewChat = null!;
+        public event Action<Response> NewResponse = null!;
         public ClientConnection(IPEndPoint serverIP) 
         {
+            return;
             connectedServer = serverIP;
-            udpConnection = new UdpConnection(1234, new NullPresentationService());
+            udpConnection = new UdpConnection(1234);
             udpConnection.DataReceived += HandleMessage;
         }
-        private void HandleMessage(string message)
+        private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
-            Request? request = JsonSerializer.Deserialize<Request?>(message);
-            if (request == null)
+            return;
+            if (connectedServer.ToString() != who.ToString())
                 return;
-
+            string messageString = Encoding.UTF8.GetString(bytes);
+            Response? response = JsonSerializer.Deserialize<Response?>(messageString);
+            if (response == null)
+                return;
+            NewResponse?.Invoke(response);
         }
-        public async Task SendMessageAsync(Chat to, ChatMessage message)
+        public async Task SendAsync(Request request)
         {
-            //await udpConnection.SendAsync()
+            return;
+            await udpConnection.SendAsync(
+                Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request)),
+                connectedServer);
         }
     }
 }

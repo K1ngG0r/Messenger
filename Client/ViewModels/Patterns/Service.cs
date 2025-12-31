@@ -10,6 +10,8 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
+        private Mediator _mediator;
+
         public void DeleteMessage(int messageId)
         {
             var messageToDelete = _context.Messages
@@ -28,17 +30,34 @@ namespace Client.ViewModels.Patterns
         {
             return _context.Chats.ToList();
         }
-        public async Task<ChatMessage> SendMessageAsync(Chat to, ChatMessage message)
+        public async Task<ChatMessage> SendMessageAsync(ChatMessage message)
         {
-            await _connection.SendMessageAsync(to, message);
+            /*Request sendMessageRequest = new Request();
+            await _connection.SendAsync(sendMessageRequest);*/
+
             var result = _context.Messages.Add(message).Entity;
             await _context.SaveChangesAsync();
             return result;
         }
-        public ChatService(AppDBContext context, ClientConnection connection)
+        public async Task<Chat> CreateNewChat(Chat chat)
+        {
+            /*Request sendMessageRequest = new Request();
+            await _connection.SendAsync(sendMessageRequest);*/
+
+            var result = _context.Chats.Add(chat).Entity;
+            await _context.SaveChangesAsync();
+            return result;
+        }
+        public ChatService(AppDBContext context, ClientConnection connection, Mediator mediator)
         {
             _connection = connection;
             _context = context;
+            _connection.NewResponse += HandleNewResponse;
+            _mediator = mediator;
+        }
+        private void HandleNewResponse(Response response)
+        {
+
         }
     }
     public class CurrentUserService

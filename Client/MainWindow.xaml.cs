@@ -32,7 +32,7 @@ namespace Client
             IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
             var clientConnection = new ClientConnection(serverIP);
             var mediator = new Mediator();
-            var chatService = new ChatService(context, clientConnection);
+            var chatService = new ChatService(context, clientConnection, mediator);
             var userService = new CurrentUserService(me);
             var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
             var mainPageViewModel = new MainPageViewModel(mediator, chatService);

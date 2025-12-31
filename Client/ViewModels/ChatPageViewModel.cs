@@ -65,7 +65,7 @@ namespace Client.ViewModels
             if (chat is null)
                 return;
 
-            var message = await _chatService.SendMessageAsync(chat,
+            var message = await _chatService.SendMessageAsync(
                 new ChatMessage(chat, _userService.CurrentUser,
                     DraftMessage, DateTime.Now));
 
