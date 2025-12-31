@@ -14,7 +14,7 @@ namespace Client.Models
         public string PublicKey { get; set; } = null!;
         public string ImagePath { get; set; } = null!;
         public User(string name, string username, 
-            string imagePath = "/cache/DefaultAvatar.png", string publicKey = "")
+            string imagePath = "", string publicKey = "")
         {
             Name = name;
             ImagePath = imagePath;

@@ -25,7 +25,9 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me", imagePath: "/cache/MyAvatar.png");
+            var me = new User("Me", "me", 
+                imagePath: AvatarsManager
+                    .GetChatAvatarPathByUsername("me"));
 
             var context = new AppDBContext();
             //init(context, me);
@@ -48,8 +50,10 @@ namespace Client
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             
-            var otherUser = new User("Mike", "mikename");
-            var chat = new Chat("Mike", new());
+            var otherUser = new User("Mike", "mikename",
+                imagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
+            var chat = new Chat("Mike", new(),
+                chatImagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
             var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
             var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
@@ -58,8 +62,10 @@ namespace Client
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
 
-            otherUser = new User("Sam", "samname");
-            chat = new Chat("Sam", new());
+            otherUser = new User("Sam", "samname",
+                 imagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
+            chat = new Chat("Sam", new(),
+                chatImagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
             message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
             message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });

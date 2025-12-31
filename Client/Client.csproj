@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="cache\avatars\_default.png" />
     <None Remove="cache\DefaultAvatar.png" />
     <None Remove="cache\MyAvatar.png" />
   </ItemGroup>
@@ -33,8 +34,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Resource Include="cache\DefaultAvatar.png" />
-    <Resource Include="cache\MyAvatar.png" />
+    <Resource Include="cache\avatars\me.png" />
+    <Resource Include="cache\avatars\samname.png" />
+    <Resource Include="cache\avatars\_default.png" />
   </ItemGroup>
 
 </Project>
