@@ -52,8 +52,7 @@ namespace Client
             
             var otherUser = new User("Mike", "mikename",
                 imagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
-            var chat = new Chat("Mike", new(),
-                chatImagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
+            var chat = new PrivateChat(otherUser, AvatarsManager.GetChatAvatarPathByUsername("mikename"));
             var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
             var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
@@ -64,8 +63,7 @@ namespace Client
 
             otherUser = new User("Sam", "samname",
                  imagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
-            chat = new Chat("Sam", new(),
-                chatImagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
+            chat = new PrivateChat(otherUser, AvatarsManager.GetChatAvatarPathByUsername("samname"));
             message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
             message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });

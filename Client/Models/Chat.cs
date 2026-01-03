@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Client.Models
 {
-    public class Chat
+    public abstract class Chat
     {
         public int Id { get; set; }
         public string ChatName { get; set; } = null!;
@@ -23,55 +23,56 @@ namespace Client.Models
 
         }
     }
-    /*
-    public abstract class Chat
-    {
-        public int Id { get; set; }
-        public abstract string ChatName { get;}
-        public List<ChatMessage> Messages { get; set; } = new();
-        public Chat(int id, List<ChatMessage> messages)
-        {
-            Id = id;
-            Messages = messages;
-        }
-        public Chat()
-        {
-        }
-    }
     public class PrivateChat:Chat
     {
-        public User User { get; set; } = null!;
-        public override string ChatName 
-        { 
-            get => User.Username;
+        public User Correspondent { get; set; } = null!;
+        public PrivateChat(User user, string imagePath = "")
+            : base(user.Name, new(), imagePath)
+        {
+            Correspondent = user;
         }
         public PrivateChat()
         {
 
         }
     }
-    public class Channel : Chat
+    public class Participant
     {
-        private string channelName;
-        public User Owner { get; set; } = null!;
-        public List<User> Users { get; set; } = new();
-        public List<User> Admins { get; set; } = new();
-
-        public override string ChatName => channelName;
-
-        public Channel(string name)
+        public int Id { get; set; }
+        public User User { get; set; } = null!;
+        public Chat Chat { get; set; } = null!;
+        public bool IsAdmin { get; set; }
+        //или права: bool canDeleteMessage и проч
+        public Participant()
         {
-            channelName = name;
+
         }
     }
-    public class Group : Chat
+    public class ChannelChat : Chat
     {
-        private string groupName;
-        public List<User> Users { get; set; } = new();
-        public override string ChatName => groupName;
-        public Group(string name)
+        public User Owner { get; set; } = null!;
+        public List<Participant> Participants { get; set; } = new();
+
+        public ChannelChat(string channelName, string imagePath = "")
+            : base(channelName, new(), imagePath)
         {
-            groupName = name;
         }
-    }*/
+        public ChannelChat()
+        {
+
+        }
+    }
+    public class GroupChat : Chat
+    {
+        public User Owner { get; set; } = null!;
+        public List<Participant> Participants { get; set; } = new();
+        public GroupChat(string groupName, string imagePath = "")
+            : base(groupName, new(), imagePath)
+        {
+        }
+        public GroupChat()
+        {
+
+        }
+    }
 }
