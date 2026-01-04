@@ -11,7 +11,7 @@ public class UdpServer
 {
     private readonly IPEndPoint _serverEndPoint;
     private readonly UdpClient _udpClient;
-    private readonly MessageHandler messageHandler;
+    private readonly MessageHandler? messageHandler;
 
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
