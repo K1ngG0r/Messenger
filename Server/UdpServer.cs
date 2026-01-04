@@ -1,7 +1,8 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using Shared;
 
 namespace Server;
@@ -10,17 +11,24 @@ public class UdpServer
 {
     private readonly IPEndPoint _serverEndPoint;
     private readonly UdpClient _udpClient;
+    private readonly MessageHandler? messageHandler;
 
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
 
-    public UdpServer(int port)
+    public UdpServer()
     {
-        _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        _serverEndPoint = new IPEndPoint(IPAddress.Loopback, 90000);
         _udpClient = new UdpClient(_serverEndPoint);
     }
 
-    public async Task StartAsync(CancellationToken cancellationToken)
+    public UdpServer(IPAddress iPAddress ,int port)
+    {
+        _serverEndPoint = new IPEndPoint(iPAddress, port);
+        _udpClient = new UdpClient(_serverEndPoint);
+    }
+
+     public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (_started) return;
 
@@ -57,18 +65,11 @@ public class UdpServer
 
     private async Task ClientHanlderAsync(IPEndPoint remoteEndPoint, byte[] requestBytes, CancellationToken cancellationToken)
     {
-        var requestString = Encoding.UTF8.GetString(requestBytes);
-        Console.WriteLine(requestString);
-        var request = JsonSerializer.Deserialize<Request>(requestString);
-
-        Response response = request.Method switch
-        {
-            RequestMethod.Time => new Response(ResponseStatusCode.Ok, DateTime.Now.ToString()),
-            _ => new Response(ResponseStatusCode.Failed, "Команда не распознана")
-        };
+        string response = messageHandler.RequestHandler(requestBytes, cancellationToken);
 
         var responseString = JsonSerializer.Serialize(response);
         var responseBytes = Encoding.UTF8.GetBytes(responseString);
+
         await _udpClient.SendAsync(responseBytes, remoteEndPoint, cancellationToken);
     }
 }
