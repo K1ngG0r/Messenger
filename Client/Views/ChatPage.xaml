@@ -3,9 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Client.ViewModels"
+             xmlns:local="clr-namespace:Client.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="600">
+    <UserControl.Resources>
+        <local:BoolToColumnConverter x:Key="BoolToColumnConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
+    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
@@ -55,7 +60,7 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="2*"/>
                         </Grid.ColumnDefinitions>
-                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe}">
+                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe, Converter={StaticResource BoolToColumnConverter}}">
                             <StackPanel Orientation="Vertical" Margin="5">
                                 <DockPanel>
                                     <Border DockPanel.Dock="Left"
@@ -72,17 +77,17 @@
                                         </Image>
                                     </Border>
                                     <TextBlock Text="{Binding Name}" Margin="5" DockPanel.Dock="Left"/>
-                                    <Button DockPanel.Dock="Right"
-                                            HorizontalAlignment="Right"
-                                            VerticalAlignment="Top"
-                                            Width="20"
-                                            Height="20"
-                                            Content="-"
-                                            Command="{Binding DeleteCommand}"/>
                                 </DockPanel>
                                 <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
                                 <TextBlock Text="{Binding When}" TextAlignment="Right"/>
                             </StackPanel>
+                            <Border.ContextMenu>
+                                <ContextMenu>
+                                    <MenuItem Header="Delete" Command="{Binding DeleteCommand}"/>
+                                    <MenuItem Header="Resend"/>
+                                    <MenuItem Header="Respond" Visibility="{Binding IsMe, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+                                </ContextMenu>
+                            </Border.ContextMenu>
                         </Border>
                     </Grid>
                 </DataTemplate>

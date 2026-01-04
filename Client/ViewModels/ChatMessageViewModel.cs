@@ -22,11 +22,11 @@ namespace Client.ViewModels
         public string ImagePath => ChatMessage.Who.ImagePath;
         public Command DeleteCommand { get; set; }
         public event Action<int> DeletionRequested = null!;
-        public int IsMe
+        public bool IsMe
         {
             get 
             {
-                return (Username == userService.CurrentUser.Username) ? 0 : 2;
+                return (Username == userService.CurrentUser.Username);
             }
         }
         public ChatMessageViewModel(ChatMessage message, CurrentUserService user)

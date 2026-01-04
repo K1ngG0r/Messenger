@@ -26,29 +26,12 @@ namespace Client.Data
             modelBuilder.Entity<GroupChat>().ToTable("GroupChats");
             modelBuilder.Entity<ChannelChat>().ToTable("ChannelChats");
 
-            /*modelBuilder.Entity<PrivateChat>()
-                .HasOne<Chat>()
-                .WithOne()
-                .HasForeignKey<PrivateChat>(c => c.Id)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<GroupChat>()
-                .HasOne<Chat>()
-                .WithOne()
-                .HasForeignKey<GroupChat>(c => c.Id)
-                .OnDelete(DeleteBehavior.Restrict);
-
             modelBuilder.Entity<ChannelChat>()
                 .HasOne<Chat>()
                 .WithOne()
-                //.HasForeignKey<ChannelChat>(c => c.Id)
-                .OnDelete(DeleteBehavior.Restrict);*/
-            modelBuilder.Entity<ChannelChat>()
-                .HasOne<Chat>() // HasOne() без указания коллекции с другой стороны означает 1:1
-                .WithOne()
-                .HasForeignKey<ChannelChat>(c => c.Id) // Указываем, что Id в ChannelChat является FK
-                .HasPrincipalKey<Chat>(c => c.Id)     // Указываем, что он ссылается на Id в Chat
-                .OnDelete(DeleteBehavior.Restrict);    // Предотвращаем каскадное удаление
+                .HasForeignKey<ChannelChat>(c => c.Id)
+                .HasPrincipalKey<Chat>(c => c.Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<GroupChat>()
                 .HasOne<Chat>()
