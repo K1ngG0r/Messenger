@@ -30,7 +30,10 @@ namespace Client.ViewModels
         }
         public SolidColorBrush? BackgroundChatImage => (chat is null) ? null : new SolidColorBrush(Colors.Gray);
         public string ChatName => chat?.ChatName ?? string.Empty;
-        public string ImagePath => chat?.ChatImagePath ?? string.Empty;
+        public AvatarImageViewModel Avatar
+        {
+            get => new AvatarImageViewModel(chat?.ChatImagePath ?? string.Empty);
+        }
         public string DraftMessage
         {
             get => draftMessage;
@@ -47,7 +50,7 @@ namespace Client.ViewModels
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             OnPropertyChanged(nameof(ChatName));
-            OnPropertyChanged(nameof(ImagePath));
+            OnPropertyChanged(nameof(Avatar));
             OnPropertyChanged(nameof(BackgroundChatImage));
         }
         public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)

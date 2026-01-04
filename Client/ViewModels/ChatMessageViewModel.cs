@@ -19,7 +19,10 @@ namespace Client.ViewModels
         public string Username => ChatMessage.Who.Username;
         public DateTime When => ChatMessage.When;
         public string State => ChatMessage.State.ToString();
-        public string ImagePath => ChatMessage.Who.ImagePath;
+        public AvatarImageViewModel Avatar
+        {
+            get => new AvatarImageViewModel(ChatMessage.Who.ImagePath);
+        }
         public Command DeleteCommand { get; set; }
         public event Action<int> DeletionRequested = null!;
         public bool IsMe

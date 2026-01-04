@@ -28,6 +28,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\ChatInfoPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\SettingsPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
@@ -37,6 +40,12 @@
     <Resource Include="cache\avatars\me.png" />
     <Resource Include="cache\avatars\samname.png" />
     <Resource Include="cache\avatars\_default.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ChatInfoPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
   </ItemGroup>
 
 </Project>
