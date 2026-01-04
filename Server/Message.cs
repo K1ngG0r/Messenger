@@ -2,7 +2,7 @@
 
 public class Message
 {
-    public string key;
-    public User receiver;
-    public string message;
+    public string? senderKey;
+    public string? receiverUserName;
+    public string? message;
 }
