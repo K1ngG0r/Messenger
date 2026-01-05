@@ -63,7 +63,7 @@ namespace Client.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-            modelBuilder.Entity<GroupChat>()
+            /*modelBuilder.Entity<GroupChat>()
                 .HasOne(gc => gc.Owner)
                 .WithMany()
                 .HasForeignKey("OwnerId")
@@ -75,7 +75,7 @@ namespace Client.Data
                 .WithMany()
                 .HasForeignKey("OwnerId") 
                 .OnDelete(DeleteBehavior.Restrict)
-                .IsRequired();
+                .IsRequired();*/
 
             modelBuilder.Entity<PrivateChat>()
                 .HasOne(pc => pc.Correspondent)

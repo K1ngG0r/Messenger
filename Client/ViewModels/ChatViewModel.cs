@@ -12,7 +12,7 @@ namespace Client.ViewModels
         public Chat Chat { get; set; }
         public string ChatName => Chat.ChatName;
         public string ImagePath => Chat.ChatImagePath;
-        public string LastMessage => Chat.Messages.LastOrDefault()?.Message ?? string.Empty;
+        public string? LastMessage => Chat.Messages.LastOrDefault()?.Message;
         public ChatViewModel(Chat info)
         {
             Chat = info;

@@ -34,6 +34,10 @@ namespace Client.ViewModels
         {
             get => new AvatarImageViewModel(chat?.ChatImagePath ?? string.Empty);
         }
+        public ChatInfoPageViewModel ChatInfo
+        {
+            get => new ChatInfoPageViewModel(chat);
+        }
         public string DraftMessage
         {
             get => draftMessage;
@@ -51,6 +55,7 @@ namespace Client.ViewModels
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
+            OnPropertyChanged(nameof(ChatInfo));
             OnPropertyChanged(nameof(BackgroundChatImage));
         }
         public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)

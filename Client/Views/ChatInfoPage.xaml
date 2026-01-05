@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:Client.Views"
+             xmlns:models="clr-namespace:Client.Models"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250">
     <Grid>
@@ -13,6 +14,26 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+        <local:AvatarImage Grid.Row="0"
+                           DataContext="{Binding Avatar}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1"
+                   Text="{Binding Name}"/>
+        <TextBlock Grid.Row="2" 
+                   Text="{Binding ChatType}"/>
+        <ContentControl Grid.Row="3"
+                        Content="{Binding Chat}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type models:PrivateChat}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Username, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    </StackPanel>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type models:GroupChat}">
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type models:ChannelChat}">
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
     </Grid>
 </UserControl>

@@ -41,17 +41,27 @@ namespace Client.Models
         public int Id { get; set; }
         public User User { get; set; } = null!;
         public Chat Chat { get; set; } = null!;
-        public bool IsAdmin { get; set; }
-        //или права: bool canDeleteMessage и проч
+        public ParticipantType ParticipantType { get; set; }
+        public Participant(User user, Chat chat, ParticipantType type)
+        {
+            User = user;
+            Chat = chat;
+            ParticipantType = type;
+        }
         public Participant()
         {
 
         }
     }
+    public enum ParticipantType
+    {
+        Owner,
+        Admin,
+        Member
+    }
     public class ChannelChat : Chat
     {
-        public User Owner { get; set; } = null!;
-        public List<Participant> Participants { get; set; } = new();
+        public List<Participant> Subscribers { get; set; } = new();
 
         public ChannelChat(string channelName, string imagePath = "")
             : base(channelName, new(), imagePath)
@@ -64,7 +74,6 @@ namespace Client.Models
     }
     public class GroupChat : Chat
     {
-        public User Owner { get; set; } = null!;
         public List<Participant> Participants { get; set; } = new();
         public GroupChat(string groupName, string imagePath = "")
             : base(groupName, new(), imagePath)
