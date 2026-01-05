@@ -12,10 +12,18 @@ namespace Client.ViewModels
 {
     public class SettingsPageViewModel : ViewModel
     {
-        
-        public SettingsPageViewModel()
+        private Mediator _mediator;
+        private CurrentUserService _userService;
+        public Command NavigateToMainPageCommand { get; set; }
+        public SettingsPageViewModel(Mediator mediator, CurrentUserService userService)
         {
-            
+            NavigateToMainPageCommand = new Command(NavigateToMainPage);
+            _mediator = mediator;
+            _userService = userService;
+        }
+        private void NavigateToMainPage()
+        {
+            _mediator.Send(new NavigateToMainPage());
         }
     }
 }

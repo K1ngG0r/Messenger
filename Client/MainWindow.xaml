@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Client.Views"
+        xmlns:vm="clr-namespace:Client.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
@@ -11,10 +12,19 @@
             <ColumnDefinition Width="200" Name="column1"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
-        
-        <local:MainPage DataContext="{Binding MainPageViewModel}" Grid.Column="0"/>
+
+        <ContentControl Grid.Column="0" Content="{Binding ActivePageViewModel}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:MainPageViewModel}">
+                    <local:MainPage/>
+                </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:SettingsPageViewModel}">
+                    <local:SettingsPage/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
         <local:ChatPage DataContext="{Binding ChatPageViewModel}" Grid.Column="1"/>
-        <Thumb Grid.Column="1" Grid.ColumnSpan="2" Background="Gray" Cursor="SizeWE"
-               Width="1" DragDelta="Thumb_DragDelta" HorizontalAlignment="Left"/>
+        <!--<Thumb Grid.Column="1" Grid.ColumnSpan="2" Background="Gray" Cursor="SizeWE"
+               Width="1" DragDelta="Thumb_DragDelta" HorizontalAlignment="Left"/>-->
     </Grid>
 </Window>

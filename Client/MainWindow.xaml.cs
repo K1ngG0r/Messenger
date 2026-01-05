@@ -38,11 +38,12 @@ namespace Client
             var userService = new CurrentUserService(me);
             var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
             var mainPageViewModel = new MainPageViewModel(mediator, chatService);
-            var settingsPageViewModel = new SettingsPageViewModel();
+            var settingsPageViewModel = new SettingsPageViewModel(mediator, userService);
             var mainWindowViewModel = new MainWindowViewModel(
                 mainPageViewModel,
                 chatPageViewModel,
-                settingsPageViewModel);
+                settingsPageViewModel,
+                mediator);
             DataContext = mainWindowViewModel;
         }
         private void init(AppDBContext context, User user)
@@ -71,6 +72,7 @@ namespace Client
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
         }
+        /*
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             ColumnDefinition col1 = this.column1;
@@ -104,6 +106,6 @@ namespace Client
 
                 // **Рекомендация**: Для простого перетаскивания границы используйте GridUnitType.Pixel.
             }
-        }
+        }*/
     }
 }

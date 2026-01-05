@@ -48,4 +48,16 @@ namespace Client.ViewModels.Patterns
             ChatId = chatId;
         }
     }
+    public class NavigateToSettingsPage : MediatorMessage
+    {
+        public NavigateToSettingsPage()
+        {
+        }
+    }
+    public class NavigateToMainPage : MediatorMessage
+    {
+        public NavigateToMainPage()
+        {
+        }
+    }
 }

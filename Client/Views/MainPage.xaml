@@ -12,7 +12,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
-            <Button Content="..." Width="50" FontSize="30" DockPanel.Dock="Left"/>
+            <Button Content="..." Width="50" FontSize="30"
+                    DockPanel.Dock="Left" Command="{Binding NavigateToSettingsPageCommand}"/>
             <TextBox Text="{Binding SearchText, Mode=TwoWay}" TextAlignment="Left" Padding="5"/>
         </DockPanel>
         <ListBox ItemsSource="{Binding ChatsList}" SelectedItem="{Binding SelectedChat, Mode=TwoWay}" Grid.Row="1">

@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Client.Models;
 using Client.ViewModels.Patterns;
 
@@ -16,6 +17,7 @@ namespace Client.ViewModels
         private ChatViewModel? selectedContact;
         private ObservableCollection<ChatViewModel> chatsList = new();
         private string searchText = string.Empty;
+        public Command NavigateToSettingsPageCommand { get; set; }
         public ObservableCollection<ChatViewModel> ChatsList
         {
             get => chatsList;
@@ -48,7 +50,12 @@ namespace Client.ViewModels
         {
             _chatService = chatService;
             _mediator = messenger;
+            NavigateToSettingsPageCommand = new Command(NavigateToSettingsPage);
             LoadChats();
+        }
+        private void NavigateToSettingsPage()
+        {
+            _mediator.Send(new NavigateToSettingsPage());
         }
         private void LoadChats()
         {
