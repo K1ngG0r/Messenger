@@ -10,7 +10,6 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-        private Mediator _mediator;
 
         public void DeleteMessage(int messageId)
         {
@@ -48,16 +47,10 @@ namespace Client.ViewModels.Patterns
             await _context.SaveChangesAsync();
             return result;
         }
-        public ChatService(AppDBContext context, ClientConnection connection, Mediator mediator)
+        public ChatService(AppDBContext context, ClientConnection connection)
         {
             _connection = connection;
             _context = context;
-            _connection.NewResponse += HandleNewResponse;
-            _mediator = mediator;
-        }
-        private void HandleNewResponse(Response response)
-        {
-
         }
     }
     public class CurrentUserService
