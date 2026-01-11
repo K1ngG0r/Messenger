@@ -14,4 +14,12 @@ namespace Client.Connection
         NewMessage,
         NewChat
     }
+    public sealed record LoadAvatarRequest(
+        LoadAvatarRequestMethod method,
+        string body);
+    public enum LoadAvatarRequestMethod
+    {
+        User,
+        Chat
+    }
 }

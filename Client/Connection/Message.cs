@@ -3,6 +3,7 @@
 namespace Client.Connection;
 
 public sealed record Request(
+    [property: JsonPropertyName("key")] string SessionKey,
     [property: JsonPropertyName("cid")] Guid CorrelationId,
     [property: JsonPropertyName("method")] RequestMethod Method,
     [property: JsonPropertyName("body")] string Body);
