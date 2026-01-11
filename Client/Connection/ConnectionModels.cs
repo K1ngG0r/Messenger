@@ -6,20 +6,23 @@ using System.Threading.Tasks;
 
 namespace Client.Connection
 {
-    public sealed record UpdateResponse(
-        UpdateResponseMethod method,
+    public sealed record UpdateResponseSettings(
+        UpdateResponseSettingsMethod method,
         string payload);
-    public enum UpdateResponseMethod
+    public enum UpdateResponseSettingsMethod
     {
         NewMessage,
         NewChat
     }
-    public sealed record LoadAvatarRequest(
-        LoadAvatarRequestMethod method,
+    public sealed record LoadAvatarRequestSettings(
+        LoadAvatarRequestSettingsMethod method,
         string body);
-    public enum LoadAvatarRequestMethod
+    public enum LoadAvatarRequestSettingsMethod
     {
         User,
         Chat
     }
+    public sealed record SendRequestSettings (
+        Guid chatId,
+        string message);
 }
