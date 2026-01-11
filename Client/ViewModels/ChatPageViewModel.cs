@@ -50,7 +50,7 @@ namespace Client.ViewModels
         public Command SendMessageCommand { get; set; }
         public async Task UpdateChat(int chatId)
         {
-            chat = _chatService.LoadChat(chatId);
+            chat = await _chatService.LoadChatAsync(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             ChatInfo.Update(chat);

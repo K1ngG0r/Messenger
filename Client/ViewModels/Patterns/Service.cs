@@ -18,31 +18,26 @@ namespace Client.ViewModels.Patterns
             _context.Remove(messageToDelete);
             _context.SaveChanges();
         }
+        public Task<Chat> LoadChatAsync(int chatId)
+        {
+            return Task.Run(() => LoadChat(chatId));
+        }
         public Chat LoadChat(int chatId)
         {
             var groupChat = _context.Chats.OfType<GroupChat>()
                 .Include(x => x.Messages).ThenInclude(x => x.Who)
                 .Include(x => x.Participants).ThenInclude(x => x.User)
                 .FirstOrDefault(x => x.Id == chatId);
-
             if (groupChat != null) return groupChat;
-
-            // 2. Ищем в ChannelChat
             var channelChat = _context.Chats.OfType<ChannelChat>()
                 .Include(x => x.Messages).ThenInclude(x => x.Who)
                 .Include(x => x.Subscribers).ThenInclude(x => x.User)
                 .FirstOrDefault(x => x.Id == chatId);
-
             if (channelChat != null) return channelChat;
-
-            // 3. Ищем в PrivateChat
             var privateChat = _context.Chats.OfType<PrivateChat>()
                 .Include(x => x.Messages).ThenInclude(x => x.Who)
                 .FirstOrDefault(x => x.Id == chatId);
-
             if (privateChat != null) return privateChat;
-
-            // Если ничего не найдено
             throw new InvalidOperationException($"Chat with Id {chatId} not found.");
         }
         public List<Chat> LoadChatsList()
