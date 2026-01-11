@@ -35,7 +35,8 @@ namespace Client.ViewModels.Patterns
             Type messageType = typeof(MessageType);
             if (!_listeners.TryGetValue(messageType, out List<Action<object?>>? actions))
                 return;
-            foreach (var action in actions)
+            var actionsCopy = actions.ToList();
+            foreach (var action in actionsCopy)
                 action.Invoke(message);
         }
     }

@@ -16,9 +16,10 @@ namespace Client.ViewModels
         private ChatService _chatService;
         private CurrentUserService _userService;
         private Mediator _mediator;
-        private Chat? chat;
+        private Chat chat;
         private string draftMessage = string.Empty;
-        private ObservableCollection<ChatMessageViewModel> messages = new();
+        private ObservableCollection<ChatMessageViewModel> messages;
+        private ChatInfoPageViewModel chatInfo;
         public ObservableCollection<ChatMessageViewModel> Messages
         {
             get => messages;
@@ -28,15 +29,14 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
-        public SolidColorBrush? BackgroundChatImage => (chat is null) ? null : new SolidColorBrush(Colors.Gray);
-        public string ChatName => chat?.ChatName ?? string.Empty;
+        public string ChatName => chat.ChatName;
         public AvatarImageViewModel Avatar
         {
-            get => new AvatarImageViewModel(chat?.ChatImagePath ?? string.Empty);
+            get => new AvatarImageViewModel(chat.ChatImagePath);
         }
         public ChatInfoPageViewModel ChatInfo
         {
-            get => new ChatInfoPageViewModel(chat);
+            get => chatInfo;
         }
         public string DraftMessage
         {
@@ -53,18 +53,21 @@ namespace Client.ViewModels
             chat = await _chatService.LoadChatAsync(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
+            ChatInfo.Update(chat);
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
-            OnPropertyChanged(nameof(ChatInfo));
-            OnPropertyChanged(nameof(BackgroundChatImage));
         }
-        public ChatPageViewModel(Mediator messenger, ChatService chatService, CurrentUserService userService)
+        public ChatPageViewModel(int chatId, Mediator messenger, ChatService chatService, CurrentUserService userService)
         {
             _chatService = chatService;
             _userService = userService;
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
+            chat = Task.Run(()=>_chatService.LoadChatAsync(chatId).Result).Result;
+            messages = new ObservableCollection<ChatMessageViewModel>(
+                chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
+            chatInfo = new ChatInfoPageViewModel(chat);
         }
         private async void OnSendMessage()
         {

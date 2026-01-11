@@ -30,20 +30,14 @@ namespace Client
                     .GetChatAvatarPathByUsername("me"));
 
             var context = new AppDBContext();
-            //init(context, me);
+            init(context, me);
             IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
             var clientConnection = new ClientConnection(serverIP);
             var mediator = new Mediator();
             var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);
-            var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
-            var mainPageViewModel = new MainPageViewModel(mediator, chatService);
-            var settingsPageViewModel = new SettingsPageViewModel(mediator, userService);
-            var mainWindowViewModel = new MainWindowViewModel(
-                mainPageViewModel,
-                chatPageViewModel,
-                settingsPageViewModel,
-                mediator);
+            var mainWindowViewModel = new MainWindowViewModel(mediator,
+                chatService, userService);
             DataContext = mainWindowViewModel;
         }
         private void init(AppDBContext context, User user)
@@ -69,6 +63,15 @@ namespace Client
             message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Chats.Add(chat);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.SaveChanges();
+
+            var gchat = new GroupChat(otherUser, "Lol group", AvatarsManager.GetChatAvatarPathByUsername("samname"));
+            gchat.Participants.Add(new Participant(user,gchat));
+            message1 = new ChatMessage(gchat, user, "hello!", DateTime.Now);
+            message2 = new ChatMessage(gchat, otherUser, "hi there", DateTime.Now);
+            gchat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.Chats.Add(gchat);
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
         }

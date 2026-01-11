@@ -18,4 +18,39 @@ namespace Client.ViewModels
             Chat = info;
         }
     }
+    public class PrivateChatViewModel : ChatViewModel
+    {
+        public UserViewModel User { get; set; }
+        public PrivateChatViewModel(PrivateChat chat)
+            :base(chat)
+        {
+            User = new UserViewModel(chat.Correspondent);
+        }
+    }
+    public class GroupChatViewModel : ChatViewModel
+    {
+        public List<ParticipantViewModel> Participants { get; set; }
+        public GroupChatViewModel(GroupChat chat)
+            : base(chat)
+        {
+            Participants = chat.Participants
+                .Select(x => new ParticipantViewModel(x))
+                .ToList();
+            Participants.Add(new ParticipantViewModel(
+                new Participant(chat.Owner, chat), true));
+        }
+    }
+    public class ChannelChatViewModel : ChatViewModel
+    {
+        public UserViewModel Owner;
+        public List<ParticipantViewModel> Subscribers { get; set; }
+        public ChannelChatViewModel(ChannelChat chat)
+            : base(chat)
+        {
+            Owner = new UserViewModel(chat.Owner);
+            Subscribers = chat.Subscribers
+                .Select(x => new ParticipantViewModel(x))
+                .ToList();
+        }
+    }
 }

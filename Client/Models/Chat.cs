@@ -42,7 +42,7 @@ namespace Client.Models
         public User User { get; set; } = null!;
         public Chat Chat { get; set; } = null!;
         public ParticipantType ParticipantType { get; set; }
-        public Participant(User user, Chat chat, ParticipantType type)
+        public Participant(User user, Chat chat, ParticipantType type = ParticipantType.Member)
         {
             User = user;
             Chat = chat;
@@ -55,17 +55,18 @@ namespace Client.Models
     }
     public enum ParticipantType
     {
-        Owner,
         Admin,
         Member
     }
     public class ChannelChat : Chat
     {
+        public User Owner { get; set; } = null!;
         public List<Participant> Subscribers { get; set; } = new();
 
-        public ChannelChat(string channelName, string imagePath = "")
+        public ChannelChat(User owner, string channelName, string imagePath = "")
             : base(channelName, new(), imagePath)
         {
+            Owner = owner;
         }
         public ChannelChat()
         {
@@ -74,10 +75,12 @@ namespace Client.Models
     }
     public class GroupChat : Chat
     {
+        public User Owner { get; set; } = null!;
         public List<Participant> Participants { get; set; } = new();
-        public GroupChat(string groupName, string imagePath = "")
+        public GroupChat(User owner, string groupName, string imagePath = "")
             : base(groupName, new(), imagePath)
         {
+            Owner = owner;
         }
         public GroupChat()
         {

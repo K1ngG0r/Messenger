@@ -23,7 +23,14 @@
                 </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
-        <local:ChatPage DataContext="{Binding ChatPageViewModel}" Grid.Column="1"/>
+        <ContentControl Grid.Column="1" Content="{Binding ChatPageViewModel}">
+            <ContentControl.Resources>
+                <DataTemplate DataType="{x:Type vm:ChatPageViewModel}">
+                    <local:ChatPage/>
+                </DataTemplate>
+            </ContentControl.Resources>
+        </ContentControl>
+
         <!--<Thumb Grid.Column="1" Grid.ColumnSpan="2" Background="Gray" Cursor="SizeWE"
                Width="1" DragDelta="Thumb_DragDelta" HorizontalAlignment="Left"/>-->
     </Grid>

@@ -8,25 +8,30 @@ using System.Windows.Media;
 
 namespace Client.ViewModels
 {
-    public class ParticipantViewModel:ViewModel
+    public class ParticipantViewModel : ViewModel
     {
-        public Participant Participant;
-        public UserViewModel User => new UserViewModel(Participant.User);
-        public string ParticipantType => Participant.ParticipantType.ToString();
-        public ParticipantViewModel(Participant participant)
+        public Participant Participant { get; set; }
+        public UserViewModel User { get; set; }
+        public ParticipantViewModelType ParticipantType { get; set; }
+        public ParticipantViewModel(Participant participant, bool isOwner = false)
         {
             Participant = participant;
+            User = new UserViewModel(participant.User);
+            if (isOwner)
+                ParticipantType = ParticipantViewModelType.Owner;
+            else
+            {
+                ParticipantType = (participant.ParticipantType
+                    is Models.ParticipantType.Member)
+                    ? ParticipantViewModelType.Member :
+                    ParticipantViewModelType.Admin;
+            }
         }
     }
-    public class UserViewModel : ViewModel
+    public enum ParticipantViewModelType
     {
-        public User User;
-        public string Name => User.Name;
-        public string Username => User.Username;
-        public AvatarImageViewModel Avatar => new AvatarImageViewModel(User.ImagePath);
-        public UserViewModel(User user)
-        {
-            User = user;
-        }
+        Owner,
+        Admin,
+        Member
     }
 }

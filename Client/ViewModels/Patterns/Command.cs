@@ -9,7 +9,9 @@ namespace Client.ViewModels.Patterns
 {
     public class Command : ICommand
     {
+#pragma warning disable CS0067 
         public event EventHandler? CanExecuteChanged;
+#pragma warning restore CS0067 
         private Action Implemention { get; set; }
         public Command(Action implemention)
         {
