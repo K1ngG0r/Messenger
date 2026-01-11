@@ -18,6 +18,10 @@ namespace Client.ViewModels.Patterns
             _context.Remove(messageToDelete);
             _context.SaveChanges();
         }
+        public Task<Chat> LoadChatAsync(int chatId)
+        {
+            return Task.Run(() => LoadChat(chatId));
+        }
         public Chat LoadChat(int chatId)
         {
             var groupChat = _context.Chats.OfType<GroupChat>()

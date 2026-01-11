@@ -5,6 +5,7 @@ using Client.ViewModels;
 using Client.ViewModels.Patterns;
 using Client.Views;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Net;
 using System.Text;
 using System.Windows;
@@ -45,36 +46,38 @@ namespace Client
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
             
-            var otherUser = new User("Mike", "mikename",
+            var otherUser1 = new User("Mike", "mikename",
                 imagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
-            var chat = new PrivateChat(Guid.NewGuid(), otherUser, AvatarsManager.GetChatAvatarPathByUsername("mikename"));
+            var chat = new PrivateChat(Guid.NewGuid(), otherUser1, AvatarsManager.GetChatAvatarPathByUsername("mikename"));
             var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
-            var message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
+            var message2 = new ChatMessage(chat, otherUser1, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Users.Add(user);
             context.Chats.Add(chat);
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
 
-            otherUser = new User("Sam", "samname",
+            var otherUser2 = new User("Sam", "samname",
                  imagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
-            chat = new PrivateChat(Guid.NewGuid(), otherUser, AvatarsManager.GetChatAvatarPathByUsername("samname"));
+            chat = new PrivateChat(Guid.NewGuid(), otherUser2, AvatarsManager.GetChatAvatarPathByUsername("samname"));
             message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
-            message2 = new ChatMessage(chat, otherUser, "hi there", DateTime.Now);
+            message2 = new ChatMessage(chat, otherUser2, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Chats.Add(chat);
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.SaveChanges();
 
-            var gchat = new GroupChat(Guid.NewGuid(), otherUser, "Lol group", AvatarsManager.GetChatAvatarPathByUsername("samname"));
-            var participant = new Participant(user, gchat);
-            gchat.Participants.Add(participant);
+            var gchat = new GroupChat(Guid.NewGuid(), otherUser2,
+                "Lol group",
+                AvatarsManager.GetChatAvatarPathByUsername("samname"));
+            gchat.Participants.AddRange(new List<Participant>(){new Participant(user, gchat),
+                new Participant(otherUser1, gchat) });
             message1 = new ChatMessage(gchat, user, "hello!", DateTime.Now);
-            message2 = new ChatMessage(gchat, otherUser, "hi there", DateTime.Now);
+            message2 = new ChatMessage(gchat, otherUser2, "hi there", DateTime.Now);
             gchat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Chats.Add(gchat);
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
-            context.Participants.Add(participant);
+
             context.SaveChanges();
         }
         /*
