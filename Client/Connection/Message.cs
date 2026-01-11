@@ -19,6 +19,8 @@ public enum RequestMethod
     Login,
     Send,
     Update,
+    AdminAction,
+    CreateChat,
     Load
 }
 public enum ResponseStatusCode
