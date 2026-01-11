@@ -10,6 +10,7 @@
         <local:BoolToColumnConverter x:Key="BoolToColumnConverter"/>
         <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
         <local:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
+        <local:DateTimeConverter x:Key="DateTimeConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
@@ -59,7 +60,7 @@
                                         <TextBlock Text="{Binding Name}" Margin="5" DockPanel.Dock="Left"/>
                                     </DockPanel>
                                     <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
-                                    <TextBlock Text="{Binding When}" TextAlignment="Right"/>
+                                    <TextBlock Text="{Binding When, Converter={StaticResource DateTimeConverter}}" TextAlignment="Right"/>
                                 </StackPanel>
                                 <Border.ContextMenu>
                                     <ContextMenu>

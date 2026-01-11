@@ -9,11 +9,13 @@ namespace Client.Models
     public abstract class Chat
     {
         public int Id { get; set; }
+        public Guid ChatId { get; set; }
         public string ChatName { get; set; } = null!;
         public string ChatImagePath { get; set; } = null!;
         public List<ChatMessage> Messages { get; set; } = null!;
-        public Chat(string chatName, List<ChatMessage> messages, string chatImagePath = "")
+        public Chat(string chatName, Guid chatId, List<ChatMessage> messages, string chatImagePath = "")
         {
+            ChatId = chatId;
             ChatName = chatName;
             ChatImagePath = chatImagePath;
             Messages = messages;
@@ -26,8 +28,8 @@ namespace Client.Models
     public class PrivateChat:Chat
     {
         public User Correspondent { get; set; } = null!;
-        public PrivateChat(User user, string imagePath = "")
-            : base(user.Name, new(), imagePath)
+        public PrivateChat(Guid chatId, User user, string imagePath = "")
+            : base(user.Name, chatId, new(), imagePath)
         {
             Correspondent = user;
         }
@@ -63,8 +65,8 @@ namespace Client.Models
         public User Owner { get; set; } = null!;
         public List<Participant> Subscribers { get; set; } = new();
 
-        public ChannelChat(User owner, string channelName, string imagePath = "")
-            : base(channelName, new(), imagePath)
+        public ChannelChat(Guid chatId, User owner, string channelName, string imagePath = "")
+            : base(channelName, chatId, new(), imagePath)
         {
             Owner = owner;
         }
@@ -77,8 +79,8 @@ namespace Client.Models
     {
         public User Owner { get; set; } = null!;
         public List<Participant> Participants { get; set; } = new();
-        public GroupChat(User owner, string groupName, string imagePath = "")
-            : base(groupName, new(), imagePath)
+        public GroupChat(Guid chatId, User owner, string groupName, string imagePath = "")
+            : base(groupName, chatId, new(), imagePath)
         {
             Owner = owner;
         }

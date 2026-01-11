@@ -40,15 +40,15 @@
                             <ItemsControl ItemsSource="{Binding Participants}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
-                                        <StackPanel Orientation="Horizontal">
-                                            <local:AvatarImage DataContext="{Binding User.Avatar}"/>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding User.Name}"/>
-                                                <TextBlock Text="{Binding User.Username}"/>
-                                            </StackPanel>
-                                            <TextBlock Text="{Binding ParticipantType,
-                                                   Converter={StaticResource toTextConverter}}"
-                                                   Foreground="{Binding ParticipantType, Converter={StaticResource toColorConverter}}"/>
+                                        <StackPanel Orientation="Vertical">
+                                            <DockPanel>
+                                                <local:AvatarImage DataContext="{Binding User.Avatar}"/>
+                                                <TextBlock Text="{Binding ParticipantType,
+                                                Converter={StaticResource toTextConverter}}"
+                                                        Foreground="{Binding ParticipantType,
+                                                Converter={StaticResource toColorConverter}}"/>
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding User.Username}" Margin="5"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
@@ -57,22 +57,19 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:ChannelChatViewModel}">
                         <StackPanel Orientation="Vertical">
-                            <TextBlock Text="Owner:"/>
-                            <TextBlock Text="{Binding Owner.Name}"/>
-                            <TextBlock Text="{Binding Owner.Username}"/>
                             <TextBlock Text="Subscribers:"/>
                             <ItemsControl ItemsSource="{Binding Subscribers}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
-                                        <StackPanel Orientation="Horizontal">
-                                            <local:AvatarImage DataContext="{Binding User.Avatar}"/>
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding User.Name}"/>
-                                                <TextBlock Text="{Binding User.Username}"/>
-                                            </StackPanel>
-                                            <TextBlock Text="{Binding ParticipantType,
+                                        <StackPanel Orientation="Vertical">
+                                            <DockPanel>
+                                                <local:AvatarImage DataContext="{Binding User.Avatar}"/>
+                                                <TextBlock Text="{Binding ParticipantType,
                                                         Converter={StaticResource toTextConverter}}"
-                                                        Foreground="{Binding ParticipantType, Converter={StaticResource toColorConverter}}"/>
+                                                    Foreground="{Binding ParticipantType,
+                                                        Converter={StaticResource toColorConverter}}"/>
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding User.Username}" Margin="5"/>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>

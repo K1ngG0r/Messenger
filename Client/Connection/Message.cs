@@ -21,7 +21,7 @@ public enum RequestMethod
     Update,
     AdminAction,
     CreateChat,
-    Load
+    LoadAvatar
 }
 public enum ResponseStatusCode
 {

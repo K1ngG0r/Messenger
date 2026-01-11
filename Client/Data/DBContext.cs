@@ -48,6 +48,10 @@ namespace Client.Data
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Chat>()
+                .HasIndex(x => x.ChatId)
+                .IsUnique();
+
+            modelBuilder.Entity<Chat>()
                 .HasMany(c => c.Messages)
                 .WithOne(m => m.Chat)
                 .OnDelete(DeleteBehavior.Cascade);

@@ -50,7 +50,7 @@ namespace Client.ViewModels
         public Command SendMessageCommand { get; set; }
         public async Task UpdateChat(int chatId)
         {
-            chat = await _chatService.LoadChatAsync(chatId);
+            chat = _chatService.LoadChat(chatId);
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             ChatInfo.Update(chat);
@@ -64,7 +64,7 @@ namespace Client.ViewModels
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
-            chat = Task.Run(()=>_chatService.LoadChatAsync(chatId).Result).Result;
+            chat = _chatService.LoadChat(chatId);
             messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             chatInfo = new ChatInfoPageViewModel(chat);

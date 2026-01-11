@@ -12,6 +12,7 @@ namespace Client.Connection
 {
     public class ClientConnection
     {
+        private string sessionKey = string.Empty;
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
         private Dictionary<Guid, TaskCompletionSource<Response>> _pendingRequests = new();
@@ -25,7 +26,7 @@ namespace Client.Connection
         public async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
             var correlationId = Guid.NewGuid();
-            var request = new Request(correlationId, method, body);
+            var request = new Request(sessionKey, correlationId, method, body);
             var tcs = new TaskCompletionSource<Response>();
             lock (_lock)
             {
