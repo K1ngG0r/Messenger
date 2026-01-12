@@ -11,7 +11,8 @@ namespace Client.ViewModels
     {
         public Chat Chat { get; set; }
         public string ChatName => Chat.ChatName;
-        public string ImagePath => Chat.ChatImagePath;
+        public AvatarImageViewModel Avatar =>
+            new AvatarImageViewModel(Chat.ChatImagePath);
         public string? LastMessage => Chat.Messages.LastOrDefault()?.Message;
         public ChatViewModel(Chat info)
         {

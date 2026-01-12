@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Client.ViewModels"
+             xmlns:local="clr-namespace:Client.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250">
     <Grid>
@@ -32,19 +32,7 @@
                 <DataTemplate>
                     <Border CornerRadius="10" Background="LightBlue">
                         <StackPanel Orientation="Horizontal">
-                            <Border Width="50" 
-                                    Height="50" 
-                                    CornerRadius="25"
-                                    ClipToBounds="True"
-                                    Margin="5"
-                                    Background="Gray">
-                                <Image Source="{Binding ImagePath}" 
-                                       Stretch="UniformToFill">
-                                    <Image.Clip>
-                                        <EllipseGeometry Center="25,25" RadiusX="25" RadiusY="25"/>
-                                    </Image.Clip>
-                                </Image>
-                            </Border>
+                            <local:AvatarImage DataContext="{Binding Avatar}"/>
                             <TextBlock Margin="10" Text="{Binding ChatName}" FontSize="16"/>
                         </StackPanel>
                     </Border>

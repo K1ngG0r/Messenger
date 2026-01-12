@@ -16,9 +16,6 @@ using System.Windows.Shapes;
 
 namespace Client.Views
 {
-    /// <summary>
-    /// Логика взаимодействия для AvatarImage.xaml
-    /// </summary>
     public partial class AvatarImage : UserControl
     {
         public AvatarImage(AvatarImageViewModel vm)
