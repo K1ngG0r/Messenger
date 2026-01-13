@@ -28,7 +28,10 @@ namespace Client.Connection
     {
         NewMessage,
         NewChat,
-        AdminAction
+        AdminAction//удаление из чата, например,
+                   //или назначение админом,
+                   //добавление меня в группу
+        //и проч (изменение ника пользователя, аватарки)
     }
     //AdminAction
     public sealed record AdminActionRequestSettings(
@@ -73,4 +76,11 @@ namespace Client.Connection
     //response:
     //User - отдельная модель (byte[] авы, имя и проч (статус, которого пока нет))
     //chat - отдельная модель (byte[] авы, имя, список участников (для группы), короче сложная модель)
+
+    //ChangeSettings
+    public sealed record ChangeSettingsRequestSettings(
+        string username,
+        string name//и проч (аватарка, дата рождения, статус)
+        );
+    //response - string.empty
 }
