@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Security;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -23,7 +24,119 @@ namespace Client.Connection
             udpConnection = new UdpConnection(1234);
             udpConnection.DataReceived += HandleMessage;
         }
-        public async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
+        public async Task<string> Login(string username, string password)
+        {
+            var body = JsonSerializer.Serialize(
+                new LoginRequestSettings(username, password));
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Login, body);
+                return response.Payload;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task<string> Register(string username, string password)
+        {
+            var body = JsonSerializer.Serialize(
+                new LoginRequestSettings(username, password));
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Register, body);
+                return response.Payload;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task SendMessage(Guid chatId, string message)
+        {
+            var body = JsonSerializer.Serialize(
+                new SendRequestSettings(chatId, message));
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Send, body);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task<List<SingleChange>> Update()
+        {
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Update, string.Empty);
+                var changes = JsonSerializer.Deserialize<List<SingleChange>>(response.Payload);
+                if (changes is null)
+                    throw new Exception();
+                return changes;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType)
+        {
+            var body = JsonSerializer.Serialize(
+                new CreateChatRequestSettings(chatType, string.Empty));//fixit
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
+                if (!Guid.TryParse(response.Payload, out var chatId))
+                    throw new Exception();
+                return chatId;
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task LoadUser(string username)//fixit
+        {
+            var body = JsonSerializer.Serialize(
+                new LoadRequestSettings(LoadRequestSettingsMethod.User, username));
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        public async Task LoadChat(Guid chatId)//fixit
+        {
+            var body = JsonSerializer.Serialize(
+                new LoadRequestSettings(LoadRequestSettingsMethod.Chat, chatId.ToString()));
+            try
+            {
+                var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+            }
+            catch
+            {
+                throw new Exception();
+            }
+        }
+        private async Task<Response> SendAndVerifyAsync(RequestMethod method, string body)
+        {
+            try
+            {
+                var response = await SendAsync(method, body);
+                if (!(response.Code is ResponseStatusCode.Ok))
+                    throw new VerificationException();
+                return response;
+            }
+            catch
+            {
+                throw new VerificationException();
+            }
+        }
+        private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
             var correlationId = Guid.NewGuid();
             var request = new Request(sessionKey, correlationId, method, body);
@@ -51,7 +164,7 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task<Response> SendAsync(RequestMethod method, string body)
+        private async Task<Response> SendAsync(RequestMethod method, string body)
         {
             return await SendAsync(method, body, TimeSpan.FromSeconds(2));
         }

@@ -10,7 +10,7 @@ namespace Client.Connection
     public sealed record LoginRequestSettings(
         string username,
         string password);
-    //response - string.empty
+    //response - string sessionkey
 
     //Send
     public sealed record SendRequestSettings(
@@ -20,8 +20,7 @@ namespace Client.Connection
 
     //Update
     //request - string.empty
-    public sealed record UpdateResponseSettings(
-        List<SingleChange> changes);
+    //response - List<SingleChange>
     public sealed record SingleChange(
         SingleChangeMethod method,
         string body);
@@ -37,8 +36,12 @@ namespace Client.Connection
         string body);
     public enum AdminActionRequestSettingsMethod
     {
-        AddParticipant,
-        RemoveParticipant
+        AddParticipant, //body - username
+        RemoveParticipant, //body - username
+        Empowerment,//сделать админом //body - username
+                     //можно список прав еще:
+                     //возможность удалять сообщения, назначать админом других
+        Abolition//убрать права админа //body - username
         //и тд
     }
     //response - string.empty
@@ -49,20 +52,25 @@ namespace Client.Connection
         string body);
     public enum CreateChatRequestSettingsMethod
     {
-        PrivateChat,
-        GroupChat,
-        ChannelChat
+        PrivateChat, //body - username
+        GroupChat, //body - chatname
+        ChannelChat //body - chatname
+            //может для группы и канала
+            //еще ограничение по макс участникам и др
+            //(для этого отдельная структура)
     }
     //response - guid чата
 
-    //LoadAvatar
-    public sealed record LoadAvatarRequestSettings(
-        LoadAvatarRequestSettingsMethod method,
+    //Load
+    public sealed record LoadRequestSettings(
+        LoadRequestSettingsMethod method,
         string body);
-    public enum LoadAvatarRequestSettingsMethod
+    public enum LoadRequestSettingsMethod
     {
-        User,
-        Chat
+        User,//body - username
+        Chat//body - guid chatid
     }
-    //response - byte[] аватарки
+    //response:
+    //User - отдельная модель (byte[] авы, имя и проч (статус, которого пока нет))
+    //chat - отдельная модель (byte[] авы, имя, список участников (для группы), короче сложная модель)
 }
