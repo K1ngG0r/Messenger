@@ -28,7 +28,7 @@ namespace Client
             InitializeComponent();
             var me = new User("Me", "me", 
                 imagePath: AvatarsManager
-                    .GetChatAvatarPathByUsername("me"));
+                    .GetUserAvatarPathByUsername("me"));
 
             var context = new AppDBContext();
             //init(context, me);
@@ -47,8 +47,8 @@ namespace Client
             context.Database.EnsureCreated();
             
             var otherUser1 = new User("Mike", "mikename",
-                imagePath: AvatarsManager.GetChatAvatarPathByUsername("mikename"));
-            var chat = new PrivateChat(Guid.NewGuid(), otherUser1, AvatarsManager.GetChatAvatarPathByUsername("mikename"));
+                imagePath: AvatarsManager.GetUserAvatarPathByUsername("mikename"));
+            var chat = new PrivateChat(Guid.NewGuid(), otherUser1, AvatarsManager.GetUserAvatarPathByUsername("mikename"));
             var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
             var message2 = new ChatMessage(chat, otherUser1, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
@@ -58,8 +58,8 @@ namespace Client
             context.SaveChanges();
 
             var otherUser2 = new User("Sam", "samname",
-                 imagePath: AvatarsManager.GetChatAvatarPathByUsername("samname"));
-            chat = new PrivateChat(Guid.NewGuid(), otherUser2, AvatarsManager.GetChatAvatarPathByUsername("samname"));
+                 imagePath: AvatarsManager.GetUserAvatarPathByUsername("samname"));
+            chat = new PrivateChat(Guid.NewGuid(), otherUser2, AvatarsManager.GetUserAvatarPathByUsername("samname"));
             message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
             message2 = new ChatMessage(chat, otherUser2, "hi there", DateTime.Now);
             chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
@@ -69,7 +69,7 @@ namespace Client
 
             var gchat = new GroupChat(Guid.NewGuid(), otherUser2,
                 "Lol group",
-                AvatarsManager.GetChatAvatarPathByUsername("samname"));
+                AvatarsManager.GetUserAvatarPathByUsername("samname"));
             gchat.Participants.AddRange(new List<Participant>(){new Participant(user, gchat),
                 new Participant(otherUser1, gchat) });
             message1 = new ChatMessage(gchat, user, "hello!", DateTime.Now);

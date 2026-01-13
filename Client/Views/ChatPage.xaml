@@ -15,7 +15,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{Binding ChatColumnWidth}"/>
         </Grid.ColumnDefinitions>
         <Grid Grid.Column="0">
             <Grid.RowDefinitions>
@@ -25,11 +25,15 @@
             </Grid.RowDefinitions>
             <DockPanel Background="White">
                 <local:AvatarImage DataContext="{Binding Avatar}"/>
+                
+                <Button Content="..." Height="60" Width="60" DockPanel.Dock="Right"
+                        Command="{Binding OpenSettingsCommand}"/>
                 <TextBlock VerticalAlignment="Center"
                            Text="{Binding ChatName}"
                            FontSize="16"
                            TextAlignment="Left"
-                           Margin="5"/>
+                           Margin="5">  
+                </TextBlock>
             </DockPanel>
             <ListBox ItemsSource="{Binding Messages}"
                      Grid.Row="1">
@@ -57,6 +61,7 @@
                                 <StackPanel Orientation="Vertical" Margin="5">
                                     <DockPanel>
                                         <local:AvatarImage DataContext="{Binding Avatar}"/>
+
                                         <TextBlock Text="{Binding Name}" Margin="5" DockPanel.Dock="Left"/>
                                     </DockPanel>
                                     <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>

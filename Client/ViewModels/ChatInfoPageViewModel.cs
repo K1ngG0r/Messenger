@@ -16,6 +16,8 @@ namespace Client.ViewModels
     {
         private ChatViewModel _chat;
         private Chat chatModel;
+        public event Action ChatInfoClosed = null!;
+        public Command ChatInfoCloseCommand { get; }
         public ChatViewModel Chat
         {
             get => _chat;
@@ -73,6 +75,8 @@ namespace Client.ViewModels
                     _chat = new ChatViewModel(chatModel);
                     break;
             }
+            ChatInfoCloseCommand = new Command(
+                () => ChatInfoClosed?.Invoke());
         }
     }
 }

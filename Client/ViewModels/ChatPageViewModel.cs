@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using Client.Models;
 using Client.ViewModels.Patterns;
 
@@ -20,6 +21,16 @@ namespace Client.ViewModels
         private string draftMessage = string.Empty;
         private ObservableCollection<ChatMessageViewModel> messages;
         private ChatInfoPageViewModel chatInfo;
+        private GridLength chatColumnWidth;
+        public GridLength ChatColumnWidth
+        {
+            get => chatColumnWidth;
+            set
+            {
+                chatColumnWidth = value;
+                OnPropertyChanged();
+            }
+        }
         public ObservableCollection<ChatMessageViewModel> Messages
         {
             get => messages;
@@ -47,7 +58,8 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
-        public Command SendMessageCommand { get; set; }
+        public Command SendMessageCommand { get;}
+        public Command OpenSettingsCommand { get; }
         public async Task UpdateChat(int chatId)
         {
             chat = await _chatService.LoadChatAsync(chatId);
@@ -68,6 +80,9 @@ namespace Client.ViewModels
             messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             chatInfo = new ChatInfoPageViewModel(chat);
+            ChatColumnWidth = new GridLength(0); 
+            chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
+            OpenSettingsCommand = new Command(OnOpenChatSettings);
         }
         private async void OnSendMessage()
         {
@@ -99,6 +114,14 @@ namespace Client.ViewModels
             if (chatSelectedMessage is null)
                 return;
             await UpdateChat(chatSelectedMessage.ChatId);
+        }
+        private void OnOpenChatSettings()
+        {
+            ChatColumnWidth = new GridLength(1, GridUnitType.Star);
+        }
+        private void ChatInfo_ChatInfoClosed()
+        {
+            ChatColumnWidth = new GridLength(0, GridUnitType.Star);
         }
     }
 }
