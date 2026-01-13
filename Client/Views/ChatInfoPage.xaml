@@ -37,8 +37,8 @@
                     <DataTemplate DataType="{x:Type vm:GroupChatViewModel}">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Participants:"/>
-                            <ItemsControl ItemsSource="{Binding Participants}">
-                                <ItemsControl.ItemTemplate>
+                            <ListBox ItemsSource="{Binding Participants}">
+                                <ListBox.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
                                         <StackPanel Orientation="Vertical">
                                             <DockPanel>
@@ -51,15 +51,15 @@
                                             <TextBlock Text="{Binding User.Username}" Margin="5"/>
                                         </StackPanel>
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </StackPanel>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:ChannelChatViewModel}">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Subscribers:"/>
-                            <ItemsControl ItemsSource="{Binding Subscribers}">
-                                <ItemsControl.ItemTemplate>
+                            <ListBox ItemsSource="{Binding Subscribers}">
+                                <ListBox.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
                                         <StackPanel Orientation="Vertical">
                                             <DockPanel>
@@ -72,8 +72,8 @@
                                             <TextBlock Text="{Binding User.Username}" Margin="5"/>
                                         </StackPanel>
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
                         </StackPanel>
                     </DataTemplate>
                 </ContentControl.Resources>
