@@ -8,14 +8,19 @@ namespace Server;
 
 public class MessageHandler
 {
-    public List<User> listUsers = new List<User>();
+    private ApplicationDbContext _context = new ApplicationDbContext();
 
     public MessageHandler()
     {
-        var localEndPoint = new IPEndPoint(IPAddress.Loopback, 9000);
+        
+        // Создаем БД если не существует
+        _context.Database.EnsureCreated();
+        
+        // Загружаем пользователей ИЗ БД
+        var _users = _context.Users.ToDictionary(x => x.Id, x => x);
+        
+        Console.WriteLine($"Загружено {_users.Count} пользователей из БД");
 
-        listUsers.Add(new User("1", "kinggor", localEndPoint));
-        listUsers.Add(new User("2", "fazber", localEndPoint));
     } 
 
     public string RequestHandler(byte[] requestBytes, CancellationToken cancellationToken)
@@ -24,42 +29,22 @@ public class MessageHandler
         Console.WriteLine(requestString);
         var request = JsonSerializer.Deserialize<Request>(requestString);
 
+        var correlationId = request!.CorrelationId;
+
         Response response = request!.Method switch
         {
-            RequestMethod.Send => SendMessage(request.Body),
-            RequestMethod.Update => CheckMessage(request.Body),
-            _ => new Response(ResponseStatusCode.Failed, "Команда не распознана")
+            RequestMethod.Login => Login(correlationId, request.Body),
+            _ => new Response(correlationId, ResponseStatusCode.Failed, "Команда не распознана")
         };
 
         return JsonSerializer.Serialize(response);
     }
 
-    private Response SendMessage(string stringMessage)
+    private Response Login(Guid correlationId ,string stringMessage)
     {
         Message message     = JsonSerializer.Deserialize<Message>(stringMessage)!;
-        int userPosition    = listUsers.FindIndex(x => x.userName == message.receiverUserName);
         
-        if(userPosition < 0)
-        {
-            return new Response(ResponseStatusCode.Failed, "Unknown user!");
-        }
 
-        listUsers[userPosition].unreadMessage?.Add(message);
-
-        return new Response(ResponseStatusCode.Ok, string.Empty);
-    }
-
-    private Response CheckMessage(string senderKey)
-    {
-        int userPosition    = listUsers.FindIndex(x => x.key == senderKey);
-        
-        if(userPosition < 0)
-        {
-            return new Response(ResponseStatusCode.Failed, "Unknown key!");
-        }
-
-        string undeadMessageResponse = JsonSerializer.Serialize<List<Message>>(listUsers[userPosition].unreadMessage!);
-
-        return new Response(ResponseStatusCode.Ok, undeadMessageResponse);
+        return new Response(correlationId, ResponseStatusCode.Ok, string.Empty);
     }
 }
