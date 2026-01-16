@@ -15,7 +15,11 @@ public class MessageHandler
         
         // Создаем БД если не существует
         _context.Database.EnsureCreated();
-        
+
+        // _context.Users.Add(new User(){UserName = "kinggor"});
+        // _context.Users.Add(new User(){UserName = "fazber"});
+        // _context.SaveChanges();
+
         // Загружаем пользователей ИЗ БД
         var _users = _context.Users.ToDictionary(x => x.Id, x => x);
         

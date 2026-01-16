@@ -19,10 +19,6 @@ namespace Server
             {
                 entity.HasKey(u => u.Id);
                 
-                entity.Property(u => u.Id)
-                    .IsRequired()
-                    .HasMaxLength(100);
-                
                 entity.Property(u => u.UserName)
                     .IsRequired()
                     .HasMaxLength(100);
@@ -39,8 +35,8 @@ namespace Server
                 
                 // Связь один-ко-многим с Message
                 entity.HasMany(u => u.UnreadMessages)
-                    .WithOne(m => m.User)
-                    .HasForeignKey(m => m.UserSessionKey)
+                    .WithOne(m => m.Sender)
+                    .HasForeignKey(m => m.Id)
                     .OnDelete(DeleteBehavior.Cascade);
             });
 
@@ -55,9 +51,6 @@ namespace Server
                 entity.Property(m => m.MessageText)
                     .IsRequired()
                     .HasMaxLength(1000);
-                
-                entity.Property(m => m.Sender)
-                    .HasMaxLength(100);
                 
                 // Индексы для быстрого поиска
                 entity.HasIndex(m => m.ChatId);

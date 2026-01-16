@@ -17,17 +17,14 @@ namespace Server
         [Column("MessageText")]
         public string MessageText { get; set; } = string.Empty; // Инициализация по умолчанию
         
-        [MaxLength(100)]
-        public string? Sender { get; set; }
-        
         [ForeignKey("User")]
         public string? UserSessionKey { get; set; }
         
-        public virtual User? User { get; set; }
+        public virtual User? Sender { get; set; }
 
         public Message(){}
         
-        public Message(string messageText, Guid? chatId = null, string? sender = null)
+        public Message(string messageText, Guid? chatId = null, User? sender = null)
         {
             MessageText = messageText ?? throw new ArgumentNullException(nameof(messageText));
             ChatId = chatId;
