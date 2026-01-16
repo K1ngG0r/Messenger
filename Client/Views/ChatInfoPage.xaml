@@ -8,12 +8,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250">
     <UserControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="visibilityConverter"/>
+        <local:InvertedBoolToVisibilityConverter x:Key="invertedVisibilityConverter"/>
         <local:ParticipantViewModelTypeToColorConverter x:Key="toColorConverter"/>
         <local:ParticipantViewModelTypeToTextConverter x:Key="toTextConverter"/>
     </UserControl.Resources>
     <ScrollViewer>
         <Grid>
             <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="*"/>
@@ -35,13 +38,14 @@
                     <DataTemplate DataType="{x:Type vm:PrivateChatViewModel}">
                         <StackPanel>
                             <TextBlock Text="{Binding User.Username}"/>
+                            <Button Content="Delete chat" Command="{Binding DeleteChatCommand}"/>
+                            <Button Content="Clear history" Command="{Binding ClearHistoryCommand}"/>
                         </StackPanel>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:GroupChatViewModel}">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Participants:"/>
-                            <ListBox ItemsSource="{Binding Participants}"
-                                     SelectedItem="{Binding SelectedParticipant, Mode=TwoWay}">
+                            <ListBox ItemsSource="{Binding Participants}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
                                         <StackPanel Orientation="Vertical">
@@ -53,10 +57,27 @@
                                                 Converter={StaticResource toColorConverter}}"/>
                                             </DockPanel>
                                             <TextBlock Text="{Binding User.Username}" Margin="5"/>
+                                            <StackPanel.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Chat with" Command="{Binding ChatWithCommand}"/>
+                                                    <MenuItem Header="Delete"/>
+                                                    <MenuItem Header="Op"/>
+                                                    <MenuItem Header="Deop"/>
+                                                </ContextMenu>
+                                            </StackPanel.ContextMenu>
                                         </StackPanel>
                                     </DataTemplate>
                                 </ListBox.ItemTemplate>
                             </ListBox>
+                            <Button Content="Delete group" 
+                                    Command="{Binding }"
+                                    Visibility="{Binding CanExecuteOwnerAction, 
+                                        Converter={StaticResource visibilityConverter}}"/>
+                            <Button Content="Leave chat" 
+                                    Command="{Binding LeaveChatCommand}"
+                                    Visibility="{Binding CanExecuteOwnerAction, 
+                                        Converter={StaticResource invertedVisibilityConverter}}"/>  
+                            <Button Content="Clear history" Command="{Binding ClearHistoryCommand}"/>
                         </StackPanel>
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:ChannelChatViewModel}">

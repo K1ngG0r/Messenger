@@ -1,4 +1,5 @@
 ﻿using Client.Models;
+using Client.ViewModels.Patterns;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,9 @@ namespace Client.ViewModels
         public Participant Participant { get; set; }
         public UserViewModel User { get; set; }
         public ParticipantViewModelType ParticipantType { get; set; }
+        public Command ChatWithCommand { get; set; }
+        public event Action<string> ChatWithRequested = null!;
+        public bool CanExecuteAdminAction => !(ParticipantType is ParticipantViewModelType.Member);
         public ParticipantViewModel(Participant participant, bool isOwner = false)
         {
             Participant = participant;
@@ -26,6 +30,11 @@ namespace Client.ViewModels
                     ? ParticipantViewModelType.Member :
                     ParticipantViewModelType.Admin;
             }
+            ChatWithCommand = new Command(OnChatWithRequested);
+        }
+        private void OnChatWithRequested()
+        {
+            ChatWithRequested?.Invoke(User.User.Username);
         }
     }
     public enum ParticipantViewModelType

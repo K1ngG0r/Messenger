@@ -41,6 +41,38 @@ namespace Client.ViewModels.Patterns
         }
     }
     public abstract class MediatorMessage;
+    public class LeaveChatMessage : MediatorMessage
+    {
+        public int ChatId { get; set; }
+        public LeaveChatMessage(int chatId)
+        {
+            ChatId = chatId;
+        }
+    }
+    public class ChatCreatedMessage : MediatorMessage
+    {
+        public int ChatId { get; set; }
+        public ChatCreatedMessage(int chatId)
+        {
+            ChatId = chatId;
+        }
+    }
+    public class ChatHistoryClearRequestedMessage : MediatorMessage
+    {
+        public int ChatId { get; set; }
+        public ChatHistoryClearRequestedMessage(int chatId)
+        {
+            ChatId = chatId;
+        }
+    }
+    public class ChatDeletionRequestedMessage : MediatorMessage
+    {
+        public int ChatId { get; set; }
+        public ChatDeletionRequestedMessage(int chatId)
+        {
+            ChatId = chatId;
+        }
+    }
     public class ChatSelectedMessage : MediatorMessage
     {
         public int ChatId { get; set; }

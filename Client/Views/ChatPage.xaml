@@ -70,7 +70,9 @@
                                 <Border.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="Delete" Command="{Binding DeleteCommand}"/>
+                                        <MenuItem Header="Chat with" Command="{Binding ChatWithCommand}"/>
                                         <MenuItem Header="Resend"/>
+                                        <MenuItem Header="Chat with"/>
                                         <MenuItem Header="Respond" Visibility="{Binding IsMe, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
                                     </ContextMenu>
                                 </Border.ContextMenu>

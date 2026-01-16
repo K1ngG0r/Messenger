@@ -17,12 +17,12 @@ namespace Client.ViewModels
         private ChatService _chatService;
         private CurrentUserService _userService;
         private Mediator _mediator;
-        private Chat chat;
         private string draftMessage = string.Empty;
         private ObservableCollection<ChatMessageViewModel> messages=new();
         private ChatInfoPageViewModel chatInfo;
         private GridLength chatColumnWidth;
         private bool isChatCreated = true;
+        public Chat Chat;
         public GridLength ChatColumnWidth
         {
             get => chatColumnWidth;
@@ -41,10 +41,10 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
-        public string ChatName => chat.ChatName;
+        public string ChatName => Chat.ChatName;
         public AvatarImageViewModel Avatar
         {
-            get => new AvatarImageViewModel(chat.ChatImagePath);
+            get => new AvatarImageViewModel(Chat.ChatImagePath);
         }
         public ChatInfoPageViewModel ChatInfo
         {
@@ -68,10 +68,10 @@ namespace Client.ViewModels
         }
         private void UpdateChat(Chat chatToUpdate)
         {
-            chat = chatToUpdate;
+            Chat = chatToUpdate;
             Messages = new ObservableCollection<ChatMessageViewModel>(
-                chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
-            ChatInfo.Update(chat);
+                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
+            ChatInfo.Update(Chat);
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
         }
@@ -86,10 +86,38 @@ namespace Client.ViewModels
                 UpdateChat(newChat);
                 return;
             }
-            chat = new PrivateChat(new Guid(), user,
+            Chat = new PrivateChat(new Guid(), user,
                 AvatarsManager.GetUserAvatarPathByUsername(user.Username));
-            UpdateChat(chat);
+            UpdateChat(Chat);
             isChatCreated = false;
+        }
+        public ChatPageViewModel(string username, Mediator messenger, ChatService chatService, CurrentUserService userService)
+        {
+            _chatService = chatService;
+            _userService = userService;
+            _mediator = messenger;
+            SendMessageCommand = new Command(OnSendMessage);
+            _mediator.Register<ChatHistoryClearRequestedMessage>(HandleChatHistoryClearRequestedMessage);
+            var user = _chatService.TryLoadUserByUsername(username);
+            if (user is null)
+                throw new Exception();
+            var newChat = _chatService.TryLoadPrivateChatByUser(user);
+            if (newChat != null)
+            {
+                Chat = newChat;
+            }
+            else
+            {
+                Chat = new PrivateChat(new Guid(), user,
+                    AvatarsManager.GetUserAvatarPathByUsername(user.Username));
+                isChatCreated = false;
+            }
+            messages = new ObservableCollection<ChatMessageViewModel>(
+                    Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
+            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _userService);
+            ChatColumnWidth = new GridLength(0);
+            chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
+            OpenSettingsCommand = new Command(OnOpenChatSettings);
         }
         public ChatPageViewModel(int chatId, Mediator messenger, ChatService chatService, CurrentUserService userService)
         {
@@ -97,12 +125,11 @@ namespace Client.ViewModels
             _userService = userService;
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
-            _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
-            _mediator.Register<UserSelectedMessage>(HandleUserSelectedMessage);
-            chat = _chatService.LoadChat(chatId);
+            _mediator.Register<ChatHistoryClearRequestedMessage>(HandleChatHistoryClearRequestedMessage);
+            Chat = _chatService.LoadChat(chatId);
             messages = new ObservableCollection<ChatMessageViewModel>(
-                chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
-            chatInfo = new ChatInfoPageViewModel(chat, _mediator);
+                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
+            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _userService);
             ChatColumnWidth = new GridLength(0); 
             chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
             OpenSettingsCommand = new Command(OnOpenChatSettings);
@@ -113,15 +140,15 @@ namespace Client.ViewModels
                 return;
             if (!isChatCreated)
             {
-                chat = await _chatService.CreateNewChat(chat);
+                Chat = await _chatService.CreateNewChat(Chat);
                 isChatCreated = true;
             }
 
             var message = await _chatService.SendMessageAsync(
-                new ChatMessage(chat, _userService.CurrentUser,
+                new ChatMessage(Chat, _userService.CurrentUser,
                     DraftMessage, DateTime.Now));
 
-            Messages.Add(RegisterChatMessageViewModel(new ChatMessageViewModel(message, _userService)));
+            Messages.Add(RegisterChatMessageViewModel(new ChatMessageViewModel(message, _userService, _mediator)));
             DraftMessage = string.Empty;
         }
         private ChatMessageViewModel RegisterChatMessageViewModel(ChatMessageViewModel vm)
@@ -134,19 +161,15 @@ namespace Client.ViewModels
             Messages.Remove(Messages.First(x => x.ChatMessage.Id == messageId));
             _chatService.DeleteMessage(messageId);
         }
-        private async void HandleChatSelectedMessage(object? newChatObject)
+        private void HandleChatHistoryClearRequestedMessage(object? newChatObject)
         {
-            ChatSelectedMessage? chatSelectedMessage = (ChatSelectedMessage?)newChatObject;
-            if (chatSelectedMessage is null)
+            ChatHistoryClearRequestedMessage? message = (ChatHistoryClearRequestedMessage?)newChatObject;
+            if (message is null)
                 return;
-            await UpdateChat(chatSelectedMessage.ChatId);
-        }
-        private async void HandleUserSelectedMessage(object? newUserObject)
-        {
-            UserSelectedMessage? chatSelectedMessage = (UserSelectedMessage?)newUserObject;
-            if (chatSelectedMessage is null)
+            if (Chat.Id != message.ChatId)
                 return;
-            await UpdateChatByUsername(chatSelectedMessage.Username);
+            Messages.Clear();
+            _chatService.DeleteAllMessages(Chat.Id);
         }
         private void OnOpenChatSettings()
         {

@@ -18,6 +18,18 @@ namespace Client.ViewModels.Patterns
             _context.Remove(messageToDelete);
             _context.SaveChanges();
         }
+        public void DeleteAllMessages(int chatId)
+        {
+            var chat = _context.Chats.First(x => x.Id == chatId);
+            var messagesToDelete = _context.Messages.Where(x => x.Chat == chat);
+            _context.RemoveRange(messagesToDelete);
+            _context.SaveChanges();
+        }
+        public void DeleteChat(int chatId)
+        {
+            _context.Remove(_context.Chats.First(x => x.Id == chatId));
+            _context.SaveChanges();
+        }
         public User? TryLoadUserByUsername(string username)
         {
             //загрузка из сервер _connection.LoadUser(username);
@@ -39,6 +51,7 @@ namespace Client.ViewModels.Patterns
         public Chat LoadChat(int chatId)
         {
             var groupChat = _context.Chats.OfType<GroupChat>()
+                .Include(x=>x.Owner)
                 .Include(x => x.Messages).ThenInclude(x => x.Who)
                 .Include(x => x.Participants).ThenInclude(x => x.User)
                 .FirstOrDefault(x => x.Id == chatId);

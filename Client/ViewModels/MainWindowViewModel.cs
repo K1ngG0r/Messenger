@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using Client.Models;
 using Client.ViewModels.Patterns;
 
@@ -36,25 +37,67 @@ namespace Client.ViewModels
             ChatPageViewModel = null;
             SettingsPageViewModel = new SettingsPageViewModel(mediator, userService);
             activePageViewModel = MainPageViewModel;
-            _mediator.Register<NavigateToSettingsPage>(OnNavigateToSettingsPage);
-            _mediator.Register<NavigateToMainPage>(OnNavigateToMainPage);
-            _mediator.Register<ChatSelectedMessage>(OnChatSelected);
+            _mediator.Register<NavigateToSettingsPage>(HandleNavigateToSettingsPage);
+            _mediator.Register<NavigateToMainPage>(HandleNavigateToMainPage);
+            _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
+            _mediator.Register<UserSelectedMessage>(HandleUserSelectedMessage);
+            _mediator.Register<ChatDeletionRequestedMessage>(HandleChatDeletionRequestedMessage);
+            _mediator.Register<LeaveChatMessage>(HandleLeaveChatMessage);
         }
-        private void OnNavigateToSettingsPage(object? parameters)
+        private void HandleNavigateToSettingsPage(object? parameters)
         {
             ActivePageViewModel = SettingsPageViewModel;
         }
-        private void OnNavigateToMainPage(object? parameters)
+        private void HandleNavigateToMainPage(object? parameters)
         {
             ActivePageViewModel = MainPageViewModel;
         }
-        private void OnChatSelected(object? parameters)
+        private async void HandleChatSelectedMessage(object? newChatObject)
         {
-            var chatSelectedMessage = (ChatSelectedMessage?)parameters;
-            if (chatSelectedMessage is null)
+            ChatSelectedMessage? message = (ChatSelectedMessage?)newChatObject;
+            if (message is null)
                 return;
-            _mediator.Unregister<ChatSelectedMessage>(OnChatSelected);
-            ChatPageViewModel = new ChatPageViewModel(chatSelectedMessage.ChatId, _mediator, _chatService, _userService);
+            if (ChatPageViewModel is null)
+                ChatPageViewModel = new ChatPageViewModel(message.ChatId, _mediator, _chatService, _userService);
+            else
+                await ChatPageViewModel.UpdateChat(message.ChatId);
+            OnPropertyChanged(nameof(ChatPageViewModel));
+        }
+        private void HandleLeaveChatMessage(object? newUserObject)
+        {
+            LeaveChatMessage? message = (LeaveChatMessage?)newUserObject;
+            if (message is null)
+                return;
+            _chatService.DeleteChat(message.ChatId);
+            if (ChatPageViewModel is null)
+                return;
+            if (ChatPageViewModel.Chat.Id != message.ChatId)
+                return;
+            ChatPageViewModel = null;
+            OnPropertyChanged(nameof(ChatPageViewModel));
+        }
+        private async void HandleUserSelectedMessage(object? newUserObject)
+        {
+            UserSelectedMessage? message = (UserSelectedMessage?)newUserObject;
+            if (message is null)
+                return;
+            if (ChatPageViewModel is null)
+                ChatPageViewModel = new ChatPageViewModel(message.Username, _mediator, _chatService, _userService);
+            else
+                await ChatPageViewModel.UpdateChatByUsername(message.Username);
+            OnPropertyChanged(nameof(ChatPageViewModel));
+        }
+        private void HandleChatDeletionRequestedMessage(object? newChatObject)
+        {
+            ChatDeletionRequestedMessage? message = (ChatDeletionRequestedMessage?)newChatObject;
+            if (message is null)
+                return;
+            _chatService.DeleteChat(message.ChatId);
+            if (ChatPageViewModel is null)
+                return;
+            if (ChatPageViewModel.Chat.Id != message.ChatId)
+                return;
+            ChatPageViewModel = null;
             OnPropertyChanged(nameof(ChatPageViewModel));
         }
     }

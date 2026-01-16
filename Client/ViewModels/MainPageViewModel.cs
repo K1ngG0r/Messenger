@@ -51,6 +51,9 @@ namespace Client.ViewModels
             _chatService = chatService;
             _mediator = messenger;
             NavigateToSettingsPageCommand = new Command(NavigateToSettingsPage);
+            _mediator.Register<ChatDeletionRequestedMessage>(HandleChatDeletionRequestedMessage);
+            _mediator.Register<ChatCreatedMessage>(HandleChatCreatedMessage);
+            _mediator.Register<LeaveChatMessage>(HandleLeaveChatMessage);
             LoadChats();
         }
         private void NavigateToSettingsPage()
@@ -61,13 +64,34 @@ namespace Client.ViewModels
         {
             ChatsList = new ObservableCollection<ChatViewModel>(
                 _chatService.LoadChatsList()
-                    .Select(x=>new ChatViewModel(x)));
+                    .Select(x=>new ChatViewModel(x, _mediator)));
         }
         private void OnChatSelected(Chat? chat)
         {
             if (chat is null)
                 return;
             _mediator.Send(new ChatSelectedMessage(chat.Id));
+        }
+        private void HandleChatDeletionRequestedMessage(object? obj)
+        {
+            ChatDeletionRequestedMessage message = (ChatDeletionRequestedMessage)obj;
+            var chat = ChatsList.FirstOrDefault(x => x.Chat.Id == message.ChatId);
+            if (chat is null)
+                return;
+            ChatsList.Remove(chat);
+        }
+        private void HandleLeaveChatMessage(object? obj)
+        {
+            LeaveChatMessage message = (LeaveChatMessage)obj;
+            var chat = ChatsList.FirstOrDefault(x => x.Chat.Id == message.ChatId);
+            if (chat is null)
+                return;
+            ChatsList.Remove(chat);
+        }
+        private void HandleChatCreatedMessage(object? obj)
+        {
+            ChatCreatedMessage message = (ChatCreatedMessage)obj;
+            ChatsList.Add(new ChatViewModel(_chatService.LoadChat(message.ChatId), _mediator));
         }
     }
 }
