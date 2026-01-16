@@ -10,10 +10,28 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
             <Button Content="..." Width="50" FontSize="30"
             DockPanel.Dock="Left" Command="{Binding NavigateToMainPageCommand}"/>
+        </DockPanel>
+        <DockPanel Grid.Row="1">
+            <TextBlock Text="Name:"/>
+            <TextBox/>
+        </DockPanel>
+        <DockPanel Grid.Row="2">
+            <TextBlock Text="Username:"/>
+            <TextBox/>
+        </DockPanel>
+        <DockPanel Grid.Row="3">
+            <TextBlock Text="Avatar:"/>
+            <Button Content="Open file"/>
+        </DockPanel>
+        <DockPanel Grid.Row="4">
+            <Button Content="Submit"/>
         </DockPanel>
     </Grid>
 </UserControl>

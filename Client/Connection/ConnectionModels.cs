@@ -26,8 +26,8 @@ namespace Client.Connection
         string body);
     public enum SingleChangeMethod
     {
-        NewMessage,
-        NewChat,
+        NewMessage,//guid chatId, string message
+        NewChat,//модель чата: то же, что в CreateChatRequestSettings
         AdminAction//удаление из чата, например,
                    //или назначение админом,
                    //добавление меня в группу
