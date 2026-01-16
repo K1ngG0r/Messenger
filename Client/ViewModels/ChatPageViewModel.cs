@@ -19,9 +19,10 @@ namespace Client.ViewModels
         private Mediator _mediator;
         private Chat chat;
         private string draftMessage = string.Empty;
-        private ObservableCollection<ChatMessageViewModel> messages;
+        private ObservableCollection<ChatMessageViewModel> messages=new();
         private ChatInfoPageViewModel chatInfo;
         private GridLength chatColumnWidth;
+        private bool isChatCreated = true;
         public GridLength ChatColumnWidth
         {
             get => chatColumnWidth;
@@ -62,12 +63,33 @@ namespace Client.ViewModels
         public Command OpenSettingsCommand { get; }
         public async Task UpdateChat(int chatId)
         {
-            chat = await _chatService.LoadChatAsync(chatId);
+            UpdateChat(await _chatService.LoadChatAsync(chatId));
+            isChatCreated = true;
+        }
+        private void UpdateChat(Chat chatToUpdate)
+        {
+            chat = chatToUpdate;
             Messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
             ChatInfo.Update(chat);
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
+        }
+        public async Task UpdateChatByUsername(string username)
+        {
+            var user = _chatService.TryLoadUserByUsername(username);
+            if (user is null)
+                return;
+            var newChat = _chatService.TryLoadPrivateChatByUser(user);
+            if (newChat != null)
+            {
+                UpdateChat(newChat);
+                return;
+            }
+            chat = new PrivateChat(new Guid(), user,
+                AvatarsManager.GetUserAvatarPathByUsername(user.Username));
+            UpdateChat(chat);
+            isChatCreated = false;
         }
         public ChatPageViewModel(int chatId, Mediator messenger, ChatService chatService, CurrentUserService userService)
         {
@@ -76,10 +98,11 @@ namespace Client.ViewModels
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
+            _mediator.Register<UserSelectedMessage>(HandleUserSelectedMessage);
             chat = _chatService.LoadChat(chatId);
             messages = new ObservableCollection<ChatMessageViewModel>(
                 chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService))));
-            chatInfo = new ChatInfoPageViewModel(chat);
+            chatInfo = new ChatInfoPageViewModel(chat, _mediator);
             ChatColumnWidth = new GridLength(0); 
             chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
             OpenSettingsCommand = new Command(OnOpenChatSettings);
@@ -88,8 +111,11 @@ namespace Client.ViewModels
         {
             if (DraftMessage == string.Empty)
                 return;
-            if (chat is null)
-                return;
+            if (!isChatCreated)
+            {
+                chat = await _chatService.CreateNewChat(chat);
+                isChatCreated = true;
+            }
 
             var message = await _chatService.SendMessageAsync(
                 new ChatMessage(chat, _userService.CurrentUser,
@@ -114,6 +140,13 @@ namespace Client.ViewModels
             if (chatSelectedMessage is null)
                 return;
             await UpdateChat(chatSelectedMessage.ChatId);
+        }
+        private async void HandleUserSelectedMessage(object? newUserObject)
+        {
+            UserSelectedMessage? chatSelectedMessage = (UserSelectedMessage?)newUserObject;
+            if (chatSelectedMessage is null)
+                return;
+            await UpdateChatByUsername(chatSelectedMessage.Username);
         }
         private void OnOpenChatSettings()
         {

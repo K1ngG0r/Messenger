@@ -18,6 +18,20 @@ namespace Client.ViewModels.Patterns
             _context.Remove(messageToDelete);
             _context.SaveChanges();
         }
+        public User? TryLoadUserByUsername(string username)
+        {
+            //загрузка из сервер _connection.LoadUser(username);
+            return _context.Users.FirstOrDefault(x => x.Username == username);
+        }
+        public Chat? TryLoadPrivateChatByUser(User user)
+        {
+            var chat = _context.Chats
+                .OfType<PrivateChat>()
+                .Include(x => x.Messages)
+                    .ThenInclude(x => x.Who)
+                .FirstOrDefault(x => x.Correspondent.Username == user.Username);
+            return chat;
+        }
         public Task<Chat> LoadChatAsync(int chatId)
         {
             return Task.Run(() => LoadChat(chatId));

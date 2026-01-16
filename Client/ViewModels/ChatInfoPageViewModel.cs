@@ -15,6 +15,7 @@ namespace Client.ViewModels
     public class ChatInfoPageViewModel : ViewModel
     {
         private ChatViewModel _chat;
+        private Mediator _mediator;
         private Chat chatModel;
         public event Action ChatInfoClosed = null!;
         public Command ChatInfoCloseCommand { get; }
@@ -44,10 +45,10 @@ namespace Client.ViewModels
                     Chat = new PrivateChatViewModel(privateChat);
                     break;
                 case GroupChat groupChat:
-                    Chat = new GroupChatViewModel(groupChat);
+                    Chat = new GroupChatViewModel(groupChat, _mediator);
                     break;
                 case ChannelChat channelChat:
-                    Chat = new ChannelChatViewModel(channelChat);
+                    Chat = new ChannelChatViewModel(channelChat, _mediator);
                     break;
                 default:
                     Chat = new ChatViewModel(chatModel);
@@ -57,19 +58,20 @@ namespace Client.ViewModels
             OnPropertyChanged(nameof(ChatType));
             OnPropertyChanged(nameof(Avatar));
         }
-        public ChatInfoPageViewModel(Chat chat)
+        public ChatInfoPageViewModel(Chat chat, Mediator mediator)
         {
             chatModel = chat;
+            _mediator = mediator;
             switch (chatModel)
             {
                 case PrivateChat privateChat:
                     _chat = new PrivateChatViewModel(privateChat);
                     break;
                 case GroupChat groupChat:
-                    _chat = new GroupChatViewModel(groupChat);
+                    _chat = new GroupChatViewModel(groupChat, _mediator);
                     break;
                 case ChannelChat channelChat:
-                    _chat = new ChannelChatViewModel(channelChat);
+                    _chat = new ChannelChatViewModel(channelChat, _mediator);
                     break;
                 default:
                     _chat = new ChatViewModel(chatModel);

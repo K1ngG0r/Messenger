@@ -49,6 +49,14 @@ namespace Client.ViewModels.Patterns
             ChatId = chatId;
         }
     }
+    public class UserSelectedMessage : MediatorMessage
+    {
+        public string Username { get; set; }
+        public UserSelectedMessage(string username)
+        {
+            Username = username;
+        }
+    }
     public class NavigateToSettingsPage : MediatorMessage
     {
         public NavigateToSettingsPage()

@@ -40,7 +40,8 @@
                     <DataTemplate DataType="{x:Type vm:GroupChatViewModel}">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Participants:"/>
-                            <ListBox ItemsSource="{Binding Participants}">
+                            <ListBox ItemsSource="{Binding Participants}"
+                                     SelectedItem="{Binding SelectedParticipant, Mode=TwoWay}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
                                         <StackPanel Orientation="Vertical">
@@ -60,6 +61,8 @@
                     </DataTemplate>
                     <DataTemplate DataType="{x:Type vm:ChannelChatViewModel}">
                         <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Owner:"/>
+                            <TextBlock Text="{Binding Owner.Username}"/>
                             <TextBlock Text="Subscribers:"/>
                             <ListBox ItemsSource="{Binding Subscribers}">
                                 <ListBox.ItemTemplate>

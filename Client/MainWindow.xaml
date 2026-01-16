@@ -7,7 +7,7 @@
         xmlns:vm="clr-namespace:Client.ViewModels"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <Grid Background="AliceBlue">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="200" Name="column1"/>
             <ColumnDefinition Width="5*"/>
