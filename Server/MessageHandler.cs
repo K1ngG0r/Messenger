@@ -81,11 +81,10 @@ public class MessageHandler
                 {
                     MessageText = settings.message,
                     ChatId = chat.Id,
-                    Sender = _sessionManager.GetUserBySession(senderSessionKey)
-
+                    SenderUserName = _sessionManager.GetUserBySession(senderSessionKey)!.UserName
                 };
 
-                var changes = new SingleChange(SingleChangeMethod.NewMessage, 
+                var changes = new SingleChange(u.UnreadUpdate!.Count + 1, SingleChangeMethod.NewMessage, 
                     JsonSerializer.Serialize(msg));
 
                 u.UnreadUpdate!.Add(changes);
