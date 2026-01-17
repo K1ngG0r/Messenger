@@ -54,9 +54,11 @@ public class MessageHandler
     private Response Update(Guid correlationId, string sessionKey ,string SendSettings)
     {
         var user = _sessionManager.GetUserBySession(sessionKey);
-        
 
-        return new Response(correlationId, ResponseStatusCode.Ok, String.Empty);
+        var updates = _context.Users.First(x => x.Id == user!.Id).UnreadUpdate;
+
+        return new Response(correlationId, ResponseStatusCode.Ok, 
+                JsonSerializer.Serialize(updates));
     }
 
     private Response Send(Guid correlationId, string senderSessionKey ,string SendSettings)
