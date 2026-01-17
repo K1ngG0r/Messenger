@@ -10,5 +10,7 @@ public class Chat
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public Guid Id{get; set;}
 
+    public CreateChatRequestSettingsMethod type{ get; set; }
+
     public List<User>? Members {get; set;}
 }
