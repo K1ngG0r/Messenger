@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Server
 {
@@ -6,15 +7,29 @@ namespace Server
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Chat> Chats { get; set; }
+
+        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+            : base(options)
+        {
+        }
+
+        public ApplicationDbContext()
+        {
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseSqlite("Data Source=Data/Database/messenger.db");
+            if (!optionsBuilder.IsConfigured)
+            {
+                optionsBuilder.UseSqlite("Data Source=messenger.db");
+                optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // Настройка User
+            // Конфигурация User
             modelBuilder.Entity<User>(entity =>
             {
                 entity.HasKey(u => u.Id);
@@ -22,39 +37,25 @@ namespace Server
                 entity.Property(u => u.UserName)
                     .IsRequired()
                     .HasMaxLength(100);
-                
-                entity.Property(u => u.LocalServerAddress)
-                    .IsRequired()
-                    .HasMaxLength(45);
-                
-                entity.Property(u => u.LocalServerPort)
-                    .IsRequired();
-                
-                // Игнорируем вычисляемое свойство
-                entity.Ignore(u => u.LocalServer);
-                
-                // Связь один-ко-многим с Message
-                entity.HasMany(u => u.UnreadMessages)
-                    .WithOne(m => m.Sender)
-                    .HasForeignKey(m => m.Id)
-                    .OnDelete(DeleteBehavior.Cascade);
+                    
+                entity.HasIndex(u => u.UserName)
+                    .IsUnique();
             });
 
-            // Настройка Message
+            // Конфигурация Message
             modelBuilder.Entity<Message>(entity =>
             {
                 entity.HasKey(m => m.Id);
                 
-                entity.Property(m => m.Id)
-                    .ValueGeneratedOnAdd();
-                
                 entity.Property(m => m.MessageText)
                     .IsRequired()
                     .HasMaxLength(1000);
-                
-                // Индексы для быстрого поиска
+                    
+                entity.Property(m => m.Sender)
+                    .HasMaxLength(100);
+                    
+                entity.HasIndex(m => m.Sender);
                 entity.HasIndex(m => m.ChatId);
-                entity.HasIndex(m => m.UserSessionKey);
             });
         }
     }
