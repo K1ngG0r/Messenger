@@ -6,6 +6,7 @@ using System.Security;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using Azure.Core;
 using Client.Models;
 
@@ -22,6 +23,7 @@ namespace Client.Connection
         {
             connectedServer = serverIP;
             udpConnection = new UdpConnection(1234);
+            udpConnection.Start();
             udpConnection.DataReceived += HandleMessage;
         }
         public async Task Login(string username, string password)
@@ -117,15 +119,19 @@ namespace Client.Connection
                     throw new VerificationException();
                 return response;
             }
-            catch
+            catch(VerificationException)
             {
                 throw new VerificationException();
+            }
+            catch
+            {
+                throw new Exception();
             }
         }
         private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
-            if (sessionKey == string.Empty)
-                throw new Exception();
+            /*if (sessionKey == string.Empty)
+                throw new Exception();*/
             var correlationId = Guid.NewGuid();
             var request = new Request(sessionKey, correlationId, method, body);
             var tcs = new TaskCompletionSource<Response>();
@@ -136,7 +142,7 @@ namespace Client.Connection
             try
             {
                 var requestBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
-                await udpConnection.SendAsync(requestBytes, connectedServer);
+                udpConnection.Send(requestBytes, connectedServer);
                 using (var cts = new CancellationTokenSource(timeout))
                 {
                     return await tcs.Task.WaitAsync(cts.Token);
@@ -158,12 +164,15 @@ namespace Client.Connection
         }
         private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
+            Task.Run(() => MessageBox.Show("handle mes"));
             if (connectedServer.ToString() != who.ToString())
                 return;
+            Task.Run(()=>MessageBox.Show("Получено сообщение"));
             string messageString = Encoding.UTF8.GetString(bytes);
             Response? response = JsonSerializer.Deserialize<Response?>(messageString);
             if (response == null)
                 return;
+            Task.Run(() => MessageBox.Show($"{response.Payload}"));
             TaskCompletionSource<Response>? tcs;
             lock (_lock)
             {

@@ -15,7 +15,6 @@ public sealed record Response(
 
 public enum RequestMethod
 {
-    Register,
     Login,
     Send,
     Update,

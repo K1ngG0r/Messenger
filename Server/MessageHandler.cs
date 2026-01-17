@@ -36,7 +36,9 @@ public class MessageHandler
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
         Console.WriteLine(requestString);
+        Console.WriteLine("1");
         var request = JsonSerializer.Deserialize<Request>(requestString);
+        Console.WriteLine("2");
 
         var correlationId = request!.CorrelationId;
 
@@ -49,6 +51,7 @@ public class MessageHandler
             _ => new Response(correlationId, ResponseStatusCode.Failed, "Команда не распознана")
         };
 
+        Console.WriteLine("3");
         return JsonSerializer.Serialize(response);
     }
 
@@ -100,7 +103,7 @@ public class MessageHandler
         var settings = JsonSerializer.Deserialize<LoginRequestSettings>(LoginSettings)!;
 
         string password = hashPassword(settings.password);
-        var res = _context.Users.First(x => x.UserName == settings.username);
+        var res = _context.Users.FirstOrDefault(x => x.UserName == settings.username);
 
         var tmpUser = new User();
         if(res == null)
@@ -108,10 +111,8 @@ public class MessageHandler
             tmpUser = new User()
             {
                 UserName = settings.username,
-                HashPassword = password,
-                Id = _context.Users.LastOrDefault()!.Id + 1
+                HashPassword = password
             };
-
             _context.Users.Add(tmpUser);
         }
         else

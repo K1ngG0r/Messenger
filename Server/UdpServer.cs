@@ -67,8 +67,7 @@ public class UdpServer
     {
         string response = messageHandler.RequestHandler(requestBytes, cancellationToken);
 
-        var responseString = JsonSerializer.Serialize(response);
-        var responseBytes = Encoding.UTF8.GetBytes(responseString);
+        var responseBytes = Encoding.UTF8.GetBytes(response);
 
         await _udpClient.SendAsync(responseBytes, remoteEndPoint, cancellationToken);
     }

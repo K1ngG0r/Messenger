@@ -34,7 +34,7 @@ namespace Client
             //init(context, me);
             IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
             var clientConnection = new ClientConnection(serverIP);
-            //clientConnection.Login("dmitry", "1234").Wait();
+            Task.Run(()=>clientConnection.Login("dmitry", "1234")).Wait();
             var mediator = new Mediator();
             var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);

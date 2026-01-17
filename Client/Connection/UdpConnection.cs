@@ -20,16 +20,15 @@ public class UdpConnection
         _udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
         _udpClient = new UdpClient(_udpClientEndPoint);
     }
-
-    public async Task StartAsync(CancellationToken cancellationToken)
+     public void Start()
     {
         if (_started) return;
 
         _cts?.Cancel();
         _cts = new CancellationTokenSource();
-        var linketToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
+        
         _started = true;
-        await ReceiveAsync(linketToken.Token);
+        Task.Run(() => ReceiveAsync(_cts.Token));
     }
 
     public void Stop()
@@ -40,9 +39,9 @@ public class UdpConnection
         _cts.Cancel();
         return;
     }
-    public async Task SendAsync(byte[] bytes, IPEndPoint endPoint)
+    public void Send(byte[] bytes, IPEndPoint endPoint)
     {
-        await _udpClient.SendAsync(bytes, endPoint);
+        _udpClient.Send(bytes, endPoint);
     }
     private async Task ReceiveAsync(CancellationToken cancellationToken)
     {
