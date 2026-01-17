@@ -57,7 +57,22 @@ public class MessageHandler
 
     private Response CreateChat (Guid correlationId, string sessionKey ,string SendSettings)
     {
-        return new Response(correlationId, ResponseStatusCode.Ok, String.Empty);
+        var user = _context.Users.FirstOrDefault(x => x.UserName == settings);
+
+        if(user == null)
+            return new Response(correlationId, ResponseStatusCode.NotFound, String.Empty);
+
+        var newChat = _context.Chats.Add(new Chat()
+        {
+            Members = new List<User>()
+            {
+                _sessionManager.GetUserBySession(sessionKey)!,
+                user
+            }
+        }).Entity;
+
+        return new Response(correlationId, ResponseStatusCode.Ok, 
+            JsonSerializer.Serialize(newChat.Id));
 
     }
 
