@@ -24,14 +24,14 @@ namespace Client.Connection
             udpConnection = new UdpConnection(1234);
             udpConnection.DataReceived += HandleMessage;
         }
-        public async Task<string> Login(string username, string password)
+        public async Task Login(string username, string password)
         {
             var body = JsonSerializer.Serialize(
                 new LoginRequestSettings(username, password));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Login, body);
-                return response.Payload;
+                sessionKey = response.Payload;
             }
             catch
             {
@@ -124,6 +124,8 @@ namespace Client.Connection
         }
         private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
+            if (sessionKey == string.Empty)
+                throw new Exception();
             var correlationId = Guid.NewGuid();
             var request = new Request(sessionKey, correlationId, method, body);
             var tcs = new TaskCompletionSource<Response>();
