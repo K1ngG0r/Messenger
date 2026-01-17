@@ -1,8 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Server;
 
@@ -22,6 +18,7 @@ public sealed record SendRequestSettings(
 //request - string.empty
 //response - List<SingleChange>
 public sealed record SingleChange(
+    int Id,
     SingleChangeMethod method,
     string body);
 public enum SingleChangeMethod
