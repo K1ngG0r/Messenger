@@ -50,11 +50,6 @@ namespace Server
                 entity.Property(m => m.MessageText)
                     .IsRequired()
                     .HasMaxLength(1000);
-                    
-                entity.Property(m => m.Sender)
-                    .HasMaxLength(100);
-                    
-                entity.HasIndex(m => m.Sender);
                 entity.HasIndex(m => m.ChatId);
             });
         }
