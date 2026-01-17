@@ -84,26 +84,28 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task LoadUser(string username)//fixit
+        public async Task<User> LoadUser(string username)//fixit
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.User, username));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+                return new User();//fixit
             }
             catch
             {
                 throw new Exception();
             }
         }
-        public async Task LoadChat(Guid chatId)//fixit
+        public async Task<Chat> LoadChat(Guid chatId)
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.Chat, chatId.ToString()));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+                return new PrivateChat();//fixit
             }
             catch
             {
@@ -130,8 +132,6 @@ namespace Client.Connection
         }
         private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
-            /*if (sessionKey == string.Empty)
-                throw new Exception();*/
             var correlationId = Guid.NewGuid();
             var request = new Request(sessionKey, correlationId, method, body);
             var tcs = new TaskCompletionSource<Response>();
@@ -164,15 +164,12 @@ namespace Client.Connection
         }
         private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
-            Task.Run(() => MessageBox.Show("handle mes"));
             if (connectedServer.ToString() != who.ToString())
                 return;
-            Task.Run(()=>MessageBox.Show("Получено сообщение"));
             string messageString = Encoding.UTF8.GetString(bytes);
             Response? response = JsonSerializer.Deserialize<Response?>(messageString);
             if (response == null)
                 return;
-            Task.Run(() => MessageBox.Show($"{response.Payload}"));
             TaskCompletionSource<Response>? tcs;
             lock (_lock)
             {

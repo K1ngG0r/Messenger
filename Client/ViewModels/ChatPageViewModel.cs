@@ -63,7 +63,7 @@ namespace Client.ViewModels
         public Command OpenSettingsCommand { get; }
         public async Task UpdateChat(int chatId)
         {
-            UpdateChat(await _chatService.LoadChatAsync(chatId));
+            UpdateChat(await _chatService.TryLoadChatAsync(chatId));
             isChatCreated = true;
         }
         private void UpdateChat(Chat chatToUpdate)
@@ -80,7 +80,7 @@ namespace Client.ViewModels
             var user = _chatService.TryLoadUserByUsername(username);
             if (user is null)
                 return;
-            var newChat = _chatService.TryLoadPrivateChatByUser(user);
+            var newChat = _chatService.TryLoadPrivateChatByUsername(username);
             if (newChat != null)
             {
                 UpdateChat(newChat);
@@ -101,7 +101,7 @@ namespace Client.ViewModels
             var user = _chatService.TryLoadUserByUsername(username);
             if (user is null)
                 throw new Exception();
-            var newChat = _chatService.TryLoadPrivateChatByUser(user);
+            var newChat = _chatService.TryLoadPrivateChatByUsername(username);
             if (newChat != null)
             {
                 Chat = newChat;
@@ -126,7 +126,10 @@ namespace Client.ViewModels
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatHistoryClearRequestedMessage>(HandleChatHistoryClearRequestedMessage);
-            Chat = _chatService.LoadChat(chatId);
+            var loadedChat = _chatService.TryLoadChat(chatId);
+            if (loadedChat is null)
+                throw new Exception();
+            Chat = loadedChat;
             messages = new ObservableCollection<ChatMessageViewModel>(
                 Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
             chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _userService);
@@ -141,6 +144,7 @@ namespace Client.ViewModels
             if (!isChatCreated)
             {
                 Chat = await _chatService.CreateNewChat(Chat);
+                _mediator.Send(new ChatCreatedMessage(Chat.Id));
                 isChatCreated = true;
             }
 

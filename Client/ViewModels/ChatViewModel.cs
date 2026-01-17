@@ -76,7 +76,7 @@ namespace Client.ViewModels
         }
         private void OnParticipantChatWithRequested(object? participant)
         {
-            _mediator.Send(new UserSelectedMessage(((ParticipantViewModel)participant).User.Username));
+            _mediator.Send(new OpenPrivateChatMessage(((ParticipantViewModel)participant).User.Username));
         }
     }
     public class ChannelChatViewModel : ChatViewModel
@@ -124,7 +124,7 @@ namespace Client.ViewModels
         }
         private void OnUserSelected(string username)
         {
-            _mediator.Send(new UserSelectedMessage(username));
+            _mediator.Send(new OpenPrivateChatMessage(username));
         }
     }
 }

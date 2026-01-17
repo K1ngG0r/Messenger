@@ -48,7 +48,7 @@ namespace Client.ViewModels
         }
         private void OnChatWithCommand()
         {
-            _mediator.Send(new UserSelectedMessage(ChatMessage.Who.Username));
+            _mediator.Send(new OpenPrivateChatMessage(ChatMessage.Who.Username));
         }
     }
 }

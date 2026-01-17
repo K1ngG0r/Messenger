@@ -21,6 +21,9 @@
                 <DataTemplate DataType="{x:Type vm:SettingsPageViewModel}">
                     <local:SettingsPage/>
                 </DataTemplate>
+                <DataTemplate DataType="{x:Type vm:CreatePrivateChatPageViewModel}">
+                    <local:CreatePrivateChatPage/>
+                </DataTemplate>
             </ContentControl.Resources>
         </ContentControl>
         <ContentControl Grid.Column="1" Content="{Binding ChatPageViewModel}">

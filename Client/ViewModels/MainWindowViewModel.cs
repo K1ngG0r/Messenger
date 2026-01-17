@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.Views;
 
 namespace Client.ViewModels
 {
@@ -25,24 +26,28 @@ namespace Client.ViewModels
                 OnPropertyChanged();
             }
         }
-        public MainPageViewModel MainPageViewModel { get;}
-        public SettingsPageViewModel SettingsPageViewModel { get;}
+        public CreatePrivateChatPageViewModel CreatePrivateChatPageViewModel { get; }
+        public MainPageViewModel MainPageViewModel { get; }
+        public SettingsPageViewModel SettingsPageViewModel { get; }
         public ChatPageViewModel? ChatPageViewModel { get; private set; }
         public MainWindowViewModel(Mediator mediator, ChatService chatService, CurrentUserService userService)
         {
             _mediator = mediator;
             _chatService = chatService;
             _userService = userService;
+            CreatePrivateChatPageViewModel = new CreatePrivateChatPageViewModel(mediator, chatService);
             MainPageViewModel = new MainPageViewModel(mediator, chatService);
             ChatPageViewModel = null;
             SettingsPageViewModel = new SettingsPageViewModel(mediator, userService);
             activePageViewModel = MainPageViewModel;
-            _mediator.Register<NavigateToSettingsPage>(HandleNavigateToSettingsPage);
-            _mediator.Register<NavigateToMainPage>(HandleNavigateToMainPage);
+            _mediator.Register<NavigateToSettingsPageMessage>(HandleNavigateToSettingsPage);
+            _mediator.Register<NavigateToMainPageMessage>(HandleNavigateToMainPage);
             _mediator.Register<ChatSelectedMessage>(HandleChatSelectedMessage);
-            _mediator.Register<UserSelectedMessage>(HandleUserSelectedMessage);
+            _mediator.Register<OpenPrivateChatMessage>(HandleOpenPrivateChatMessage);
             _mediator.Register<ChatDeletionRequestedMessage>(HandleChatDeletionRequestedMessage);
             _mediator.Register<LeaveChatMessage>(HandleLeaveChatMessage);
+            _mediator.Register<PrivateChatCreationRequestedMessage>
+                (HandlePrivateChatCreationRequestedMessage);
         }
         private void HandleNavigateToSettingsPage(object? parameters)
         {
@@ -76,10 +81,12 @@ namespace Client.ViewModels
             ChatPageViewModel = null;
             OnPropertyChanged(nameof(ChatPageViewModel));
         }
-        private async void HandleUserSelectedMessage(object? newUserObject)
+        private async void HandleOpenPrivateChatMessage(object? newUserObject)
         {
-            UserSelectedMessage? message = (UserSelectedMessage?)newUserObject;
+            OpenPrivateChatMessage? message = (OpenPrivateChatMessage?)newUserObject;
             if (message is null)
+                return;
+            if (_chatService.TryLoadUserByUsername(message.Username) is null)
                 return;
             if (ChatPageViewModel is null)
                 ChatPageViewModel = new ChatPageViewModel(message.Username, _mediator, _chatService, _userService);
@@ -99,6 +106,10 @@ namespace Client.ViewModels
                 return;
             ChatPageViewModel = null;
             OnPropertyChanged(nameof(ChatPageViewModel));
+        }
+        private void HandlePrivateChatCreationRequestedMessage(object? newChatObject)
+        {
+            ActivePageViewModel = CreatePrivateChatPageViewModel;
         }
     }
 }
