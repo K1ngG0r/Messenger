@@ -38,20 +38,6 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task<string> Register(string username, string password)
-        {
-            var body = JsonSerializer.Serialize(
-                new LoginRequestSettings(username, password));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Register, body);
-                return response.Payload;
-            }
-            catch
-            {
-                throw new Exception();
-            }
-        }
         public async Task SendMessage(Guid chatId, string message)
         {
             var body = JsonSerializer.Serialize(

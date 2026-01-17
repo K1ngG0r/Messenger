@@ -28,4 +28,25 @@ namespace Client.ViewModels.Patterns
             Implemention?.Invoke();
         }
     }
+    public class RelayCommand : ICommand
+    {
+        #pragma warning disable CS0067 
+        public event EventHandler? CanExecuteChanged;
+        #pragma warning restore CS0067 
+        private Action<object?> Implemention { get; set; }
+        public RelayCommand(Action<object?> implemention)
+        {
+            Implemention = implemention;
+        }
+
+        public bool CanExecute(object? parameter)
+        {
+            return true;
+        }
+
+        public void Execute(object? parameter)
+        {
+            Implemention?.Invoke(parameter);
+        }
+    }
 }

@@ -49,6 +49,8 @@ namespace Client.ViewModels
         public bool CanExecuteOwnerAction { get; private set; }
         public bool CanExecuteAdminAction { get; private set; }
         public Command LeaveChatCommand { get; set; }
+        //public Command AddParticipantCommand { get; set; }
+        public RelayCommand ParticipantChatWithCommand { get; set; }
         public List<ParticipantViewModel> Participants { get; set; }
         public GroupChatViewModel(GroupChat chat, Mediator mediator, CurrentUserService userService)
             : base(chat, mediator)
@@ -58,27 +60,23 @@ namespace Client.ViewModels
             x.User.Username == userService.CurrentUser.Username &&
             x.ParticipantType is ParticipantType.Admin) != null) ||
             chat.Owner.Username == userService.CurrentUser.Username;
+            ParticipantChatWithCommand = new RelayCommand(OnParticipantChatWithRequested);
             CanExecuteOwnerAction = userService.CurrentUser.Username == chat.Owner.Username;
             LeaveChatCommand = new Command(OnLeaveChat);
             Participants = chat.Participants
-                .Select(x => RegisterParticipantViewModel(new ParticipantViewModel(x)))
+                .Select(x => new ParticipantViewModel(x))
                 .ToList();
-            Participants.Add(RegisterParticipantViewModel(new ParticipantViewModel(
-                new Participant(chat.Owner, chat), true)));
+            Participants.Add(new ParticipantViewModel(
+                new Participant(chat.Owner, chat), true));
             _mediator = mediator;
         }
         private void OnLeaveChat()
         {
             _mediator.Send(new LeaveChatMessage(Chat.Id));
         }
-        private ParticipantViewModel RegisterParticipantViewModel(ParticipantViewModel p)
+        private void OnParticipantChatWithRequested(object? participant)
         {
-            p.ChatWithRequested += OnParticipantChatWithRequested;
-            return p;
-        }
-        private void OnParticipantChatWithRequested(string username)
-        {
-            _mediator.Send(new UserSelectedMessage(username));
+            _mediator.Send(new UserSelectedMessage(((ParticipantViewModel)participant).User.Username));
         }
     }
     public class ChannelChatViewModel : ChatViewModel

@@ -45,7 +45,7 @@
                     <DataTemplate DataType="{x:Type vm:GroupChatViewModel}">
                         <StackPanel Orientation="Vertical">
                             <TextBlock Text="Participants:"/>
-                            <ListBox ItemsSource="{Binding Participants}">
+                            <ListBox x:Name="listBox" ItemsSource="{Binding Participants}">
                                 <ListBox.ItemTemplate>
                                     <DataTemplate DataType="vm:ParticipantViewModel">
                                         <StackPanel Orientation="Vertical">
@@ -59,7 +59,10 @@
                                             <TextBlock Text="{Binding User.Username}" Margin="5"/>
                                             <StackPanel.ContextMenu>
                                                 <ContextMenu>
-                                                    <MenuItem Header="Chat with" Command="{Binding ChatWithCommand}"/>
+                                                    <MenuItem Header="Chat with" 
+                                                              Command=""
+                                                              CommandParameter="{Binding}"
+                                                              Visibility="Collapsed"/>
                                                     <MenuItem Header="Delete"/>
                                                     <MenuItem Header="Op"/>
                                                     <MenuItem Header="Deop"/>
