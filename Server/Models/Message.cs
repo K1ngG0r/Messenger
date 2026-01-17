@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -17,14 +17,14 @@ public class Message
     [Column("MessageText")]
     public string MessageText { get; set; } = string.Empty; // Инициализация по умолчанию
     
-    public virtual User? Sender { get; set; }
+    public virtual string? SenderUserName { get; set; }
 
     public Message(){}
     
-    public Message(string messageText, Guid? chatId = null, User? sender = null)
+    public Message(string messageText, Guid? chatId = null, string? senderUserName = null)
     {
         MessageText = messageText ?? throw new ArgumentNullException(nameof(messageText));
         ChatId = chatId;
-        Sender = sender;
+        SenderUserName = senderUserName;
     }
 }
