@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Client.ViewModels"
+             xmlns:local="clr-namespace:Client.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="250">
     <Grid>
@@ -12,7 +12,8 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
-            <Button Content="..." Width="50" FontSize="30" DockPanel.Dock="Left"/>
+            <Button Content="..." Width="50" FontSize="30"
+                    DockPanel.Dock="Left" Command="{Binding NavigateToSettingsPageCommand}"/>
             <TextBox Text="{Binding SearchText, Mode=TwoWay}" TextAlignment="Left" Padding="5"/>
         </DockPanel>
         <ListBox ItemsSource="{Binding ChatsList}" SelectedItem="{Binding SelectedChat, Mode=TwoWay}" Grid.Row="1">
@@ -31,6 +32,7 @@
                 <DataTemplate>
                     <Border CornerRadius="10" Background="LightBlue">
                         <StackPanel Orientation="Horizontal">
+                            <local:AvatarImage DataContext="{Binding Avatar}"/>
                             <TextBlock Margin="10" Text="{Binding ChatName}" FontSize="16"/>
                         </StackPanel>
                     </Border>

@@ -1,0 +1,113 @@
+﻿<UserControl x:Class="Client.Views.ChatInfoPage"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:Client.Views"
+             xmlns:vm="clr-namespace:Client.ViewModels"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="250">
+    <UserControl.Resources>
+        <local:BoolToVisibilityConverter x:Key="visibilityConverter"/>
+        <local:InvertedBoolToVisibilityConverter x:Key="invertedVisibilityConverter"/>
+        <local:ParticipantViewModelTypeToColorConverter x:Key="toColorConverter"/>
+        <local:ParticipantViewModelTypeToTextConverter x:Key="toTextConverter"/>
+    </UserControl.Resources>
+    <ScrollViewer>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Button Content="Close" 
+                    Command="{Binding ChatInfoCloseCommand}"/>
+            <local:AvatarImage Grid.Row="1"
+                           DataContext="{Binding Avatar}" 
+                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <TextBlock Grid.Row="2"
+                   Text="{Binding Name}"/>
+            <TextBlock Grid.Row="3" 
+                   Text="{Binding ChatType}"/>
+            <ContentControl Grid.Row="4"
+                        Content="{Binding Chat}">
+                <ContentControl.Resources>
+                    <DataTemplate DataType="{x:Type vm:PrivateChatViewModel}">
+                        <StackPanel>
+                            <TextBlock Text="{Binding User.Username}"/>
+                            <Button Content="Delete chat" Command="{Binding DeleteChatCommand}"/>
+                            <Button Content="Clear history" Command="{Binding ClearHistoryCommand}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:GroupChatViewModel}">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Participants:"/>
+                            <ListBox x:Name="listBox" ItemsSource="{Binding Participants}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="vm:ParticipantViewModel">
+                                        <StackPanel Orientation="Vertical">
+                                            <DockPanel>
+                                                <local:AvatarImage DataContext="{Binding User.Avatar}"/>
+                                                <TextBlock Text="{Binding ParticipantType,
+                                                Converter={StaticResource toTextConverter}}"
+                                                        Foreground="{Binding ParticipantType,
+                                                Converter={StaticResource toColorConverter}}"/>
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding User.Username}" Margin="5"/>
+                                            <StackPanel.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Chat with" 
+                                                              Command=""
+                                                              CommandParameter="{Binding}"
+                                                              Visibility="Collapsed"/>
+                                                    <MenuItem Header="Delete"/>
+                                                    <MenuItem Header="Op"/>
+                                                    <MenuItem Header="Deop"/>
+                                                </ContextMenu>
+                                            </StackPanel.ContextMenu>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                            <Button Content="Delete group" 
+                                    Command="{Binding }"
+                                    Visibility="{Binding CanExecuteOwnerAction, 
+                                        Converter={StaticResource visibilityConverter}}"/>
+                            <Button Content="Leave chat" 
+                                    Command="{Binding LeaveChatCommand}"
+                                    Visibility="{Binding CanExecuteOwnerAction, 
+                                        Converter={StaticResource invertedVisibilityConverter}}"/>  
+                            <Button Content="Clear history" Command="{Binding ClearHistoryCommand}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                    <DataTemplate DataType="{x:Type vm:ChannelChatViewModel}">
+                        <StackPanel Orientation="Vertical">
+                            <TextBlock Text="Owner:"/>
+                            <TextBlock Text="{Binding Owner.Username}"/>
+                            <TextBlock Text="Subscribers:"/>
+                            <ListBox ItemsSource="{Binding Subscribers}">
+                                <ListBox.ItemTemplate>
+                                    <DataTemplate DataType="vm:ParticipantViewModel">
+                                        <StackPanel Orientation="Vertical">
+                                            <DockPanel>
+                                                <local:AvatarImage DataContext="{Binding User.Avatar}"/>
+                                                <TextBlock Text="{Binding ParticipantType,
+                                                        Converter={StaticResource toTextConverter}}"
+                                                    Foreground="{Binding ParticipantType,
+                                                        Converter={StaticResource toColorConverter}}"/>
+                                            </DockPanel>
+                                            <TextBlock Text="{Binding User.Username}" Margin="5"/>
+                                        </StackPanel>
+                                    </DataTemplate>
+                                </ListBox.ItemTemplate>
+                            </ListBox>
+                        </StackPanel>
+                    </DataTemplate>
+                </ContentControl.Resources>
+            </ContentControl>
+        </Grid>
+    </ScrollViewer>
+</UserControl>

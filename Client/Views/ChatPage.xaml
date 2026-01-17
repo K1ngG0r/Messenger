@@ -3,53 +3,92 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Client.ViewModels"
+             xmlns:local="clr-namespace:Client.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="600">
+    <UserControl.Resources>
+        <local:BoolToColumnConverter x:Key="BoolToColumnConverter"/>
+        <local:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+        <local:InvertedBoolToVisibilityConverter x:Key="InvertedBoolToVisibilityConverter"/>
+        <local:DateTimeConverter x:Key="DateTimeConverter"/>
+    </UserControl.Resources>
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="50"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="50"/>
-        </Grid.RowDefinitions>
-        <DockPanel Background="White">
-            <TextBlock VerticalAlignment="Center" Text="{Binding ChatName}" TextAlignment="Left" Margin="5"/>
-        </DockPanel>
-        <ListBox ItemsSource="{Binding Messages}" Grid.Row="1">
-            <ListBox.ItemsPanel>
-                <ItemsPanelTemplate>
-                    <VirtualizingStackPanel/>
-                </ItemsPanelTemplate>
-            </ListBox.ItemsPanel>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="ListBoxItem">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
-                </Style>
-            </ListBox.ItemContainerStyle>
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="2*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe}">
-                            <StackPanel Orientation="Vertical" Margin="5">
-                                <TextBlock Text="{Binding Name}"/>
-                                <TextBlock Text="{Binding Username}"/>
-                                <TextBlock Text="{Binding Message}"/>
-                                <TextBlock Text="{Binding When}"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
-        <DockPanel Grid.Row="2">
-            <Button Content="Send" Width="50" Command="{Binding SendMessageCommand}" DockPanel.Dock="Right"/>
-            <TextBox Text="{Binding DraftMessage, Mode=TwoWay}" TextAlignment="Left" Padding="10"/>
-        </DockPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="{Binding ChatColumnWidth}"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="60"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="50"/>
+            </Grid.RowDefinitions>
+            <DockPanel Background="White">
+                <local:AvatarImage DataContext="{Binding Avatar}"/>
+                
+                <Button Content="..." Height="60" Width="60" DockPanel.Dock="Right"
+                        Command="{Binding OpenSettingsCommand}"/>
+                <TextBlock VerticalAlignment="Center"
+                           Text="{Binding ChatName}"
+                           FontSize="16"
+                           TextAlignment="Left"
+                           Margin="5">  
+                </TextBlock>
+            </DockPanel>
+            <ListBox ItemsSource="{Binding Messages}"
+                     Grid.Row="1">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <VirtualizingStackPanel/>
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter 
+                            Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border BorderThickness="3" BorderBrush="Black" CornerRadius="15" Grid.Column="{Binding IsMe, Converter={StaticResource BoolToColumnConverter}}">
+                                <StackPanel Orientation="Vertical" Margin="5">
+                                    <DockPanel>
+                                        <local:AvatarImage DataContext="{Binding Avatar}"/>
+
+                                        <TextBlock Text="{Binding Name}" Margin="5" DockPanel.Dock="Left"/>
+                                    </DockPanel>
+                                    <TextBlock Text="{Binding Message}" TextWrapping="Wrap"/>
+                                    <TextBlock Text="{Binding When, Converter={StaticResource DateTimeConverter}}" TextAlignment="Right"/>
+                                </StackPanel>
+                                <Border.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Delete" Command="{Binding DeleteCommand}"/>
+                                        <MenuItem Header="Chat with" Command="{Binding ChatWithCommand}"/>
+                                        <MenuItem Header="Resend"/>
+                                        <MenuItem Header="Chat with"/>
+                                        <MenuItem Header="Respond" Visibility="{Binding IsMe, Converter={StaticResource InvertedBoolToVisibilityConverter}}"/>
+                                    </ContextMenu>
+                                </Border.ContextMenu>
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+            <DockPanel Grid.Row="2">
+                <Button Content="Send" Width="50" Command="{Binding SendMessageCommand}" DockPanel.Dock="Right">
+                </Button>
+                <TextBox Text="{Binding DraftMessage, Mode=TwoWay}" TextAlignment="Left" Padding="10" TextWrapping="Wrap"/>
+
+            </DockPanel>
+        </Grid>
+        <local:ChatInfoPage DataContext="{Binding ChatInfo}"
+                            Grid.Column="1"/>
     </Grid>
 </UserControl>

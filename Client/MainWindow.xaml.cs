@@ -1,9 +1,12 @@
-﻿using Client.Data;
+﻿using Client.Connection;
+using Client.Data;
 using Client.Models;
 using Client.ViewModels;
 using Client.ViewModels.Patterns;
 using Client.Views;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
+using System.Net;
 using System.Text;
 using System.Windows;
 using System.Windows.Controls;
@@ -23,36 +26,61 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me");
+            var me = new User("Me", "me", 
+                imagePath: AvatarsManager
+                    .GetUserAvatarPathByUsername("me"));
 
             var context = new AppDBContext();
-            init(context);
-            
+            //init(context, me);
+            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
+            var clientConnection = new ClientConnection(serverIP);
             var mediator = new Mediator();
-            var chatService = new ChatService(context);
+            var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);
-            var chatPageViewModel = new ChatPageViewModel(mediator, chatService, userService);
-            var mainPageViewModel = new MainPageViewModel(mediator, chatService);
-            var settingsPageViewModel = new SettingsPageViewModel();
-            var mainWindowViewModel = new MainWindowViewModel(
-                mainPageViewModel,
-                chatPageViewModel,
-                settingsPageViewModel);
+            var mainWindowViewModel = new MainWindowViewModel(mediator,
+                chatService, userService);
             DataContext = mainWindowViewModel;
         }
-        private void init(AppDBContext context)
+        private void init(AppDBContext context, User user)
         {
-            var user = new User("Me","meusername");
-            var chat = new Chat("Chat 1", new List<ChatMessage>());
-            var message = new ChatMessage(chat, user, "hello!",DateTime.Now);
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
-            chat.Messages.Add(message);
+            
+            var otherUser1 = new User("Mike", "mikename",
+                imagePath: AvatarsManager.GetUserAvatarPathByUsername("mikename"));
+            var chat = new PrivateChat(Guid.NewGuid(), otherUser1, AvatarsManager.GetUserAvatarPathByUsername("mikename"));
+            var message1 = new ChatMessage(chat, user, "hello!",DateTime.Now);
+            var message2 = new ChatMessage(chat, otherUser1, "hi there", DateTime.Now);
+            chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
             context.Users.Add(user);
             context.Chats.Add(chat);
-            context.Messages.Add(message);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.SaveChanges();
+
+            var otherUser2 = new User("Sam", "samname",
+                 imagePath: AvatarsManager.GetUserAvatarPathByUsername("samname"));
+            chat = new PrivateChat(Guid.NewGuid(), otherUser2, AvatarsManager.GetUserAvatarPathByUsername("samname"));
+            message1 = new ChatMessage(chat, user, "hello!", DateTime.Now);
+            message2 = new ChatMessage(chat, otherUser2, "hi there", DateTime.Now);
+            chat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.Chats.Add(chat);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.SaveChanges();
+
+            var gchat = new GroupChat(Guid.NewGuid(), otherUser2,
+                "Lol group",
+                AvatarsManager.GetUserAvatarPathByUsername("samname"));
+            gchat.Participants.AddRange(new List<Participant>(){new Participant(user, gchat),
+                new Participant(otherUser1, gchat) });
+            message1 = new ChatMessage(gchat, user, "hello!", DateTime.Now);
+            message2 = new ChatMessage(gchat, otherUser2, "hi there", DateTime.Now);
+            gchat.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+            context.Chats.Add(gchat);
+            context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
+
             context.SaveChanges();
         }
+        /*
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
             ColumnDefinition col1 = this.column1;
@@ -86,6 +114,6 @@ namespace Client
 
                 // **Рекомендация**: Для простого перетаскивания границы используйте GridUnitType.Pixel.
             }
-        }
+        }*/
     }
 }

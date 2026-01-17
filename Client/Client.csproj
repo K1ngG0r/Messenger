@@ -9,6 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="cache\DefaultAvatar.png" />
+    <None Remove="cache\MyAvatar.png" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
       <PrivateAssets>all</PrivateAssets>
@@ -22,9 +27,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Views\ChatInfoPage.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Views\SettingsPage.xaml.cs">
       <SubType>Code</SubType>
     </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="cache\avatars\users\me.png" />
+    <Resource Include="cache\avatars\users\samname.png" />
+    <Resource Include="cache\avatars\_default.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\ChatInfoPage.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="cache\avatars\chats\" />
   </ItemGroup>
 
 </Project>

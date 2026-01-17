@@ -6,27 +6,26 @@ using Client.Connection;
 
 namespace Client.Connection;
 
-public class UdpServer
+public class UdpConnection
 {
-    private readonly IPEndPoint _serverEndPoint;
+    private readonly IPEndPoint _udpClientEndPoint;
     private readonly UdpClient _udpClient;
 
-    private IPresentationService _ps;
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
-    public Action<string> OnReceive;
+    public Action<byte[], IPEndPoint> DataReceived = null!;
 
-    public UdpServer(int port, IPresentationService ps)
+    public UdpConnection(int port)
     {
-        _ps = ps;
-        _serverEndPoint = new IPEndPoint(IPAddress.Loopback, port);
-        _udpClient = new UdpClient(_serverEndPoint);
+        _udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        _udpClient = new UdpClient(_udpClientEndPoint);
     }
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
         if (_started) return;
 
+        _cts?.Cancel();
         _cts = new CancellationTokenSource();
         var linketToken = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _cts.Token);
         _started = true;
@@ -39,32 +38,27 @@ public class UdpServer
 
         _started = false;
         _cts.Cancel();
-        _ps.DisplayMessage("Сервер остановлен");
         return;
     }
-    public void Send()
+    public async Task SendAsync(byte[] bytes, IPEndPoint endPoint)
     {
-
+        await _udpClient.SendAsync(bytes, endPoint);
     }
     private async Task ReceiveAsync(CancellationToken cancellationToken)
     {
-        _ps.DisplayMessage($"Сервер запущен: {_udpClient.Client.LocalEndPoint}");
         while (!cancellationToken.IsCancellationRequested)
         {
             var result = await _udpClient.ReceiveAsync(cancellationToken);
 
             var remoteEndPoint = result.RemoteEndPoint;
             var requestBytes = result.Buffer;
-            _ps.DisplayMessage($"Входящее подключение {remoteEndPoint}");
 
-            _ = ClientHanlderAsync(remoteEndPoint, requestBytes, cancellationToken);
+            ClientHanlde(remoteEndPoint, requestBytes);
         }
     }
 
-    private async Task ClientHanlderAsync(IPEndPoint remoteEndPoint, byte[] requestBytes, CancellationToken cancellationToken)
+    private void ClientHanlde(IPEndPoint remoteEndPoint, byte[] requestBytes)
     {
-        var requestString = Encoding.UTF8.GetString(requestBytes);
-        _ps.DisplayMessage(requestString);
-        OnReceive?.Invoke(requestString);
+        DataReceived?.Invoke(requestBytes, remoteEndPoint);
     }
 }

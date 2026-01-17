@@ -1,23 +1,31 @@
-﻿namespace Client.Connection;
+﻿using System.Text.Json.Serialization;
+
+namespace Client.Connection;
 
 public sealed record Request(
-    RequestMethod Method,
-    string Body);
+    [property: JsonPropertyName("key")] string SessionKey,
+    [property: JsonPropertyName("cid")] Guid CorrelationId,
+    [property: JsonPropertyName("method")] RequestMethod Method,
+    [property: JsonPropertyName("body")] string Body);
 
 public sealed record Response(
-    ResponseStatusCode Code,
-    string Body);
+    [property: JsonPropertyName("cid")] Guid CorrelationId,
+    [property: JsonPropertyName("code")] ResponseStatusCode Code,
+    [property: JsonPropertyName("body")] string Payload);
 
 public enum RequestMethod
 {
-    Register,
     Login,
     Send,
     Update,
-    Load
+    AdminAction,
+    CreateChat,
+    Load,
+    ChangeSettings
 }
 public enum ResponseStatusCode
 {
     Ok,
+    NotFound,
     Failed
 }
