@@ -23,7 +23,7 @@ namespace Server
             if (!optionsBuilder.IsConfigured)
             {
                 optionsBuilder.UseSqlite("Data Source=messenger.db");
-                //optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
+                optionsBuilder.LogTo(Console.WriteLine, LogLevel.Information);
             }
         }
 

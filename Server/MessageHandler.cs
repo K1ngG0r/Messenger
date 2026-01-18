@@ -25,20 +25,23 @@ public class MessageHandler
         // _context.Users.Add(new User(){UserName = "kinggor"});
         // _context.Users.Add(new User(){UserName = "fazber"});
         // _context.SaveChanges();
-        
+
         // Загружаем пользователей ИЗ БД
-        var _users = _context.Users.ToDictionary(x => x.Id, x => x);
-        
+        //var _users = _context.Users.ToDictionary(x => x.Id, x => x);
+        var _users = _context.Users.ToList();
+        Console.WriteLine(string.Join("\n", _users.Select(x=>x.UserName)));
         Console.WriteLine($"Загружено {_users.Count} пользователей из БД");
     } 
 
     public string RequestHandler(byte[] requestBytes, CancellationToken cancellationToken)
     {
+        Console.WriteLine("request handler");
         var requestString = Encoding.UTF8.GetString(requestBytes);
         var request = JsonSerializer.Deserialize<Request>(requestString);
 
         var correlationId = request!.CorrelationId;
 
+        Console.WriteLine("request handler switch");
         Response response = request!.Method switch
         {
             RequestMethod.Login => Login(correlationId, request.Body),
@@ -51,25 +54,32 @@ public class MessageHandler
         return JsonSerializer.Serialize(response);
     }
 
-    private Response CreateChat(Guid correlationId, string sessionKey, string username)
+    private Response CreateChat(Guid correlationId, string sessionKey, string body)
     {
-        var user = _context.Users.FirstOrDefault(x => x.UserName == username);
+        CreateChatRequestSettings? settings = JsonSerializer.Deserialize<CreateChatRequestSettings?>(body);
+        if(settings is null)
+            return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
 
-        if(user == null)
-            return new Response(correlationId, ResponseStatusCode.NotFound, string.Empty);
-
-        var newChat = _context.Chats.Add(new Chat()
+        switch (settings.method)
         {
-            Members = new List<User>()
-            {
-                _sessionManager.GetUserBySession(sessionKey)!,
-                user
-            }
-        }).Entity;
+            case CreateChatRequestSettingsMethod.PrivateChat:
+                var user = _context.Users.FirstOrDefault(x => x.UserName == settings.body);
 
-        return new Response(correlationId, ResponseStatusCode.Ok, 
-            JsonSerializer.Serialize(newChat.Id));
+                if (user == null)
+                    return new Response(correlationId, ResponseStatusCode.NotFound, string.Empty);
 
+                var newChat = _context.Chats.Add(new Chat()
+                {
+                    Members = new List<User>()
+                    {
+                        _sessionManager.GetUserBySession(sessionKey)!,
+                        user
+                    }
+                }).Entity;
+                return new Response(correlationId, ResponseStatusCode.Ok,
+                    newChat.Id.ToString());
+        }
+        return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
     }
 
     private Response Update(Guid correlationId, string sessionKey ,string SendSettings)
@@ -86,7 +96,7 @@ public class MessageHandler
     {
         var settings = JsonSerializer.Deserialize<SendRequestSettings>(SendSettings)!;
 
-        var chat = _context.Chats.First(x => x.Id == settings.chatId);
+        var chat = _context.Chats.FirstOrDefault(x => x.Id == settings.chatId);
 
         if(chat != null)
             foreach(var u in chat.Members!)
@@ -115,10 +125,13 @@ public class MessageHandler
         switch (settings.method)
         {
             case LoadRequestSettingsMethod.User:
-                var user = _context.Users.FirstOrDefault(x => x.UserName == body);
+                var user = _context.Users.FirstOrDefault(x => x.UserName == settings.body);
                 if (user is null)
+                {
                     return new Response(correlationId, ResponseStatusCode.NotFound, "Не удалось найти");
-                return new Response(correlationId, ResponseStatusCode.Ok, string.Empty);
+                }
+                var userInfoString = JsonSerializer.Serialize(new UserInfo("Daniil", user.UserName, new byte[32]));
+                return new Response(correlationId, ResponseStatusCode.Ok, userInfoString);
             case LoadRequestSettingsMethod.Chat:
                 if (Guid.TryParse(body, out Guid chatId))
                     break;

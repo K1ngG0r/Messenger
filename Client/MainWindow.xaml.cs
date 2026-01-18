@@ -26,16 +26,25 @@ namespace Client
         public MainWindow()
         {
             InitializeComponent();
-            var me = new User("Me", "me", 
-                imagePath: AvatarsManager
-                    .GetUserAvatarPathByUsername("me"));
-
-            var context = new AppDBContext();
             //init(context, me);
             IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
-            //IPEndPoint serverIP = IPEndPoint.Parse("26.107.253.47:9000");
             var clientConnection = new ClientConnection(serverIP, new WpfPresentationService());
-            clientConnection.Login("dmitryname", "1234").Wait();
+            var context = new AppDBContext();
+
+            string username = "samname";
+            string password = "1234";
+            try
+            {
+                clientConnection.Login(username, password).Wait();
+            }
+            catch
+            {
+                App.Current.Shutdown();
+            }
+            var me = new User("User name", username, 
+                imagePath: AvatarsManager
+                    .GetUserAvatarPathByUsername(username));
+
 
             var mediator = new Mediator();
             var chatService = new ChatService(context, clientConnection);
@@ -44,10 +53,16 @@ namespace Client
                 chatService, userService);
             DataContext = mainWindowViewModel;
         }
+        private void ResetDatabase(AppDBContext context)
+        {
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
+        }
         private void init(AppDBContext context, User user)
         {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
+            return;
             
             var otherUser1 = new User("Mike", "mikename",
                 imagePath: AvatarsManager.GetUserAvatarPathByUsername("mikename"));

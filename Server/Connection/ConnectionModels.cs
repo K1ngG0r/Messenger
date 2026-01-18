@@ -93,6 +93,7 @@ public enum ParticipantInfoType
 //ChangeSettings
 public sealed record ChangeSettingsRequestSettings(
     string username,
-    string name//и проч (аватарка, дата рождения, статус)
+    string name,
+    byte[] avatar//и проч (аватарка, дата рождения, статус)
     );
 //response - string.empty

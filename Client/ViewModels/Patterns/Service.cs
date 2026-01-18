@@ -77,6 +77,7 @@ namespace Client.ViewModels.Patterns
         }
         public List<Chat> LoadChatsList()
         {
+
             return _context.Chats.ToList();
         }
         public ChatMessage SendMessage(ChatMessage message)
