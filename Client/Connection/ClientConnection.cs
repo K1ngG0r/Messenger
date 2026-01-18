@@ -16,15 +16,16 @@ namespace Client.Connection
     {
         private string sessionKey = string.Empty;
         private IPEndPoint connectedServer;
-        private UdpConnection udpConnection;
+        //private UdpConnection udpConnection;
+        private TcpConnection tcpConnection;
         private Dictionary<Guid, TaskCompletionSource<Response>> _pendingRequests = new();
         private object _lock = new();
         public ClientConnection(IPEndPoint serverIP)
         {
             connectedServer = serverIP;
-            udpConnection = new UdpConnection(1234);
-            udpConnection.Start();
-            udpConnection.DataReceived += HandleMessage;
+            tcpConnection = new TcpConnection(1234);
+            tcpConnection.Start();
+            tcpConnection.DataReceived += HandleMessage;
         }
         public async Task Login(string username, string password)
         {
@@ -142,7 +143,7 @@ namespace Client.Connection
             try
             {
                 var requestBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
-                udpConnection.Send(requestBytes, connectedServer);
+                //tcpConnection.se(requestBytes, connectedServer);
                 using (var cts = new CancellationTokenSource(timeout))
                 {
                     return await tcs.Task.WaitAsync(cts.Token);
@@ -162,11 +163,27 @@ namespace Client.Connection
         {
             return await SendAsync(method, body, TimeSpan.FromSeconds(2));
         }
-        private void HandleMessage(byte[] bytes, IPEndPoint who)
+        /*private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
             if (connectedServer.ToString() != who.ToString())
                 return;
             string messageString = Encoding.UTF8.GetString(bytes);
+            Response? response = JsonSerializer.Deserialize<Response?>(messageString);
+            if (response == null)
+                return;
+            TaskCompletionSource<Response>? tcs;
+            lock (_lock)
+            {
+                if (!_pendingRequests.TryGetValue(response.CorrelationId, out tcs))
+                    return;
+                _pendingRequests.Remove(response.CorrelationId);
+            }
+            tcs.TrySetResult(response);
+        }*/
+        private void HandleMessage(string messageString, EndPoint who)
+        {
+            if (connectedServer.ToString() != who.ToString())
+                return;
             Response? response = JsonSerializer.Deserialize<Response?>(messageString);
             if (response == null)
                 return;

@@ -82,9 +82,15 @@ namespace Client.ViewModels.Patterns
         }
         public ChatMessage SendMessage(ChatMessage message)
         {
-            /*Request sendMessageRequest = new Request();
-            await _connection.SendAsync(sendMessageRequest);*/
-
+            try
+            {
+                Task.Run(()=>_connection.SendMessage(message.Chat.ChatId, message.Message)).Wait();
+                message.State = ChatMessage.ChatMessageState.Delivered;
+            }
+            catch
+            {
+                message.State = ChatMessage.ChatMessageState.NotDelivered;
+            }
             var result = _context.Messages.Add(message).Entity;
             _context.SaveChanges();
             return result;
