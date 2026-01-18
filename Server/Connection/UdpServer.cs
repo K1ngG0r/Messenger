@@ -53,7 +53,15 @@ public class UdpServer
         Console.WriteLine($"Сервер запущен: {_udpClient.Client.LocalEndPoint}");
         while (!cancellationToken.IsCancellationRequested)
         {
-            var result = await _udpClient.ReceiveAsync(cancellationToken);
+            UdpReceiveResult result = default;
+            try
+            {
+                result = await _udpClient.ReceiveAsync(cancellationToken);
+            }
+            catch
+            {
+                continue;
+            }
 
             var remoteEndPoint = result.RemoteEndPoint;
             var requestBytes = result.Buffer;

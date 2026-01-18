@@ -23,15 +23,13 @@ namespace Client
                 return previousPath + $"/cache/avatars/chats/id_{chatId}.png";
             return previousPath + $"/cache/avatars/_default.png";
         }
-        public static void SetChatAvatarByChatId(int chatId, byte[] avatarBytes)
+        public static string SetChatAvatarByChatId(int chatId, byte[] avatarBytes)
         {
-            //можно обновить или сохранить аватарку для чата
-            //fixit
+            return GetChatAvatarByChatId(chatId);//fixit
         }
-        public static void SetUserAvatarPathByUsername(int username, byte[] avatarBytes)
+        public static string SetUserAvatarPathByUsername(string username, byte[] avatarBytes)
         {
-            //можно обновить или сохранить аватарку для пользователя
-            //fixit
+            return GetUserAvatarPathByUsername(username);//fixit
         }
     }
 }

@@ -35,10 +35,7 @@ public class MessageHandler
     public string RequestHandler(byte[] requestBytes, CancellationToken cancellationToken)
     {
         var requestString = Encoding.UTF8.GetString(requestBytes);
-        Console.WriteLine(requestString);
-        Console.WriteLine("1");
         var request = JsonSerializer.Deserialize<Request>(requestString);
-        Console.WriteLine("2");
 
         var correlationId = request!.CorrelationId;
 
@@ -48,19 +45,18 @@ public class MessageHandler
             RequestMethod.Send => Send(correlationId, request.SessionKey, request.Body),
             RequestMethod.Update => Update(correlationId, request.SessionKey, request.Body),
             RequestMethod.CreateChat => CreateChat(correlationId, request.SessionKey, request.Body),
+            RequestMethod.Load => Load(correlationId, request.SessionKey, request.Body),
             _ => new Response(correlationId, ResponseStatusCode.Failed, "Команда не распознана")
         };
-
-        Console.WriteLine("3");
         return JsonSerializer.Serialize(response);
     }
 
-    private Response CreateChat (Guid correlationId, string sessionKey ,string settings)
+    private Response CreateChat(Guid correlationId, string sessionKey, string username)
     {
-        var user = _context.Users.FirstOrDefault(x => x.UserName == settings);
+        var user = _context.Users.FirstOrDefault(x => x.UserName == username);
 
         if(user == null)
-            return new Response(correlationId, ResponseStatusCode.NotFound, String.Empty);
+            return new Response(correlationId, ResponseStatusCode.NotFound, string.Empty);
 
         var newChat = _context.Chats.Add(new Chat()
         {
@@ -86,7 +82,7 @@ public class MessageHandler
                 JsonSerializer.Serialize(updates));
     }
 
-    private Response Send(Guid correlationId, string senderSessionKey ,string SendSettings)
+    private Response Send(Guid correlationId, string senderSessionKey, string SendSettings)
     {
         var settings = JsonSerializer.Deserialize<SendRequestSettings>(SendSettings)!;
 
@@ -112,8 +108,48 @@ public class MessageHandler
 
         return new Response(correlationId, ResponseStatusCode.Ok, String.Empty);
     }
+    private Response Load(Guid correlationId, string sessionKey, string body)
+    {
+        var settings = JsonSerializer.Deserialize<LoadRequestSettings>(body)!;
 
-    private Response Login(Guid correlationId ,string LoginSettings)
+        switch (settings.method)
+        {
+            case LoadRequestSettingsMethod.User:
+                var user = _context.Users.FirstOrDefault(x => x.UserName == body);
+                if (user is null)
+                    return new Response(correlationId, ResponseStatusCode.NotFound, "Не удалось найти");
+                return new Response(correlationId, ResponseStatusCode.Ok, string.Empty);
+            case LoadRequestSettingsMethod.Chat:
+                if (Guid.TryParse(body, out Guid chatId))
+                    break;
+                var chat = _context.Chats.FirstOrDefault(x => x.Id == chatId);
+                if(chat is null)
+                    return new Response(correlationId, ResponseStatusCode.NotFound, "Не удалось найти");
+
+                var chatInfoString = string.Empty;
+                switch (chat.type)
+                {
+                    case CreateChatRequestSettingsMethod.PrivateChat:
+                        var correspondentUsername = chat.Members?.FirstOrDefault(
+                                x => x.UserName != _sessionManager
+                                .GetUserBySession(sessionKey)?.UserName)?.UserName;
+                        if(correspondentUsername is null)
+                            return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
+
+                        chatInfoString = JsonSerializer.Serialize(
+                            new PrivateChatInfo(correspondentUsername));
+                        break;
+                    case CreateChatRequestSettingsMethod.GroupChat:
+                        break;//fixit
+                }
+                if(chatInfoString != string.Empty)
+                    return new Response(correlationId, ResponseStatusCode.Ok, chatInfoString);
+                return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
+        }
+        return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
+    }
+
+    private Response Login(Guid correlationId, string LoginSettings)
     {
         var settings = JsonSerializer.Deserialize<LoginRequestSettings>(LoginSettings)!;
 

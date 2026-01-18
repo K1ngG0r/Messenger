@@ -32,13 +32,12 @@ namespace Client.ViewModels.Patterns
         }
         public User? TryLoadUserByUsername(string username)
         {
-            //загрузка из сервер _connection.LoadUser(username);
             var user = _context.Users.FirstOrDefault(x => x.Username == username);
             if (user is null)
             {
                 try
                 {
-                    user = Task.Run(()=>_connection.LoadUser(username)).Result;
+                    user = _connection.LoadUser(username).Result;
                 }
                 catch
                 {
@@ -84,7 +83,7 @@ namespace Client.ViewModels.Patterns
         {
             try
             {
-                Task.Run(()=>_connection.SendMessage(message.Chat.ChatId, message.Message)).Wait();
+                _connection.SendMessage(message.Chat.ChatId, message.Message).Wait();
                 message.State = ChatMessage.ChatMessageState.Delivered;
             }
             catch
@@ -103,19 +102,19 @@ namespace Client.ViewModels.Patterns
                 switch (chat)
                 {
                     case PrivateChat privateChat:
-                        chatId = Task.Run(() => _connection.CreateChat(
+                        chatId = _connection.CreateChat(
                             CreateChatRequestSettingsMethod.PrivateChat,
-                            privateChat.Correspondent.Username)).Result;
+                            privateChat.Correspondent.Username).Result;
                         break;
                     case GroupChat groupChat:
-                        chatId = Task.Run(() => _connection.CreateChat(
+                        chatId = _connection.CreateChat(
                             CreateChatRequestSettingsMethod.GroupChat,
-                            groupChat.ChatName)).Result;
+                            groupChat.ChatName).Result;
                         break;
                     case ChannelChat channelChat:
-                        chatId = Task.Run(() => _connection.CreateChat(
+                        chatId = _connection.CreateChat(
                             CreateChatRequestSettingsMethod.ChannelChat,
-                            channelChat.ChatName)).Result;
+                            channelChat.ChatName).Result;
                         break;
                 }
                 chat.ChatId = chatId;

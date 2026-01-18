@@ -11,15 +11,13 @@ namespace Client.Models
         public int Id { get; set; }
         public string Name { get; set; } = null!;
         public string Username { get; set; } = null!;
-        public string PublicKey { get; set; } = null!;
         public string ImagePath { get; set; } = null!;
         public User(string name, string username, 
-            string imagePath = "", string publicKey = "")
+            string imagePath = "")
         {
             Name = name;
             ImagePath = imagePath;
             Username = username;
-            PublicKey = publicKey;
         }
         public User()
         {

@@ -18,7 +18,7 @@ public enum RequestMethod
     Login,
     Send,
     Update,
-    AdminAction,
+    ParticipantAction,
     CreateChat,
     Load,
     ChangeSettings

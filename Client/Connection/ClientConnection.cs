@@ -17,40 +17,48 @@ namespace Client.Connection
         private string sessionKey = string.Empty;
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
+        private IPresentationService _ps;
         //private TcpConnection tcpConnection;
         private Dictionary<Guid, TaskCompletionSource<Response>> _pendingRequests = new();
         private object _lock = new();
-        public ClientConnection(IPEndPoint serverIP)
+        public ClientConnection(IPEndPoint serverIP, IPresentationService ps)
         {
             connectedServer = serverIP;
             udpConnection = new UdpConnection(1234);
             udpConnection.Start();
             udpConnection.DataReceived += HandleMessage;
+            _ps = ps;
         }
         public async Task Login(string username, string password)
         {
+            _ps.DisplayMessage($"логин под {username} {password}");
             var body = JsonSerializer.Serialize(
                 new LoginRequestSettings(username, password));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Login, body);
                 sessionKey = response.Payload;
+                _ps.DisplayMessage($"успешный вход {sessionKey}");
             }
             catch
             {
+                _ps.DisplayMessage($"не удалось залогиниться");
                 throw new Exception();
             }
         }
         public async Task SendMessage(Guid chatId, string message)
         {
+            _ps.DisplayMessage($"send {message}");
             var body = JsonSerializer.Serialize(
                 new SendRequestSettings(chatId, message));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Send, body);
+                _ps.DisplayMessage($"send succesful");
             }
             catch
             {
+                _ps.DisplayMessage($"send failed");
                 throw new Exception();
             }
         }
@@ -71,6 +79,7 @@ namespace Client.Connection
         }
         public async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
         {
+            _ps.DisplayMessage($"create chat");
             var body = JsonSerializer.Serialize(
                 new CreateChatRequestSettings(chatType, chatParameter));
             try
@@ -78,10 +87,12 @@ namespace Client.Connection
                 var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
                 if (!Guid.TryParse(response.Payload, out var chatId))
                     throw new Exception();
+                _ps.DisplayMessage($"create chat succesful {chatId}");
                 return chatId;
             }
             catch
             {
+                _ps.DisplayMessage($"create chat failed");
                 throw new Exception();
             }
         }
@@ -92,7 +103,11 @@ namespace Client.Connection
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
-                return new User();
+                var userinfo = JsonSerializer.Deserialize<UserInfo>(response.Payload);
+                if (userinfo is null)
+                    throw new Exception();
+                return new User(userinfo.name, userinfo.username,
+                    AvatarsManager.SetUserAvatarPathByUsername(userinfo.username, userinfo.avatar));
             }
             catch
             {
@@ -143,10 +158,10 @@ namespace Client.Connection
             try
             {
                 var requestBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
-                //tcpConnection.se(requestBytes, connectedServer);
+                udpConnection.Send(requestBytes, connectedServer);
                 using (var cts = new CancellationTokenSource(timeout))
                 {
-                    return await tcs.Task.WaitAsync(cts.Token);
+                    return Task.Run(async () => await tcs.Task.WaitAsync(cts.Token)).Result;
                 }
             }
             catch (OperationCanceledException)
@@ -161,7 +176,7 @@ namespace Client.Connection
         }
         private async Task<Response> SendAsync(RequestMethod method, string body)
         {
-            return await SendAsync(method, body, TimeSpan.FromSeconds(2));
+            return await SendAsync(method, body, TimeSpan.FromSeconds(6));
         }
         private void HandleMessage(byte[] bytes, IPEndPoint who)
         {

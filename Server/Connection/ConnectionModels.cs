@@ -25,23 +25,25 @@ public enum SingleChangeMethod
 {
     NewMessage,
     NewChat,
-    AdminAction//удаление из чата, например,
-                //или назначение админом,
-                //добавление меня в группу
-    //и проч (изменение ника пользователя, аватарки)
+    ParticipantAction//удаление из чата, например,
+                     //или назначение админом,
+                     //добавление меня в группу
+                     //и проч (изменение ника пользователя, аватарки)
 }
-//AdminAction
-public sealed record AdminActionRequestSettings(
-    AdminActionRequestSettingsMethod method,
+//ParticipantAction
+public sealed record ParticipantActionRequestSettings(
+    ParticipantActionRequestSettingsMethod method,
+    Guid chatId,
     string body);
-public enum AdminActionRequestSettingsMethod
+public enum ParticipantActionRequestSettingsMethod
 {
     AddParticipant, //body - username
     RemoveParticipant, //body - username
-    Empowerment,//сделать админом //body - username
-                    //можно список прав еще:
-                    //возможность удалять сообщения, назначать админом других
-    Abolition//убрать права админа //body - username
+    Op,//сделать админом //body - username
+       //можно список прав еще:
+       //возможность удалять сообщения, назначать админом других
+    Leave,
+    Deop//убрать права админа //body - username
     //и тд
 }
 //response - string.empty
@@ -55,9 +57,9 @@ public enum CreateChatRequestSettingsMethod
     PrivateChat, //body - username
     GroupChat, //body - chatname
     ChannelChat //body - chatname
-        //может для группы и канала
-        //еще ограничение по макс участникам и др
-        //(для этого отдельная структура)
+                //может для группы и канала
+                //еще ограничение по макс участникам и др
+                //(для этого отдельная структура)
 }
 //response - guid чата
 
@@ -70,9 +72,23 @@ public enum LoadRequestSettingsMethod
     User,//body - username
     Chat//body - guid chatid
 }
-//response:
-//User - отдельная модель (byte[] авы, имя и проч (статус, которого пока нет))
-//chat - отдельная модель (byte[] авы, имя, список участников (для группы), короче сложная модель)
+public sealed record UserInfo(string name,
+        string username,
+        byte[] avatar);
+public sealed record PrivateChatInfo(string username);
+public sealed record GroupChatInfo(string chatName,
+    List<ParticipantInfo> participants,
+    string ownerUsername);
+public sealed record ChannelChatInfo(string chatName,
+    List<ParticipantInfo> subscribers,
+    string ownerUsername);
+public sealed record ParticipantInfo(string username,
+    ParticipantInfoType type);
+public enum ParticipantInfoType
+{
+    Member,
+    Admin
+}
 
 //ChangeSettings
 public sealed record ChangeSettingsRequestSettings(

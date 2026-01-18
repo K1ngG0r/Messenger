@@ -146,7 +146,10 @@ namespace Client.ViewModels
                 return;
             if (!isChatCreated)
             {
-                Chat = _chatService.CreateNewChat(Chat);
+                var createdChat = _chatService.CreateNewChat(Chat);
+                if (createdChat is null)
+                    return;
+                Chat = createdChat;
                 _mediator.Send(new ChatCreatedMessage(Chat.Id));
                 isChatCreated = true;
             }

@@ -99,6 +99,8 @@ namespace Client.ViewModels
             ChatDeletionRequestedMessage? message = (ChatDeletionRequestedMessage?)newChatObject;
             if (message is null)
                 return;
+            if (_chatService.TryLoadChat(message.ChatId) is null)
+                return;
             _chatService.DeleteChat(message.ChatId);
             if (ChatPageViewModel is null)
                 return;
