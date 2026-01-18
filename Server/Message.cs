@@ -1,19 +1,8 @@
-﻿namespace Shared;
+﻿namespace Server;
 
-public sealed record Request(
-    RequestMethod Method,
-    string Body);
-
-public sealed record Response(
-    ResponseStatusCode Code,
-    string Body);
-
-public enum RequestMethod
+public class Message
 {
-    Time = 0
-}
-public enum ResponseStatusCode
-{
-    Ok = 0,
-    Failed = 1
+    public string? senderKey;
+    public string? receiverUserName;
+    public string? message;
 }
