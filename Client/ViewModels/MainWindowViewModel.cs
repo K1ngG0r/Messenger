@@ -57,7 +57,7 @@ namespace Client.ViewModels
         {
             ActivePageViewModel = MainPageViewModel;
         }
-        private async void HandleChatSelectedMessage(object? newChatObject)
+        private void HandleChatSelectedMessage(object? newChatObject)
         {
             ChatSelectedMessage? message = (ChatSelectedMessage?)newChatObject;
             if (message is null)
@@ -65,7 +65,7 @@ namespace Client.ViewModels
             if (ChatPageViewModel is null)
                 ChatPageViewModel = new ChatPageViewModel(message.ChatId, _mediator, _chatService, _userService);
             else
-                await ChatPageViewModel.UpdateChat(message.ChatId);
+                ChatPageViewModel.UpdateChat(message.ChatId);
             OnPropertyChanged(nameof(ChatPageViewModel));
         }
         private void HandleLeaveChatMessage(object? newUserObject)
@@ -81,7 +81,7 @@ namespace Client.ViewModels
             ChatPageViewModel = null;
             OnPropertyChanged(nameof(ChatPageViewModel));
         }
-        private async void HandleOpenPrivateChatMessage(object? newUserObject)
+        private void HandleOpenPrivateChatMessage(object? newUserObject)
         {
             OpenPrivateChatMessage? message = (OpenPrivateChatMessage?)newUserObject;
             if (message is null)
@@ -91,7 +91,7 @@ namespace Client.ViewModels
             if (ChatPageViewModel is null)
                 ChatPageViewModel = new ChatPageViewModel(message.Username, _mediator, _chatService, _userService);
             else
-                await ChatPageViewModel.UpdateChatByUsername(message.Username);
+                ChatPageViewModel.UpdateChatByUsername(message.Username);
             OnPropertyChanged(nameof(ChatPageViewModel));
         }
         private void HandleChatDeletionRequestedMessage(object? newChatObject)

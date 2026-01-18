@@ -61,9 +61,12 @@ namespace Client.ViewModels
         }
         public Command SendMessageCommand { get;}
         public Command OpenSettingsCommand { get; }
-        public async Task UpdateChat(int chatId)
+        public void UpdateChat(int chatId)
         {
-            UpdateChat(await _chatService.TryLoadChatAsync(chatId));
+            var chat = _chatService.TryLoadChat(chatId);
+            if (chat is null)
+                throw new Exception();
+            UpdateChat(chat);
             isChatCreated = true;
         }
         private void UpdateChat(Chat chatToUpdate)
@@ -75,7 +78,7 @@ namespace Client.ViewModels
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
         }
-        public async Task UpdateChatByUsername(string username)
+        public void UpdateChatByUsername(string username)
         {
             var user = _chatService.TryLoadUserByUsername(username);
             if (user is null)
@@ -137,18 +140,18 @@ namespace Client.ViewModels
             chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
             OpenSettingsCommand = new Command(OnOpenChatSettings);
         }
-        private async void OnSendMessage()
+        private void OnSendMessage()
         {
             if (DraftMessage == string.Empty)
                 return;
             if (!isChatCreated)
             {
-                Chat = await _chatService.CreateNewChat(Chat);
+                Chat = _chatService.CreateNewChat(Chat);
                 _mediator.Send(new ChatCreatedMessage(Chat.Id));
                 isChatCreated = true;
             }
 
-            var message = await _chatService.SendMessageAsync(
+            var message = _chatService.SendMessage(
                 new ChatMessage(Chat, _userService.CurrentUser,
                     DraftMessage, DateTime.Now));
 

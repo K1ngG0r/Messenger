@@ -16,21 +16,21 @@ namespace Client.ViewModels.Patterns
             var messageToDelete = _context.Messages
                 .First(x => x.Id == messageId);
             _context.Remove(messageToDelete);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
         }
         public void DeleteAllMessages(int chatId)
         {
             var chat = _context.Chats.First(x => x.Id == chatId);
             var messagesToDelete = _context.Messages.Where(x => x.Chat == chat);
             _context.RemoveRange(messagesToDelete);
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
         }
         public void DeleteChat(int chatId)
         {
             _context.Remove(_context.Chats.First(x => x.Id == chatId));
-            _context.SaveChanges();
+            _context.SaveChangesAsync();
         }
-        public async Task<User?> TryLoadUserByUsername(string username)
+        public User? TryLoadUserByUsername(string username)
         {
             //загрузка из сервер _connection.LoadUser(username);
             var user = _context.Users.FirstOrDefault(x => x.Username == username);
@@ -38,7 +38,7 @@ namespace Client.ViewModels.Patterns
             {
                 try
                 {
-                    user = await _connection.LoadUser(username);
+                    user = Task.Run(()=>_connection.LoadUser(username)).Result;
                 }
                 catch
                 {
@@ -55,10 +55,6 @@ namespace Client.ViewModels.Patterns
                     .ThenInclude(x => x.Who)
                 .FirstOrDefault(x => x.Correspondent.Username == username);
             return chat;
-        }
-        public Task<Chat?> TryLoadChatAsync(int chatId)
-        {
-            return Task.Run(() => TryLoadChat(chatId));
         }
         public Chat? TryLoadChat(int chatId)
         {
@@ -84,22 +80,22 @@ namespace Client.ViewModels.Patterns
         {
             return _context.Chats.ToList();
         }
-        public async Task<ChatMessage> SendMessageAsync(ChatMessage message)
+        public ChatMessage SendMessage(ChatMessage message)
         {
             /*Request sendMessageRequest = new Request();
             await _connection.SendAsync(sendMessageRequest);*/
 
             var result = _context.Messages.Add(message).Entity;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return result;
         }
-        public async Task<Chat> CreateNewChat(Chat chat)
+        public Chat CreateNewChat(Chat chat)
         {
             /*Request sendMessageRequest = new Request();
             await _connection.SendAsync(sendMessageRequest);*/
 
             var result = _context.Chats.Add(chat).Entity;
-            await _context.SaveChangesAsync();
+            _context.SaveChanges();
             return result;
         }
         public ChatService(AppDBContext context, ClientConnection connection)
