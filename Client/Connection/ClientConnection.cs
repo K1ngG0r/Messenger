@@ -6,6 +6,7 @@ using System.Security;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Windows;
 using Azure.Core;
 using Client.Models;
 
@@ -22,16 +23,17 @@ namespace Client.Connection
         {
             connectedServer = serverIP;
             udpConnection = new UdpConnection(1234);
+            udpConnection.Start();
             udpConnection.DataReceived += HandleMessage;
         }
-        public async Task<string> Login(string username, string password)
+        public async Task Login(string username, string password)
         {
             var body = JsonSerializer.Serialize(
                 new LoginRequestSettings(username, password));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Login, body);
-                return response.Payload;
+                sessionKey = response.Payload;
             }
             catch
             {
@@ -82,26 +84,28 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task LoadUser(string username)//fixit
+        public async Task<User> LoadUser(string username)//fixit
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.User, username));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+                return new User();//fixit
             }
             catch
             {
                 throw new Exception();
             }
         }
-        public async Task LoadChat(Guid chatId)//fixit
+        public async Task<Chat> LoadChat(Guid chatId)
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.Chat, chatId.ToString()));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+                return new PrivateChat();//fixit
             }
             catch
             {
@@ -117,9 +121,13 @@ namespace Client.Connection
                     throw new VerificationException();
                 return response;
             }
-            catch
+            catch(VerificationException)
             {
                 throw new VerificationException();
+            }
+            catch
+            {
+                throw new Exception();
             }
         }
         private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
@@ -134,7 +142,7 @@ namespace Client.Connection
             try
             {
                 var requestBytes = Encoding.UTF8.GetBytes(JsonSerializer.Serialize(request));
-                await udpConnection.SendAsync(requestBytes, connectedServer);
+                udpConnection.Send(requestBytes, connectedServer);
                 using (var cts = new CancellationTokenSource(timeout))
                 {
                     return await tcs.Task.WaitAsync(cts.Token);

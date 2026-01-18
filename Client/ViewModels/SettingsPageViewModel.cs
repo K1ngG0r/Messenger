@@ -14,6 +14,9 @@ namespace Client.ViewModels
     {
         private Mediator _mediator;
         private CurrentUserService _userService;
+        public string Name { get; set; }
+        public string Usernameame { get; set; }
+        //public string Avatar { get; set; }
         public Command NavigateToMainPageCommand { get; set; }
         public SettingsPageViewModel(Mediator mediator, CurrentUserService userService)
         {
@@ -23,7 +26,7 @@ namespace Client.ViewModels
         }
         private void NavigateToMainPage()
         {
-            _mediator.Send(new NavigateToMainPage());
+            _mediator.Send(new NavigateToMainPageMessage());
         }
     }
 }

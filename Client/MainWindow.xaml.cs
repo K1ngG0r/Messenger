@@ -32,8 +32,9 @@ namespace Client
 
             var context = new AppDBContext();
             //init(context, me);
-            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:1234");
+            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
             var clientConnection = new ClientConnection(serverIP);
+            //Task.Run(()=>clientConnection.Login("dmitry", "1234")).Wait();
             var mediator = new Mediator();
             var chatService = new ChatService(context, clientConnection);
             var userService = new CurrentUserService(me);

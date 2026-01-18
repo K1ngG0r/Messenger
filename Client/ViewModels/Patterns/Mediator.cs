@@ -41,6 +41,12 @@ namespace Client.ViewModels.Patterns
         }
     }
     public abstract class MediatorMessage;
+    public class PrivateChatCreationRequestedMessage : MediatorMessage
+    {
+        public PrivateChatCreationRequestedMessage()
+        {
+        }
+    }
     public class LeaveChatMessage : MediatorMessage
     {
         public int ChatId { get; set; }
@@ -81,23 +87,23 @@ namespace Client.ViewModels.Patterns
             ChatId = chatId;
         }
     }
-    public class UserSelectedMessage : MediatorMessage
+    public class OpenPrivateChatMessage : MediatorMessage
     {
         public string Username { get; set; }
-        public UserSelectedMessage(string username)
+        public OpenPrivateChatMessage(string username)
         {
             Username = username;
         }
     }
-    public class NavigateToSettingsPage : MediatorMessage
+    public class NavigateToSettingsPageMessage : MediatorMessage
     {
-        public NavigateToSettingsPage()
+        public NavigateToSettingsPageMessage()
         {
         }
     }
-    public class NavigateToMainPage : MediatorMessage
+    public class NavigateToMainPageMessage : MediatorMessage
     {
-        public NavigateToMainPage()
+        public NavigateToMainPageMessage()
         {
         }
     }

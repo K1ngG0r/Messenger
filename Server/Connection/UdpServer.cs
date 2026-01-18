@@ -11,7 +11,7 @@ public class UdpServer
 {
     private readonly IPEndPoint _serverEndPoint;
     private readonly UdpClient _udpClient;
-    private readonly MessageHandler? messageHandler;
+    private readonly MessageHandler messageHandler = new MessageHandler();
 
     private bool _started = false;
     private CancellationTokenSource _cts = new CancellationTokenSource();
@@ -67,8 +67,7 @@ public class UdpServer
     {
         string response = messageHandler.RequestHandler(requestBytes, cancellationToken);
 
-        var responseString = JsonSerializer.Serialize(response);
-        var responseBytes = Encoding.UTF8.GetBytes(responseString);
+        var responseBytes = Encoding.UTF8.GetBytes(response);
 
         await _udpClient.SendAsync(responseBytes, remoteEndPoint, cancellationToken);
     }

@@ -33,22 +33,34 @@ namespace Client.ViewModels.Patterns
         public User? TryLoadUserByUsername(string username)
         {
             //загрузка из сервер _connection.LoadUser(username);
-            return _context.Users.FirstOrDefault(x => x.Username == username);
+            var user = _context.Users.FirstOrDefault(x => x.Username == username);
+            if(user is null)
+            {
+                try
+                {
+                    user = Task.Run(()=>_connection.LoadUser(username)).Result;
+                }
+                catch
+                {
+                    user = null;
+                }
+            }
+            return user;
         }
-        public Chat? TryLoadPrivateChatByUser(User user)
+        public Chat? TryLoadPrivateChatByUsername(string username)
         {
             var chat = _context.Chats
                 .OfType<PrivateChat>()
                 .Include(x => x.Messages)
                     .ThenInclude(x => x.Who)
-                .FirstOrDefault(x => x.Correspondent.Username == user.Username);
+                .FirstOrDefault(x => x.Correspondent.Username == username);
             return chat;
         }
-        public Task<Chat> LoadChatAsync(int chatId)
+        public Task<Chat?> TryLoadChatAsync(int chatId)
         {
-            return Task.Run(() => LoadChat(chatId));
+            return Task.Run(() => TryLoadChat(chatId));
         }
-        public Chat LoadChat(int chatId)
+        public Chat? TryLoadChat(int chatId)
         {
             var groupChat = _context.Chats.OfType<GroupChat>()
                 .Include(x=>x.Owner)
@@ -62,10 +74,11 @@ namespace Client.ViewModels.Patterns
                 .FirstOrDefault(x => x.Id == chatId);
             if (channelChat != null) return channelChat;
             var privateChat = _context.Chats.OfType<PrivateChat>()
+                .Include(x=>x.Correspondent)
                 .Include(x => x.Messages).ThenInclude(x => x.Who)
                 .FirstOrDefault(x => x.Id == chatId);
             if (privateChat != null) return privateChat;
-            throw new InvalidOperationException($"Chat with Id {chatId} not found.");
+            return null;
         }
         public List<Chat> LoadChatsList()
         {

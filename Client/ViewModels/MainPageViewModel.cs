@@ -18,6 +18,9 @@ namespace Client.ViewModels
         private ObservableCollection<ChatViewModel> chatsList = new();
         private string searchText = string.Empty;
         public Command NavigateToSettingsPageCommand { get; set; }
+        public Command CreatePrivateChatCommand { get; set; }
+        public Command CreateGroupChatCommand { get; set; }
+        public Command CreateChannelChatCommand { get; set; }
         public ObservableCollection<ChatViewModel> ChatsList
         {
             get => chatsList;
@@ -48,6 +51,9 @@ namespace Client.ViewModels
         }
         public MainPageViewModel(Mediator messenger, ChatService chatService)
         {
+            CreatePrivateChatCommand = new Command(OnCreatePrivateChat);
+            CreateGroupChatCommand = new Command(OnCreateGroupChat);
+            CreateChannelChatCommand = new Command(OnCreateChannelChat);
             _chatService = chatService;
             _mediator = messenger;
             NavigateToSettingsPageCommand = new Command(NavigateToSettingsPage);
@@ -58,7 +64,7 @@ namespace Client.ViewModels
         }
         private void NavigateToSettingsPage()
         {
-            _mediator.Send(new NavigateToSettingsPage());
+            _mediator.Send(new NavigateToSettingsPageMessage());
         }
         private void LoadChats()
         {
@@ -91,7 +97,23 @@ namespace Client.ViewModels
         private void HandleChatCreatedMessage(object? obj)
         {
             ChatCreatedMessage message = (ChatCreatedMessage)obj;
-            ChatsList.Add(new ChatViewModel(_chatService.LoadChat(message.ChatId), _mediator));
+            var chat = _chatService.TryLoadChat(message.ChatId);
+            if (chat is null)
+                return;
+            ChatsList.Add(new ChatViewModel(chat, _mediator));
         }
+        private void OnCreatePrivateChat()
+        {
+            _mediator.Send(new PrivateChatCreationRequestedMessage());
+        }
+        private void OnCreateGroupChat()
+        {
+
+        }
+        private void OnCreateChannelChat()
+        {
+
+        }
+
     }
 }

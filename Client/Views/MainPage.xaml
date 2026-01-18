@@ -9,6 +9,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="50"/>
+            <RowDefinition Height="4*"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
@@ -39,5 +40,21 @@
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0"
+                Content="New chat"
+                    Command="{Binding CreatePrivateChatCommand}"/>
+            <Button Grid.Column="1" 
+                Content="Create group"
+                    Command="{Binding CreateGroupChatCommand}"/>
+            <Button Grid.Column="2"
+                Content="Create channel"
+                    Command="{Binding CreateChannelChatCommand}"/>
+        </Grid>
     </Grid>
 </UserControl>
