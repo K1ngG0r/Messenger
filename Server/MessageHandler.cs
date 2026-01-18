@@ -55,7 +55,7 @@ public class MessageHandler
         return JsonSerializer.Serialize(response);
     }
 
-    private Response CreateChat (Guid correlationId, string sessionKey ,string SendSettings)
+    private Response CreateChat (Guid correlationId, string sessionKey ,string settings)
     {
         var user = _context.Users.FirstOrDefault(x => x.UserName == settings);
 
