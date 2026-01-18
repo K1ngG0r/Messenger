@@ -95,10 +95,35 @@ namespace Client.ViewModels.Patterns
             _context.SaveChanges();
             return result;
         }
-        public Chat CreateNewChat(Chat chat)
+        public Chat? CreateNewChat(Chat chat)
         {
-            /*Request sendMessageRequest = new Request();
-            await _connection.SendAsync(sendMessageRequest);*/
+            try
+            {
+                Guid chatId = default;
+                switch (chat)
+                {
+                    case PrivateChat privateChat:
+                        chatId = Task.Run(() => _connection.CreateChat(
+                            CreateChatRequestSettingsMethod.PrivateChat,
+                            privateChat.Correspondent.Username)).Result;
+                        break;
+                    case GroupChat groupChat:
+                        chatId = Task.Run(() => _connection.CreateChat(
+                            CreateChatRequestSettingsMethod.GroupChat,
+                            groupChat.ChatName)).Result;
+                        break;
+                    case ChannelChat channelChat:
+                        chatId = Task.Run(() => _connection.CreateChat(
+                            CreateChatRequestSettingsMethod.ChannelChat,
+                            channelChat.ChatName)).Result;
+                        break;
+                }
+                chat.ChatId = chatId;
+            }
+            catch
+            {
+                return null;
+            }
 
             var result = _context.Chats.Add(chat).Entity;
             _context.SaveChanges();

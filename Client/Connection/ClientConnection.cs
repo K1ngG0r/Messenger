@@ -69,10 +69,10 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType)
+        public async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
         {
             var body = JsonSerializer.Serialize(
-                new CreateChatRequestSettings(chatType, string.Empty));//fixit
+                new CreateChatRequestSettings(chatType, chatParameter));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
