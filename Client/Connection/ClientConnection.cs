@@ -84,14 +84,14 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task<User> LoadUser(string username)//fixit
+        public async Task<User> LoadUser(string username)
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.User, username));
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Load, body);
-                return new User();//fixit
+                return new User();
             }
             catch
             {

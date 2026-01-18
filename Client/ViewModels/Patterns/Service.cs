@@ -30,15 +30,15 @@ namespace Client.ViewModels.Patterns
             _context.Remove(_context.Chats.First(x => x.Id == chatId));
             _context.SaveChanges();
         }
-        public User? TryLoadUserByUsername(string username)
+        public async Task<User?> TryLoadUserByUsername(string username)
         {
             //загрузка из сервер _connection.LoadUser(username);
             var user = _context.Users.FirstOrDefault(x => x.Username == username);
-            if(user is null)
+            if (user is null)
             {
                 try
                 {
-                    user = Task.Run(()=>_connection.LoadUser(username)).Result;
+                    user = await _connection.LoadUser(username);
                 }
                 catch
                 {
