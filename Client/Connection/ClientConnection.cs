@@ -16,16 +16,16 @@ namespace Client.Connection
     {
         private string sessionKey = string.Empty;
         private IPEndPoint connectedServer;
-        //private UdpConnection udpConnection;
-        private TcpConnection tcpConnection;
+        private UdpConnection udpConnection;
+        //private TcpConnection tcpConnection;
         private Dictionary<Guid, TaskCompletionSource<Response>> _pendingRequests = new();
         private object _lock = new();
         public ClientConnection(IPEndPoint serverIP)
         {
             connectedServer = serverIP;
-            tcpConnection = new TcpConnection(1234);
-            tcpConnection.Start();
-            tcpConnection.DataReceived += HandleMessage;
+            udpConnection = new UdpConnection(1234);
+            udpConnection.Start();
+            udpConnection.DataReceived += HandleMessage;
         }
         public async Task Login(string username, string password)
         {
@@ -163,7 +163,7 @@ namespace Client.Connection
         {
             return await SendAsync(method, body, TimeSpan.FromSeconds(2));
         }
-        /*private void HandleMessage(byte[] bytes, IPEndPoint who)
+        private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
             if (connectedServer.ToString() != who.ToString())
                 return;
@@ -179,8 +179,8 @@ namespace Client.Connection
                 _pendingRequests.Remove(response.CorrelationId);
             }
             tcs.TrySetResult(response);
-        }*/
-        private void HandleMessage(string messageString, EndPoint who)
+        }
+        /*private void HandleMessage(string messageString, EndPoint who)
         {
             if (connectedServer.ToString() != who.ToString())
                 return;
@@ -195,7 +195,7 @@ namespace Client.Connection
                 _pendingRequests.Remove(response.CorrelationId);
             }
             tcs.TrySetResult(response);
-        }
+        }*/
         private void RemovePendingRequest(Guid id)
         {
             lock (_lock)
