@@ -2,11 +2,14 @@ using System.Text.Json.Serialization;
 
 namespace Server;
 
-//Register/Login
+//Login
 public sealed record LoginRequestSettings(
     string username,
     string password);
-//response - string sessionkey
+public sealed record LoginResponseSettings(string sessionKey,
+    string name,
+    byte[] avatar);//другие данные пользователя (приватные,
+                   //например черный список, который другие пользователи видеть не могут)
 
 //Send
 public sealed record SendRequestSettings(
