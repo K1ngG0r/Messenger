@@ -13,20 +13,28 @@ namespace Client.ViewModels
     public class SettingsPageViewModel : ViewModel
     {
         private Mediator _mediator;
-        private CurrentUserService _userService;
+        private ChatService _chatService;
         public string Name { get; set; }
         public string Usernameame { get; set; }
         //public string Avatar { get; set; }
-        public Command NavigateToMainPageCommand { get; set; }
-        public SettingsPageViewModel(Mediator mediator, CurrentUserService userService)
+        public Command NavigateToMainPageCommand { get; }
+        public Command LogoutCommand { get; }
+        public SettingsPageViewModel(Mediator mediator, ChatService chatService)
         {
-            NavigateToMainPageCommand = new Command(NavigateToMainPage);
+            _chatService = chatService;
+            Name = _chatService.CurrentUser!.Name;
+            Usernameame = _chatService.CurrentUser!.Username;
+            NavigateToMainPageCommand = new Command(OnNavigateToMainPage);
+            LogoutCommand = new Command(OnLogout);
             _mediator = mediator;
-            _userService = userService;
         }
-        private void NavigateToMainPage()
+        private void OnNavigateToMainPage()
         {
             _mediator.Send(new NavigateToMainPageMessage());
+        }
+        private void OnLogout()
+        {
+            _mediator.Send(new LogoutRequestedMessage());
         }
     }
 }

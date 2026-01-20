@@ -12,7 +12,7 @@ namespace Client.ViewModels
 {
     public class ChatMessageViewModel:ViewModel
     {
-        private CurrentUserService userService;
+        private ChatService _chatService;
         private Mediator _mediator;
         public ChatMessage ChatMessage;
         public string Message => ChatMessage.Message;
@@ -31,13 +31,13 @@ namespace Client.ViewModels
         {
             get 
             {
-                return (Username == userService.CurrentUser.Username);
+                return (Username == _chatService.CurrentUser.Username);
             }
         }
-        public ChatMessageViewModel(ChatMessage message, CurrentUserService user, Mediator mediator)
+        public ChatMessageViewModel(ChatMessage message, ChatService chatService, Mediator mediator)
         {
             ChatMessage = message;
-            userService = user;
+            _chatService = chatService;
             DeleteCommand = new Command(OnDeleteCommand);
             ChatWithCommand = new Command(OnChatWithCommand);
             _mediator = mediator;

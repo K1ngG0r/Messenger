@@ -1,4 +1,4 @@
-﻿<Window x:Class="Client.MainWindow"
+﻿<Window x:Class="Client.Views.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -9,7 +9,7 @@
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="AliceBlue">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="200" Name="column1"/>
+            <ColumnDefinition Width="200"/>
             <ColumnDefinition Width="5*"/>
         </Grid.ColumnDefinitions>
 

@@ -80,7 +80,7 @@ namespace Client.ViewModels
         }
         private void HandleChatDeletionRequestedMessage(object? obj)
         {
-            ChatDeletionRequestedMessage message = (ChatDeletionRequestedMessage)obj;
+            ChatDeletionRequestedMessage? message = (ChatDeletionRequestedMessage?)obj;
             var chat = ChatsList.FirstOrDefault(x => x.Chat.Id == message.ChatId);
             if (chat is null)
                 return;
@@ -88,7 +88,7 @@ namespace Client.ViewModels
         }
         private void HandleLeaveChatMessage(object? obj)
         {
-            LeaveChatMessage message = (LeaveChatMessage)obj;
+            LeaveChatMessage? message = (LeaveChatMessage?)obj;
             var chat = ChatsList.FirstOrDefault(x => x.Chat.Id == message.ChatId);
             if (chat is null)
                 return;
@@ -96,7 +96,7 @@ namespace Client.ViewModels
         }
         private void HandleChatCreatedMessage(object? obj)
         {
-            ChatCreatedMessage message = (ChatCreatedMessage)obj;
+            ChatCreatedMessage? message = (ChatCreatedMessage?)obj;
             var chat = _chatService.TryLoadChat(message.ChatId);
             if (chat is null)
                 return;

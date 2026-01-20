@@ -45,23 +45,23 @@ namespace Client.ViewModels
     }
     public class GroupChatViewModel : ChatViewModel
     {
-        private CurrentUserService _userService;
+        private ChatService _chatService;
         public bool CanExecuteOwnerAction { get; private set; }
         public bool CanExecuteAdminAction { get; private set; }
         public Command LeaveChatCommand { get; set; }
         //public Command AddParticipantCommand { get; set; }
         public RelayCommand ParticipantChatWithCommand { get; set; }
         public List<ParticipantViewModel> Participants { get; set; }
-        public GroupChatViewModel(GroupChat chat, Mediator mediator, CurrentUserService userService)
+        public GroupChatViewModel(GroupChat chat, Mediator mediator, ChatService chatsService)
             : base(chat, mediator)
         {
-            _userService = userService;
+            _chatService = chatsService;
             CanExecuteAdminAction = (chat.Participants.Find(x =>
-            x.User.Username == userService.CurrentUser.Username &&
+            x.User.Username == _chatService.CurrentUser.Username &&
             x.ParticipantType is ParticipantType.Admin) != null) ||
-            chat.Owner.Username == userService.CurrentUser.Username;
+            chat.Owner.Username == _chatService.CurrentUser.Username;
             ParticipantChatWithCommand = new RelayCommand(OnParticipantChatWithRequested);
-            CanExecuteOwnerAction = userService.CurrentUser.Username == chat.Owner.Username;
+            CanExecuteOwnerAction = _chatService.CurrentUser.Username == chat.Owner.Username;
             LeaveChatCommand = new Command(OnLeaveChat);
             Participants = chat.Participants
                 .Select(x => new ParticipantViewModel(x))
@@ -81,18 +81,18 @@ namespace Client.ViewModels
     }
     public class ChannelChatViewModel : ChatViewModel
     {
-        private CurrentUserService _userService;
+        private ChatService _chatService;
         private ParticipantViewModel? selectedParticipant;
         public UserViewModel Owner;
         public bool CanExecuteAdminAction
         {
             get
             {
-                if (Owner.User.Username == _userService.CurrentUser.Username)
+                if (Owner.User.Username == _chatService.CurrentUser.Username)
                     return true;
                 foreach (var pt in Subscribers)
                 {
-                    if (pt.User.User.Username != _userService.CurrentUser.Username)
+                    if (pt.User.User.Username != _chatService.CurrentUser.Username)
                         continue;
 
                     if (pt.ParticipantType is ParticipantViewModelType.Admin)
@@ -112,10 +112,10 @@ namespace Client.ViewModels
             }
         }
         public List<ParticipantViewModel> Subscribers { get; set; }
-        public ChannelChatViewModel(ChannelChat chat, Mediator mediator, CurrentUserService userService)
+        public ChannelChatViewModel(ChannelChat chat, Mediator mediator, ChatService chatService)
             : base(chat, mediator)
         {
-            _userService = userService;
+            _chatService = chatService;
             Owner = new UserViewModel(chat.Owner);
             Subscribers = chat.Subscribers
                 .Select(x => new ParticipantViewModel(x))

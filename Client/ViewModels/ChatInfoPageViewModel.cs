@@ -16,7 +16,7 @@ namespace Client.ViewModels
     {
         private ChatViewModel _chat;
         private Mediator _mediator;
-        private CurrentUserService _userService;
+        private ChatService _chatService;
         private Chat chatModel;
         public event Action ChatInfoClosed = null!;
         public Command ChatInfoCloseCommand { get; }
@@ -46,10 +46,10 @@ namespace Client.ViewModels
                     Chat = new PrivateChatViewModel(privateChat, _mediator);
                     break;
                 case GroupChat groupChat:
-                    Chat = new GroupChatViewModel(groupChat, _mediator, _userService);
+                    Chat = new GroupChatViewModel(groupChat, _mediator, _chatService);
                     break;
                 case ChannelChat channelChat:
-                    Chat = new ChannelChatViewModel(channelChat, _mediator, _userService);
+                    Chat = new ChannelChatViewModel(channelChat, _mediator, _chatService);
                     break;
                 default:
                     Chat = new ChatViewModel(chatModel, _mediator);
@@ -59,9 +59,9 @@ namespace Client.ViewModels
             OnPropertyChanged(nameof(ChatType));
             OnPropertyChanged(nameof(Avatar));
         }
-        public ChatInfoPageViewModel(Chat chat, Mediator mediator, CurrentUserService userService)
+        public ChatInfoPageViewModel(Chat chat, Mediator mediator, ChatService chatService)
         {
-            _userService = userService;
+            _chatService = chatService;
             chatModel = chat;
             _mediator = mediator;
             switch (chatModel)
@@ -70,10 +70,10 @@ namespace Client.ViewModels
                     _chat = new PrivateChatViewModel(privateChat, _mediator);
                     break;
                 case GroupChat groupChat:
-                    _chat = new GroupChatViewModel(groupChat, _mediator, _userService);
+                    _chat = new GroupChatViewModel(groupChat, _mediator, _chatService);
                     break;
                 case ChannelChat channelChat:
-                    _chat = new ChannelChatViewModel(channelChat, _mediator, _userService);
+                    _chat = new ChannelChatViewModel(channelChat, _mediator, _chatService);
                     break;
                 default:
                     _chat = new ChatViewModel(chatModel, _mediator);

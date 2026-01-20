@@ -29,7 +29,11 @@ namespace Client.Connection
             udpConnection.DataReceived += HandleMessage;
             _ps = ps;
         }
-        public async Task Login(string username, string password)
+        public void LoginBySessionKey(string newSessionKey)
+        {
+            sessionKey = newSessionKey;
+        }
+        public async Task Login(string username, string password)//fixit возвращает данные пользователя
         {
             _ps.DisplayMessage($"логин под {username} {password}");
             var body = JsonSerializer.Serialize(
@@ -45,6 +49,10 @@ namespace Client.Connection
                 _ps.DisplayMessage($"не удалось залогиниться");
                 throw new Exception();
             }
+        }
+        public void Logout()
+        {
+            sessionKey = string.Empty;
         }
         public async Task SendMessage(Guid chatId, string message)
         {
@@ -107,7 +115,7 @@ namespace Client.Connection
                 if (userinfo is null)
                     throw new Exception();
                 return new User(userinfo.name, userinfo.username,
-                    AvatarsManager.SetUserAvatarPathByUsername(userinfo.username, userinfo.avatar));
+                    CacheManager.SetUserAvatarPathByUsername(userinfo.username, userinfo.avatar));
             }
             catch
             {

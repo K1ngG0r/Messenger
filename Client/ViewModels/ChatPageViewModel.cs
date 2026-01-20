@@ -15,7 +15,6 @@ namespace Client.ViewModels
     public class ChatPageViewModel : ViewModel
     {
         private ChatService _chatService;
-        private CurrentUserService _userService;
         private Mediator _mediator;
         private string draftMessage = string.Empty;
         private ObservableCollection<ChatMessageViewModel> messages=new();
@@ -73,7 +72,7 @@ namespace Client.ViewModels
         {
             Chat = chatToUpdate;
             Messages = new ObservableCollection<ChatMessageViewModel>(
-                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
+                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _chatService, _mediator))));
             ChatInfo.Update(Chat);
             OnPropertyChanged(nameof(ChatName));
             OnPropertyChanged(nameof(Avatar));
@@ -90,14 +89,13 @@ namespace Client.ViewModels
                 return;
             }
             Chat = new PrivateChat(new Guid(), user,
-                AvatarsManager.GetUserAvatarPathByUsername(user.Username));
+                CacheManager.GetUserAvatarPathByUsername(user.Username));
             UpdateChat(Chat);
             isChatCreated = false;
         }
-        public ChatPageViewModel(string username, Mediator messenger, ChatService chatService, CurrentUserService userService)
+        public ChatPageViewModel(string username, Mediator messenger, ChatService chatService)
         {
             _chatService = chatService;
-            _userService = userService;
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatHistoryClearRequestedMessage>(HandleChatHistoryClearRequestedMessage);
@@ -112,20 +110,19 @@ namespace Client.ViewModels
             else
             {
                 Chat = new PrivateChat(new Guid(), user,
-                    AvatarsManager.GetUserAvatarPathByUsername(user.Username));
+                    CacheManager.GetUserAvatarPathByUsername(user.Username));
                 isChatCreated = false;
             }
             messages = new ObservableCollection<ChatMessageViewModel>(
-                    Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
-            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _userService);
+                    Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _chatService, _mediator))));
+            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _chatService);
             ChatColumnWidth = new GridLength(0);
             chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
             OpenSettingsCommand = new Command(OnOpenChatSettings);
         }
-        public ChatPageViewModel(int chatId, Mediator messenger, ChatService chatService, CurrentUserService userService)
+        public ChatPageViewModel(int chatId, Mediator messenger, ChatService chatService)
         {
             _chatService = chatService;
-            _userService = userService;
             _mediator = messenger;
             SendMessageCommand = new Command(OnSendMessage);
             _mediator.Register<ChatHistoryClearRequestedMessage>(HandleChatHistoryClearRequestedMessage);
@@ -134,8 +131,8 @@ namespace Client.ViewModels
                 throw new Exception();
             Chat = loadedChat;
             messages = new ObservableCollection<ChatMessageViewModel>(
-                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _userService, _mediator))));
-            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _userService);
+                Chat.Messages.Select(x => RegisterChatMessageViewModel(new ChatMessageViewModel(x, _chatService, _mediator))));
+            chatInfo = new ChatInfoPageViewModel(Chat, _mediator, _chatService);
             ChatColumnWidth = new GridLength(0); 
             chatInfo.ChatInfoClosed += ChatInfo_ChatInfoClosed;
             OpenSettingsCommand = new Command(OnOpenChatSettings);
@@ -155,10 +152,10 @@ namespace Client.ViewModels
             }
 
             var message = _chatService.SendMessage(
-                new ChatMessage(Chat, _userService.CurrentUser,
+                new ChatMessage(Chat, _chatService.CurrentUser,
                     DraftMessage, DateTime.Now));
 
-            Messages.Add(RegisterChatMessageViewModel(new ChatMessageViewModel(message, _userService, _mediator)));
+            Messages.Add(RegisterChatMessageViewModel(new ChatMessageViewModel(message, _chatService, _mediator)));
             DraftMessage = string.Empty;
         }
         private ChatMessageViewModel RegisterChatMessageViewModel(ChatMessageViewModel vm)

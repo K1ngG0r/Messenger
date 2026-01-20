@@ -11,7 +11,12 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-
+        public User? CurrentUser;
+        public void OnLogout()
+        {
+            _context.Database.EnsureDeleted();
+            CacheManager.ClearPreviousSessionKey();
+        }
         public void DeleteMessage(int messageId)
         {
             var messageToDelete = _context.Messages
@@ -56,6 +61,29 @@ namespace Client.ViewModels.Patterns
                 .FirstOrDefault(x => x.Correspondent.Username == username);
             return chat;
         }
+        public void LoginBySessionKey(string sessionkey)
+        {
+            _connection.LoginBySessionKey(sessionkey);
+        }
+        public bool TryLogin(string username, string password)
+        {
+            try
+            {
+                _connection.Login(username, password).Wait();//fixit return UserInfo
+                CurrentUser = new User("Me", username, 
+                    CacheManager.GetUserAvatarPathByUsername(username));
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+        public void Logout()
+        {
+            CurrentUser = null;
+            _connection.Logout();
+        }
         public Chat? TryLoadChat(int chatId)
         {
             var groupChat = _context.Chats.OfType<GroupChat>()
@@ -78,7 +106,6 @@ namespace Client.ViewModels.Patterns
         }
         public List<Chat> LoadChatsList()
         {
-
             return _context.Chats.ToList();
         }
         public ChatMessage SendMessage(ChatMessage message)
@@ -134,14 +161,6 @@ namespace Client.ViewModels.Patterns
         {
             _connection = connection;
             _context = context;
-        }
-    }
-    public class CurrentUserService
-    {
-        public User CurrentUser;
-        public CurrentUserService(User user)
-        {
-            CurrentUser = user;
         }
     }
 }

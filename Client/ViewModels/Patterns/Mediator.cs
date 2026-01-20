@@ -40,7 +40,20 @@ namespace Client.ViewModels.Patterns
                 action.Invoke(message);
         }
     }
-    public abstract class MediatorMessage;
+    public abstract class MediatorMessage; 
+    public class LoginRequestedMessage : MediatorMessage
+    {
+        public LoginRequestedMessage()
+        {
+
+        }
+    }
+    public class LogoutRequestedMessage : MediatorMessage
+    {
+        public LogoutRequestedMessage()
+        {
+        }
+    }
     public class PrivateChatCreationRequestedMessage : MediatorMessage
     {
         public PrivateChatCreationRequestedMessage()

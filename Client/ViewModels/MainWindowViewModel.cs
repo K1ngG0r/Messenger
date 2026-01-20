@@ -11,11 +11,10 @@ using Client.Views;
 
 namespace Client.ViewModels
 {
-    public class MainWindowViewModel : ViewModel
+    public class MainWindowViewModel : ViewModel, IDisposable
     {
         private Mediator _mediator;
         private ChatService _chatService;
-        private CurrentUserService _userService;
         private ViewModel activePageViewModel;
         public ViewModel ActivePageViewModel
         {
@@ -30,15 +29,14 @@ namespace Client.ViewModels
         public MainPageViewModel MainPageViewModel { get; }
         public SettingsPageViewModel SettingsPageViewModel { get; }
         public ChatPageViewModel? ChatPageViewModel { get; private set; }
-        public MainWindowViewModel(Mediator mediator, ChatService chatService, CurrentUserService userService)
-        {
+        public MainWindowViewModel(Mediator mediator, ChatService chatService)
+        {//тут цикл отправки update
             _mediator = mediator;
             _chatService = chatService;
-            _userService = userService;
             CreatePrivateChatPageViewModel = new CreatePrivateChatPageViewModel(mediator, chatService);
             MainPageViewModel = new MainPageViewModel(mediator, chatService);
             ChatPageViewModel = null;
-            SettingsPageViewModel = new SettingsPageViewModel(mediator, userService);
+            SettingsPageViewModel = new SettingsPageViewModel(mediator, chatService);
             activePageViewModel = MainPageViewModel;
             _mediator.Register<NavigateToSettingsPageMessage>(HandleNavigateToSettingsPage);
             _mediator.Register<NavigateToMainPageMessage>(HandleNavigateToMainPage);
@@ -48,6 +46,10 @@ namespace Client.ViewModels
             _mediator.Register<LeaveChatMessage>(HandleLeaveChatMessage);
             _mediator.Register<PrivateChatCreationRequestedMessage>
                 (HandlePrivateChatCreationRequestedMessage);
+        }
+        public void Dispose()
+        {
+            //остановка цикла
         }
         private void HandleNavigateToSettingsPage(object? parameters)
         {
@@ -63,7 +65,7 @@ namespace Client.ViewModels
             if (message is null)
                 return;
             if (ChatPageViewModel is null)
-                ChatPageViewModel = new ChatPageViewModel(message.ChatId, _mediator, _chatService, _userService);
+                ChatPageViewModel = new ChatPageViewModel(message.ChatId, _mediator, _chatService);
             else
                 ChatPageViewModel.UpdateChat(message.ChatId);
             OnPropertyChanged(nameof(ChatPageViewModel));
@@ -89,7 +91,7 @@ namespace Client.ViewModels
             if (_chatService.TryLoadUserByUsername(message.Username) is null)
                 return;
             if (ChatPageViewModel is null)
-                ChatPageViewModel = new ChatPageViewModel(message.Username, _mediator, _chatService, _userService);
+                ChatPageViewModel = new ChatPageViewModel(message.Username, _mediator, _chatService);
             else
                 ChatPageViewModel.UpdateChatByUsername(message.Username);
             OnPropertyChanged(nameof(ChatPageViewModel));

@@ -19,41 +19,20 @@ using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
 
-namespace Client
+namespace Client.Views
 {
     public partial class MainWindow : Window
     {
+        public MainWindow(MainWindowViewModel mainWindowViewModel)
+        {
+            InitializeComponent();
+            DataContext = mainWindowViewModel;
+        }
         public MainWindow()
         {
             InitializeComponent();
-            //init(context, me);
-            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
-            var clientConnection = new ClientConnection(serverIP, new WpfPresentationService());
-            var context = new AppDBContext();
-
-            string username = "samname";
-            string password = "1234";
-            try
-            {
-                clientConnection.Login(username, password).Wait();
-            }
-            catch
-            {
-                App.Current.Shutdown();
-            }
-            var me = new User("User name", username, 
-                imagePath: AvatarsManager
-                    .GetUserAvatarPathByUsername(username));
-
-
-            var mediator = new Mediator();
-            var chatService = new ChatService(context, clientConnection);
-            var userService = new CurrentUserService(me);
-            var mainWindowViewModel = new MainWindowViewModel(mediator,
-                chatService, userService);
-            DataContext = mainWindowViewModel;
         }
-        private void ResetDatabase(AppDBContext context)
+        /*private void ResetDatabase(AppDBContext context)
         {
             context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
@@ -97,7 +76,7 @@ namespace Client
             context.Messages.AddRange(new List<ChatMessage> { message1, message2 });
 
             context.SaveChanges();
-        }
+        }*/
         /*
         private void Thumb_DragDelta(object sender, DragDeltaEventArgs e)
         {
