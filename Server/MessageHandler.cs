@@ -202,6 +202,8 @@ public class MessageHandler
 
         Console.WriteLine("Запрос login успушно отработан");
         string sessionKey = _sessionManager.CreateSession(tmpUser.Id);
+        //!!!!!!!!!!!!!! должен возвращать список чатов пользователя и его userinfo
+        //список чатов list<guid> чатов, которые он затем подгрузит через load каждый отдельно
         return new Response(correlationId, ResponseStatusCode.Ok, sessionKey);
     }
 
