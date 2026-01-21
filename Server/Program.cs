@@ -9,7 +9,8 @@ internal class Program
     {
         var CancellationToken = new CancellationToken();
 
-        var server = new UdpServer(IPAddress.Loopback ,9000);
+        //var server = new UdpServer(IPAddress.Loopback, 9000);
+        var server = new UdpServer(IPAddress.Any ,9000);
         await server.StartAsync(CancellationToken);
 
         Console.ReadLine();

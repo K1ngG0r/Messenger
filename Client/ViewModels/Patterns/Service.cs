@@ -11,14 +11,17 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-        public User? CurrentUser;
+        public UserSettings CurrentUserSettings;
+        public User CurrentUser
+            => UserConverter
+            .ConvertToUser(CurrentUserSettings);
         public void OnLogout()
         {
             _context.Database.EnsureDeleted();
-            CacheManager.ClearPreviousSessionKey();
         }
         public void DeleteMessage(int messageId)
         {
+            //сервер не должен пока об этом знать
             var messageToDelete = _context.Messages
                 .First(x => x.Id == messageId);
             _context.Remove(messageToDelete);
@@ -33,6 +36,7 @@ namespace Client.ViewModels.Patterns
         }
         public void DeleteChat(int chatId)
         {
+            //сервер должен об этом знать
             _context.Remove(_context.Chats.First(x => x.Id == chatId));
             _context.SaveChangesAsync();
         }
@@ -61,17 +65,14 @@ namespace Client.ViewModels.Patterns
                 .FirstOrDefault(x => x.Correspondent.Username == username);
             return chat;
         }
-        public void LoginBySessionKey(string sessionkey)
-        {
-            _connection.LoginBySessionKey(sessionkey);
-        }
         public bool TryLogin(string username, string password)
         {
             try
             {
-                _connection.Login(username, password).Wait();//fixit return UserInfo
-                CurrentUser = new User("Me", username, 
-                    CacheManager.GetUserAvatarPathByUsername(username));
+                var settings = _connection
+                    .Login(username, password).Result;
+                CurrentUserSettings = settings.Item1;
+                UploadChatsFromConnection(settings.Item2);
                 return true;
             }
             catch
@@ -81,7 +82,6 @@ namespace Client.ViewModels.Patterns
         }
         public void Logout()
         {
-            CurrentUser = null;
             _connection.Logout();
         }
         public Chat? TryLoadChat(int chatId)
@@ -161,6 +161,22 @@ namespace Client.ViewModels.Patterns
         {
             _connection = connection;
             _context = context;
+        }
+        private void UploadChatsFromConnection(List<Guid> chats)
+        {
+            foreach (Guid chatId in chats)
+            {
+                if (_context.Chats.FirstOrDefault(x => x.ChatId == chatId) != null)
+                    continue;
+                try
+                {
+                    var chat = _connection.LoadChat(chatId).Result;
+                    _context.Chats.Add(chat);
+                }
+                catch
+                {
+                }
+            }
         }
     }
 }

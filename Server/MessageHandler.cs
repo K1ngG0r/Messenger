@@ -180,10 +180,10 @@ public class MessageHandler
         var settings = JsonSerializer.Deserialize<LoginRequestSettings>(LoginSettings)!;
 
         string password = hashPassword(settings.password);
-        var res = _context.Users.FirstOrDefault(x => x.UserName == settings.username);
+        var user = _context.Users.FirstOrDefault(x => x.UserName == settings.username);
 
         var tmpUser = new User();
-        if(res == null)
+        if(user == null)
         {
             tmpUser = new User()
             {
@@ -194,17 +194,22 @@ public class MessageHandler
         }
         else
         {
-            if(password != res!.HashPassword)
-                return new Response(correlationId, ResponseStatusCode.Failed, string.Empty);
+            if(password != user!.HashPassword)
+                return new Response(correlationId, ResponseStatusCode.Failed, "Неверный пароль");
 
-            tmpUser = res;
+            tmpUser = user;
         }
 
-        Console.WriteLine("Запрос login успушно отработан");
         string sessionKey = _sessionManager.CreateSession(tmpUser.Id);
-        //!!!!!!!!!!!!!! должен возвращать список чатов пользователя и его userinfo
-        //список чатов list<guid> чатов, которые он затем подгрузит через load каждый отдельно
-        return new Response(correlationId, ResponseStatusCode.Ok, sessionKey);
+        UserSettings userSettings = new UserSettings(tmpUser.UserName, "User", new byte[0]);
+        List<Guid> userChats = _context.Chats.Where(
+            x=>x.Members.FirstOrDefault(x=>x.UserName==tmpUser.UserName) != null)
+            .Select(x=>x.Id)
+            .ToList();
+        var loginReqponseSettingsString = JsonSerializer.Serialize(
+            new LoginResponseSettings(sessionKey, userSettings, userChats));
+        Console.WriteLine("Запрос login успушно отработан");
+        return new Response(correlationId, ResponseStatusCode.Ok, loginReqponseSettingsString);
     }
 
     private string hashPassword(string password)

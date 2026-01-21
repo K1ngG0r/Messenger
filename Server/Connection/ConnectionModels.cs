@@ -6,10 +6,10 @@ namespace Server;
 public sealed record LoginRequestSettings(
     string username,
     string password);
-public sealed record LoginResponseSettings(string sessionKey,
-    string name,
-    byte[] avatar);//другие данные пользователя (приватные,
-                   //например черный список, который другие пользователи видеть не могут)
+public sealed record LoginResponseSettings(
+    string sessionKey,
+    UserSettings settings,
+    List<Guid> chats);
 
 //Send
 public sealed record SendRequestSettings(
@@ -94,9 +94,10 @@ public enum ParticipantInfoType
 }
 
 //ChangeSettings
-public sealed record ChangeSettingsRequestSettings(
+//request - UserSettings
+public sealed record UserSettings(
     string username,
     string name,
-    byte[] avatar//и проч (аватарка, дата рождения, статус)
+    byte[] avatar//и проч (дата рождения, статус)
     );
 //response - string.empty

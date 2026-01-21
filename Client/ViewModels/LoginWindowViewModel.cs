@@ -45,6 +45,7 @@ namespace Client.ViewModels
             }
             if (_chatService.TryLogin(Login, Password))
             {
+                CacheManager.SetNewLoginSettings(Login, Password);
                 _mediator.Send(new LoginRequestedMessage());
             }
             else

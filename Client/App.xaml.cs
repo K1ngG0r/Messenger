@@ -21,7 +21,8 @@ namespace Client
         protected override void OnStartup(StartupEventArgs e)
         {
             
-            IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
+            //IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
+            IPEndPoint serverIP = IPEndPoint.Parse("26.107.253.47:9000");
             var clientConnection = new ClientConnection(serverIP, new WpfPresentationService());
             var context = new AppDBContext();
             context.Database.EnsureCreated();
@@ -30,38 +31,37 @@ namespace Client
             _mediator.Register<LogoutRequestedMessage>(HandleLogoutRequestedMessage);
             _mediator.Register<LoginRequestedMessage>(HandleLoginRequestedMessage);
 
-            var previousSessionKey = CacheManager.TryGetPreviousUserSessionKey();
-            //если ключ не найден
-            if (previousSessionKey is null ? true : previousSessionKey == string.Empty)
+            var previousLoginSettings = CacheManager.TryGetPreviousLoginSettings();
+
+            if (previousLoginSettings is null)
             {
                 ShowLoginWindow();
                 return;
             }
-            //если есть ключ то пробуем сразу запустить приложение
-
+            var username = previousLoginSettings.Value.Item1;
+            var password = previousLoginSettings.Value.Item2;
+            if(_chatService.TryLogin(username, password))
+            {
+                ShowMainWindow();
+                return;
+            }
+            CacheManager.ClearPreviousLoginSettings();
+            ShowLoginWindow();
         }
         private void ShowLoginWindow()
         {
             LoginWindowViewModel loginWindowViewModel = new LoginWindowViewModel(_chatService, _mediator);
             loginWindow = new LoginWindow(loginWindowViewModel);
+            loginWindow.Show();
         }
         private void ShowMainWindow()
         {
-            try
-            {
-                var mainWindowViewModel = new MainWindowViewModel(_mediator,
-                    _chatService);
-
-                MessageBox.Show("init vm");
-                var mainWindow = new MainWindow(mainWindowViewModel);
-                MessageBox.Show("init mainwindow");
-                mainWindow.Show();
-                MessageBox.Show("wow!");
-            }
-            catch(Exception ex)
-            {
-                MessageBox.Show($"error show window: {ex.Message}");
-            }
+            if (mainWindow != null)
+                return;
+            var mainWindowViewModel = new MainWindowViewModel(_mediator,
+                _chatService);
+            mainWindow = new MainWindow(mainWindowViewModel);
+            mainWindow.Show();
         }
         private void HandleLogoutRequestedMessage(object? obj)
         {
@@ -70,16 +70,13 @@ namespace Client
             mainWindow = null;
             //mainWindowViewModel = null;
             _chatService.OnLogout();
+            CacheManager.ClearPreviousLoginSettings();
             ShowLoginWindow();
         }
         private void HandleLoginRequestedMessage(object? obj)
         {
             loginWindow?.Close();
-            if (!(mainWindow is null))
-                return;
-            var mainWindowViewModel = new MainWindowViewModel(_mediator, _chatService);
-            mainWindow = new MainWindow(mainWindowViewModel);
-            mainWindow.Show();
+            ShowMainWindow();
         }
     }
 }

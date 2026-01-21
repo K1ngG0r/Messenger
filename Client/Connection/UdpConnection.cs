@@ -17,7 +17,8 @@ public class UdpConnection
 
     public UdpConnection(int port)
     {
-        _udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        //_udpClientEndPoint = new IPEndPoint(IPAddress.Loopback, port);
+        _udpClientEndPoint = new IPEndPoint(IPAddress.Any, port);
         _udpClient = new UdpClient(_udpClientEndPoint);
     }
      public void Start()

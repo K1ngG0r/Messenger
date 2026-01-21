@@ -10,14 +10,20 @@ namespace Client
     public static class CacheManager
     {
         private static string previousPath = "C:/Users/U$er/Downloads/Messenger/Client/cache/";
-        public static string? TryGetPreviousUserSessionKey()
+        public static (string, string)? TryGetPreviousLoginSettings()
         {
             try
             {
                 using (FileStream fs = new FileStream(previousPath + "PreviousUsername.txt", FileMode.Open))
                 using (StreamReader sr = new StreamReader(fs))
                 {
-                    return sr.ReadLine();
+                    var line = sr.ReadLine();
+                    if (line is null)
+                        return null;
+                    var splittedLine = line.Split();
+                    if (splittedLine.Length == 2)
+                        return (splittedLine[0], splittedLine[1]);
+                    return null;
                 }
             }
             catch
@@ -25,16 +31,19 @@ namespace Client
                 return null;
             }
         }
-        public static void ClearPreviousSessionKey()
+        public static void ClearPreviousLoginSettings()
         {
-            SetPreviousSessionKey(string.Empty);
+            var filePath = previousPath + "PreviousUsername.txt";
+            if(File.Exists(filePath))
+                File.Delete(filePath);
+            File.Create(filePath);
         }
-        public static void SetPreviousSessionKey(string sessionKey)
+        public static void SetNewLoginSettings(string login, string password)
         {
             using (FileStream fs = new FileStream(previousPath + "PreviousUsername.txt", FileMode.OpenOrCreate))
             using (StreamWriter sw = new StreamWriter(fs))
             {
-                sw.WriteLine(sessionKey);
+                sw.WriteLine(login + " " + password);
             }
         }
         public static string GetUserAvatarPathByUsername(string username)

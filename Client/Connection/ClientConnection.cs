@@ -29,11 +29,7 @@ namespace Client.Connection
             udpConnection.DataReceived += HandleMessage;
             _ps = ps;
         }
-        public void LoginBySessionKey(string newSessionKey)
-        {
-            sessionKey = newSessionKey;
-        }
-        public async Task Login(string username, string password)//fixit возвращает данные пользователя
+        public async Task<(UserSettings, List<Guid>)> Login(string username, string password)
         {
             _ps.DisplayMessage($"логин под {username} {password}");
             var body = JsonSerializer.Serialize(
@@ -41,8 +37,13 @@ namespace Client.Connection
             try
             {
                 var response = await SendAndVerifyAsync(RequestMethod.Login, body);
-                sessionKey = response.Payload;
+                var loginSettings = JsonSerializer.Deserialize
+                    <LoginResponseSettings>(response.Payload);
+                if (loginSettings is null)
+                    throw new Exception();
+                sessionKey = loginSettings.sessionKey;
                 _ps.DisplayMessage($"успешный вход {sessionKey}");
+                return (loginSettings.settings, loginSettings.chats);
             }
             catch
             {
@@ -184,7 +185,7 @@ namespace Client.Connection
         }
         private async Task<Response> SendAsync(RequestMethod method, string body)
         {
-            return await SendAsync(method, body, TimeSpan.FromSeconds(2));
+            return await SendAsync(method, body, TimeSpan.FromSeconds(30));
         }
         private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
