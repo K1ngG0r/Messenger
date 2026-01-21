@@ -9,7 +9,7 @@ namespace Client
 {
     public static class CacheManager
     {
-        private static string previousPath = "C:/Users/U$er/Downloads/Messenger/Client/cache/";
+        private static string previousPath = "C:/Users/U$er/Downloads/m/Messenger/Client/cache/";
         public static (string, string)? TryGetPreviousLoginSettings()
         {
             try
@@ -40,7 +40,8 @@ namespace Client
         }
         public static void SetNewLoginSettings(string login, string password)
         {
-            using (FileStream fs = new FileStream(previousPath + "PreviousUsername.txt", FileMode.OpenOrCreate))
+            var filePath = previousPath + "PreviousUsername.txt";
+            using (FileStream fs = new FileStream(filePath, FileMode.OpenOrCreate))
             using (StreamWriter sw = new StreamWriter(fs))
             {
                 sw.WriteLine(login + " " + password);

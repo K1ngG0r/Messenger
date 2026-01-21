@@ -13,6 +13,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <DockPanel Grid.Row="0">
             <Button Content="..." Width="50" FontSize="30"
@@ -31,7 +32,10 @@
             <Button Content="Open file"/>
         </DockPanel>
         <DockPanel Grid.Row="4">
-            <Button Content="Submit"/>
+            <Button Content="Submit" Command="{Binding SubmitCommand}"/>
+        </DockPanel>
+        <DockPanel Grid.Row="5">
+            <Button Content="Logout" Command="{Binding LogoutCommand}"/>
         </DockPanel>
     </Grid>
 </UserControl>

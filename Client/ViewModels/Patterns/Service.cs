@@ -18,6 +18,7 @@ namespace Client.ViewModels.Patterns
         public void OnLogout()
         {
             _context.Database.EnsureDeleted();
+            _context.Database.EnsureCreated();
         }
         public void DeleteMessage(int messageId)
         {
@@ -79,10 +80,6 @@ namespace Client.ViewModels.Patterns
             {
                 return false;
             }
-        }
-        public void Logout()
-        {
-            _connection.Logout();
         }
         public Chat? TryLoadChat(int chatId)
         {

@@ -19,6 +19,7 @@ namespace Client.ViewModels
         //public string Avatar { get; set; }
         public Command NavigateToMainPageCommand { get; }
         public Command LogoutCommand { get; }
+        public Command SubmitCommand { get; }
         public SettingsPageViewModel(Mediator mediator, ChatService chatService)
         {
             _chatService = chatService;
@@ -26,6 +27,7 @@ namespace Client.ViewModels
             Usernameame = _chatService.CurrentUser!.Username;
             NavigateToMainPageCommand = new Command(OnNavigateToMainPage);
             LogoutCommand = new Command(OnLogout);
+            SubmitCommand = new Command(OnSubmit);
             _mediator = mediator;
         }
         private void OnNavigateToMainPage()
@@ -35,6 +37,10 @@ namespace Client.ViewModels
         private void OnLogout()
         {
             _mediator.Send(new LogoutRequestedMessage());
+        }
+        private void OnSubmit()
+        {
+            MessageBox.Show("В разработке");
         }
     }
 }

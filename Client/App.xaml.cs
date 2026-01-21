@@ -20,7 +20,7 @@ namespace Client
         private ChatService _chatService = null!;
         protected override void OnStartup(StartupEventArgs e)
         {
-            
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
             //IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
             IPEndPoint serverIP = IPEndPoint.Parse("26.107.253.47:9000");
             var clientConnection = new ClientConnection(serverIP, new WpfPresentationService());
@@ -35,48 +35,65 @@ namespace Client
 
             if (previousLoginSettings is null)
             {
-                ShowLoginWindow();
+                SwitchToLoginWindow();
                 return;
             }
             var username = previousLoginSettings.Value.Item1;
             var password = previousLoginSettings.Value.Item2;
-            if(_chatService.TryLogin(username, password))
+            if (_chatService.TryLogin(username, password))
             {
-                ShowMainWindow();
+                SwitchToMainWindow();
                 return;
             }
+            context.Database.EnsureDeleted();
+            context.Database.EnsureCreated();
             CacheManager.ClearPreviousLoginSettings();
-            ShowLoginWindow();
+            SwitchToLoginWindow();
         }
-        private void ShowLoginWindow()
+        private void OnWindowClosed(object? o, EventArgs e)
         {
+            if (this.MainWindow == null)
+                return;
+            Shutdown();
+        }
+        private void SwitchToLoginWindow()
+        {
+            this.MainWindow = null;
+            mainWindow?.Close();
+            mainWindow = null;
+            //mainWindowViewModel = null;
+            _chatService.OnLogout();
+            CacheManager.ClearPreviousLoginSettings();
+            //mainWindowViewModel?.Dispose();
+            if (loginWindow != null)
+                return;
             LoginWindowViewModel loginWindowViewModel = new LoginWindowViewModel(_chatService, _mediator);
             loginWindow = new LoginWindow(loginWindowViewModel);
+            loginWindow.Closed += OnWindowClosed;
+            this.MainWindow = loginWindow;
             loginWindow.Show();
         }
-        private void ShowMainWindow()
+        private void SwitchToMainWindow()
         {
+            this.MainWindow = null;
+            loginWindow?.Close();
+            loginWindow = null;
             if (mainWindow != null)
                 return;
             var mainWindowViewModel = new MainWindowViewModel(_mediator,
                 _chatService);
             mainWindow = new MainWindow(mainWindowViewModel);
+            mainWindow.Closed += OnWindowClosed;
+            this.MainWindow = mainWindow;
             mainWindow.Show();
         }
         private void HandleLogoutRequestedMessage(object? obj)
         {
-            mainWindow?.Close();
-            //mainWindowViewModel?.Dispose();
-            mainWindow = null;
-            //mainWindowViewModel = null;
-            _chatService.OnLogout();
-            CacheManager.ClearPreviousLoginSettings();
-            ShowLoginWindow();
+            SwitchToLoginWindow();
         }
         private void HandleLoginRequestedMessage(object? obj)
         {
-            loginWindow?.Close();
-            ShowMainWindow();
+            SwitchToMainWindow();
         }
     }
 }

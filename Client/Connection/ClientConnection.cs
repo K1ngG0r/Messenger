@@ -185,7 +185,7 @@ namespace Client.Connection
         }
         private async Task<Response> SendAsync(RequestMethod method, string body)
         {
-            return await SendAsync(method, body, TimeSpan.FromSeconds(30));
+            return await SendAsync(method, body, TimeSpan.FromSeconds(3));
         }
         private void HandleMessage(byte[] bytes, IPEndPoint who)
         {
