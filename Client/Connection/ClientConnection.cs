@@ -31,7 +31,6 @@ namespace Client.Connection
         }
         public async Task<(UserSettings, List<Guid>)> Login(string username, string password)
         {
-            _ps.DisplayMessage($"логин под {username} {password}");
             var body = JsonSerializer.Serialize(
                 new LoginRequestSettings(username, password));
             try
@@ -42,12 +41,10 @@ namespace Client.Connection
                 if (loginSettings is null)
                     throw new Exception();
                 sessionKey = loginSettings.sessionKey;
-                _ps.DisplayMessage($"успешный вход {sessionKey}");
                 return (loginSettings.settings, loginSettings.chats);
             }
             catch
             {
-                _ps.DisplayMessage($"не удалось залогиниться");
                 throw new Exception();
             }
         }
@@ -86,9 +83,12 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
+        public async Task<Guid> CreatePrivateChat(string username)
         {
-            _ps.DisplayMessage($"create chat");
+            return await CreateChat(CreateChatRequestSettingsMethod.PrivateChat, username);
+        }
+        private async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
+        {
             var body = JsonSerializer.Serialize(
                 new CreateChatRequestSettings(chatType, chatParameter));
             try
@@ -96,12 +96,12 @@ namespace Client.Connection
                 var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
                 if (!Guid.TryParse(response.Payload, out var chatId))
                     throw new Exception();
-                _ps.DisplayMessage($"create chat succesful {chatId}");
                 return chatId;
             }
             catch
             {
-                _ps.DisplayMessage($"create chat failed");
+
+                MessageBox.Show("oh shit");
                 throw new Exception();
             }
         }

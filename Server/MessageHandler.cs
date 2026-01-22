@@ -65,23 +65,40 @@ public class MessageHandler
         switch (settings.method)
         {
             case CreateChatRequestSettingsMethod.PrivateChat:
+                Console.WriteLine("Запрос create chat private");
                 var user = _context.Users.FirstOrDefault(x => x.UserName == settings.body);
 
                 if (user == null)
                     return new Response(correlationId, ResponseStatusCode.NotFound, string.Empty);
+                Console.WriteLine("user found");
 
-                var newChat = _context.Chats.Add(new Chat()
+                var newChat = new Chat()
                 {
+
+                    type = CreateChatRequestSettingsMethod.PrivateChat,
                     Members = new List<User>()
                     {
                         _sessionManager.GetUserBySession(sessionKey)!,
                         user
                     }
-                }).Entity;
-                return new Response(correlationId, ResponseStatusCode.Ok,
-                    newChat.Id.ToString());
+                };
+                newChat = _context.Chats.Add(newChat).Entity;
+                Console.WriteLine("add new chat");
+                try
+                {
+                    _context.SaveChanges();
+                    Console.WriteLine("save changes all right");
+                    return new Response(correlationId, ResponseStatusCode.Ok,
+                        newChat.Id.ToString());
+                }
+                catch(Exception e)
+                {
+
+                    Console.WriteLine($"err savch {e.Message}");
+                }
+                break;
         }
-        Console.WriteLine("Чат успешно создан");
+        Console.WriteLine("Чат не создан");
         return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
     }
 
@@ -100,12 +117,17 @@ public class MessageHandler
     private Response Send(Guid correlationId, string senderSessionKey, string SendSettings)
     {
         Console.WriteLine("Запрос send");
-        var settings = JsonSerializer.Deserialize<SendRequestSettings>(SendSettings)!;
+        var settings = JsonSerializer.Deserialize<SendRequestSettings>(SendSettings);
+        if(settings is null)
+            return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
 
-        var chat = _context.Chats.FirstOrDefault(x => x.Id == settings.chatId);
+        try
+        {
+            var chat = _context.Chats.FirstOrDefault(x => x.Id == settings.chatId); 
+            if (chat is null)
+                return new Response(correlationId, ResponseStatusCode.NotFound, String.Empty);
 
-        if(chat != null)
-            foreach(var u in chat.Members!)
+            foreach (var u in chat.Members!)
             {
                 var msg = new Message
                 {
@@ -114,16 +136,20 @@ public class MessageHandler
                     SenderUserName = _sessionManager.GetUserBySession(senderSessionKey)!.UserName
                 };
 
-                var changes = new SingleChange(u.UnreadUpdate!.Count + 1, SingleChangeMethod.NewMessage, 
+                var changes = new SingleChange(u.UnreadUpdate!.Count + 1, SingleChangeMethod.NewMessage,
                     JsonSerializer.Serialize(msg));
 
                 u.UnreadUpdate!.Add(changes);
             }
-        else 
-            return new Response(correlationId, ResponseStatusCode.NotFound, String.Empty);
+            Console.WriteLine("Запрос send успешно отработан");
+            return new Response(correlationId, ResponseStatusCode.Ok, String.Empty);
+        }
+        catch
+        {
+            return new Response(correlationId, ResponseStatusCode.Failed, "Ошибка");
+        }
 
-        Console.WriteLine("Запрос send успешно отработан");
-        return new Response(correlationId, ResponseStatusCode.Ok, String.Empty);
+        
     }
     private Response Load(Guid correlationId, string sessionKey, string body)
     {
@@ -187,10 +213,12 @@ public class MessageHandler
         {
             tmpUser = new User()
             {
+
                 UserName = settings.username,
                 HashPassword = password
             };
             _context.Users.Add(tmpUser);
+            _context.SaveChanges();
         }
         else
         {
@@ -209,6 +237,7 @@ public class MessageHandler
         var loginReqponseSettingsString = JsonSerializer.Serialize(
             new LoginResponseSettings(sessionKey, userSettings, userChats));
         Console.WriteLine("Запрос login успушно отработан");
+        Console.WriteLine($"Пользователей {string.Join("/n", _context.Users)}");
         return new Response(correlationId, ResponseStatusCode.Ok, loginReqponseSettingsString);
     }
 

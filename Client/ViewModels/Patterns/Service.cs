@@ -128,19 +128,12 @@ namespace Client.ViewModels.Patterns
                 switch (chat)
                 {
                     case PrivateChat privateChat:
-                        chatId = _connection.CreateChat(
-                            CreateChatRequestSettingsMethod.PrivateChat,
+                        chatId = _connection.CreatePrivateChat(
                             privateChat.Correspondent.Username).Result;
                         break;
                     case GroupChat groupChat:
-                        chatId = _connection.CreateChat(
-                            CreateChatRequestSettingsMethod.GroupChat,
-                            groupChat.ChatName).Result;
                         break;
                     case ChannelChat channelChat:
-                        chatId = _connection.CreateChat(
-                            CreateChatRequestSettingsMethod.ChannelChat,
-                            channelChat.ChatName).Result;
                         break;
                 }
                 chat.ChatId = chatId;
