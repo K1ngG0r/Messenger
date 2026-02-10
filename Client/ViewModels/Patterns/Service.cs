@@ -11,14 +11,21 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-        public UserSettings CurrentUserSettings;
+        private CancellationTokenSource? _pollingCts;
+        private Mediator _mediator;
+        public CurrentUserSettings CurrentUserSettings = null!;
         public User CurrentUser
             => UserConverter
-            .ConvertToUser(CurrentUserSettings);
+            .ConvertCurrentUserSettingsToUser(CurrentUserSettings);
+        public void OnLogin()
+        {
+            StartUpdatePolling();
+            _context.Database.EnsureCreated();
+        }
         public void OnLogout()
         {
+            StopUpdatePolling();
             _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
         }
         public void DeleteMessage(int messageId)
         {
@@ -57,6 +64,10 @@ namespace Client.ViewModels.Patterns
             }
             return user;
         }
+        /*public void UpdateSettings(string name, string username, string avatarPath)
+        {
+
+        }*/
         public Chat? TryLoadPrivateChatByUsername(string username)
         {
             var chat = _context.Chats
@@ -72,13 +83,14 @@ namespace Client.ViewModels.Patterns
             {
                 var settings = _connection
                     .Login(username, password).Result;
-                CurrentUserSettings = settings.Item1;
+                CurrentUserSettings = UserConverter
+                    .ConvertUserSettingsToCurrentUserSettings(settings.Item1);
                 UploadChatsFromConnection(settings.Item2);
                 return true;
             }
             catch
             {
-                return false;
+                return false;  
             }
         }
         public Chat? TryLoadChat(int chatId)
@@ -147,10 +159,38 @@ namespace Client.ViewModels.Patterns
             _context.SaveChanges();
             return result;
         }
-        public ChatService(AppDBContext context, ClientConnection connection)
+        public ChatService(AppDBContext context, ClientConnection connection, Mediator mediator)
         {
             _connection = connection;
             _context = context;
+            _mediator = mediator;
+        }
+        private void StartUpdatePolling()
+        {
+            _pollingCts?.Cancel();
+            _pollingCts = new CancellationTokenSource();
+            Task.Run(() => StartUpdatePollingCycle(_pollingCts.Token, TimeSpan.FromSeconds(20)));
+        }
+        private void StartUpdatePollingCycle(CancellationToken token, TimeSpan delay)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    Task.Delay(delay, token).Wait();
+                    var changes = _connection.Update();
+                    //обработка списка изменений
+                    MessageBox.Show("hello");
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        private void StopUpdatePolling()
+        {
+            _pollingCts?.Cancel();
         }
         private void UploadChatsFromConnection(List<Guid> chats)
         {

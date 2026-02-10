@@ -25,4 +25,20 @@ namespace Client.Models
 
         }
     }
+    public class CurrentUserSettings
+    {
+        public string Name { get; set; } = null!;
+        public string Username { get; set; } = null!;
+        public string ImagePath { get; set; } = null!;
+        //другие личные настройки
+        public CurrentUserSettings(
+            string username,
+            string name,
+            string avatarPath)
+        {
+            Name = name;
+            Username = username;
+            ImagePath = avatarPath;
+        }
+    }
 }

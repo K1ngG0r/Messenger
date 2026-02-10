@@ -48,10 +48,6 @@ namespace Client.Connection
                 throw new Exception();
             }
         }
-        public void Logout()
-        {
-            sessionKey = string.Empty;
-        }
         public async Task SendMessage(Guid chatId, string message)
         {
             _ps.DisplayMessage($"send {message}");
