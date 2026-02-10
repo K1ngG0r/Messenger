@@ -11,14 +11,20 @@ namespace Client.ViewModels.Patterns
     {
         private ClientConnection _connection;
         private AppDBContext _context;
-        public UserSettings CurrentUserSettings;
+        private CancellationTokenSource? _pollingCts;
+        public CurrentUserSettings CurrentUserSettings = null!;
         public User CurrentUser
             => UserConverter
-            .ConvertToUser(CurrentUserSettings);
+            .ConvertCurrentUserSettingsToUser(CurrentUserSettings);
+        public void OnLogin()
+        {
+            StartUpdatePolling();
+            _context.Database.EnsureCreated();
+        }
         public void OnLogout()
         {
+            StopUpdatePolling();
             _context.Database.EnsureDeleted();
-            _context.Database.EnsureCreated();
         }
         public void DeleteMessage(int messageId)
         {
@@ -37,7 +43,7 @@ namespace Client.ViewModels.Patterns
         }
         public void DeleteChat(int chatId)
         {
-            //сервер должен об этом знать
+            //сервер не должен об этом знать
             _context.Remove(_context.Chats.First(x => x.Id == chatId));
             _context.SaveChangesAsync();
         }
@@ -57,6 +63,10 @@ namespace Client.ViewModels.Patterns
             }
             return user;
         }
+        /*public void UpdateSettings(string name, string username, string avatarPath)
+        {
+
+        }*/
         public Chat? TryLoadPrivateChatByUsername(string username)
         {
             var chat = _context.Chats
@@ -72,13 +82,14 @@ namespace Client.ViewModels.Patterns
             {
                 var settings = _connection
                     .Login(username, password).Result;
-                CurrentUserSettings = settings.Item1;
+                CurrentUserSettings = UserConverter
+                    .ConvertUserSettingsToCurrentUserSettings(settings.Item1);
                 UploadChatsFromConnection(settings.Item2);
                 return true;
             }
             catch
             {
-                return false;
+                return false;  
             }
         }
         public Chat? TryLoadChat(int chatId)
@@ -152,14 +163,41 @@ namespace Client.ViewModels.Patterns
             _connection = connection;
             _context = context;
         }
+        private void StartUpdatePolling()
+        {
+            _pollingCts?.Cancel();
+            _pollingCts = new CancellationTokenSource();
+            //Task.Run(() => StartUpdatePollingCycle(_pollingCts.Token, TimeSpan.FromSeconds(20)));
+        }
+        private void StartUpdatePollingCycle(CancellationToken token, TimeSpan delay)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    Task.Delay(delay, token).Wait();
+                    var changes = _connection.Update();
+                    //обработка списка изменений
+                    //MessageBox.Show("hello");
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        private void StopUpdatePolling()
+        {
+            _pollingCts?.Cancel();
+        }
         private void UploadChatsFromConnection(List<Guid> chats)
         {
             foreach (Guid chatId in chats)
             {
-                if (_context.Chats.FirstOrDefault(x => x.ChatId == chatId) != null)
-                    continue;
                 try
                 {
+                    if (_context.Chats.FirstOrDefault(x => x.ChatId == chatId) != null)
+                        continue;
                     var chat = _connection.LoadChat(chatId).Result;
                     _context.Chats.Add(chat);
                 }

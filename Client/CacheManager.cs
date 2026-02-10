@@ -9,7 +9,7 @@ namespace Client
 {
     public static class CacheManager
     {
-        private static string previousPath = "C:/Users/U$er/Downloads/m/Messenger/Client/cache/";
+        private static string previousPath = "C:/Users/U$er/Documents/TI/work/m/Messenger/Client/cache/";
         public static (string, string)? TryGetPreviousLoginSettings()
         {
             try

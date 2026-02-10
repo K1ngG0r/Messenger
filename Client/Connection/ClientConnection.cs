@@ -24,7 +24,7 @@ namespace Client.Connection
         public ClientConnection(IPEndPoint serverIP, IPresentationService ps)
         {
             connectedServer = serverIP;
-            udpConnection = new UdpConnection(1234);
+            udpConnection = new UdpConnection(0);
             udpConnection.Start();
             udpConnection.DataReceived += HandleMessage;
             _ps = ps;
@@ -47,10 +47,6 @@ namespace Client.Connection
             {
                 throw new Exception();
             }
-        }
-        public void Logout()
-        {
-            sessionKey = string.Empty;
         }
         public async Task SendMessage(Guid chatId, string message)
         {
