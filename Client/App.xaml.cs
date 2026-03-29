@@ -88,6 +88,7 @@ namespace Client
             _chatService.OnLogin();
             var mainWindowViewModel = new MainWindowViewModel(_mediator,
                 _chatService);
+            _chatService.OnLogin();
             mainWindow = new MainWindow(mainWindowViewModel);
             ShutdownOnClose = true;
             mainWindow.Closed += OnWindowClosed;

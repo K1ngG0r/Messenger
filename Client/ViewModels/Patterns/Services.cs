@@ -158,10 +158,38 @@ namespace Client.ViewModels.Patterns
             _context.SaveChanges();
             return result;
         }
-        public ChatService(AppDBContext context, ClientConnection connection)
+        public ChatService(AppDBContext context, ClientConnection connection, Mediator mediator)
         {
             _connection = connection;
             _context = context;
+            _mediator = mediator;
+        }
+        private void StartUpdatePolling()
+        {
+            _pollingCts?.Cancel();
+            _pollingCts = new CancellationTokenSource();
+            Task.Run(() => StartUpdatePollingCycle(_pollingCts.Token, TimeSpan.FromSeconds(20)));
+        }
+        private void StartUpdatePollingCycle(CancellationToken token, TimeSpan delay)
+        {
+            while (!token.IsCancellationRequested)
+            {
+                try
+                {
+                    Task.Delay(delay, token).Wait();
+                    var changes = _connection.Update();
+                    //обработка списка изменений
+                    MessageBox.Show("hello");
+                }
+                catch
+                {
+
+                }
+            }
+        }
+        private void StopUpdatePolling()
+        {
+            _pollingCts?.Cancel();
         }
         private void StartUpdatePolling()
         {
