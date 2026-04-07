@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.ViewModels.Patterns.Services;
 using Client.Views;
 
 namespace Client.ViewModels

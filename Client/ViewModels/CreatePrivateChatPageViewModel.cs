@@ -9,6 +9,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.ViewModels.Patterns.Services;
 
 namespace Client.ViewModels
 {

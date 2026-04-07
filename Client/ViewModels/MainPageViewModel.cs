@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.ViewModels.Patterns.Services;
 
 namespace Client.ViewModels
 {

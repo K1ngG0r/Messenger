@@ -8,6 +8,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows;
 using Azure.Core;
+using Client.Connection.Pattenrs;
 using Client.Models;
 
 namespace Client.Connection
@@ -18,7 +19,6 @@ namespace Client.Connection
         private IPEndPoint connectedServer;
         private UdpConnection udpConnection;
         private IPresentationService _ps;
-        //private TcpConnection tcpConnection;
         private Dictionary<Guid, TaskCompletionSource<Response>> _pendingRequests = new();
         private object _lock = new();
         public ClientConnection(IPEndPoint serverIP, IPresentationService ps)
@@ -29,129 +29,92 @@ namespace Client.Connection
             udpConnection.DataReceived += HandleMessage;
             _ps = ps;
         }
-        public async Task<(UserSettings, List<Guid>)> Login(string username, string password)
+        public async Task<Result<LoginResponseSettings>> Login(string username, string password)
         {
             var body = JsonSerializer.Serialize(
                 new LoginRequestSettings(username, password));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Login, body);
-                var loginSettings = JsonSerializer.Deserialize
-                    <LoginResponseSettings>(response.Payload);
-                if (loginSettings is null)
-                    throw new Exception();
-                sessionKey = loginSettings.sessionKey;
-                return (loginSettings.settings, loginSettings.chats);
-            }
-            catch
-            {
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.Login, body);
+            if(response.IsFailed)
+                return Result<LoginResponseSettings>.Failure();
+            var loginSettings = JsonSerializer.Deserialize
+                <LoginResponseSettings>(response.Value!.Payload);
+            if (loginSettings is null)
+                return Result<LoginResponseSettings>.Failure();
+            return Result<LoginResponseSettings>.Success(loginSettings);
         }
-        public async Task SendMessage(Guid chatId, string message)
+        public async Task<Result> SendMessage(Guid chatId, string message)
         {
-            _ps.DisplayMessage($"send {message}");
             var body = JsonSerializer.Serialize(
                 new SendRequestSettings(chatId, message));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Send, body);
-                _ps.DisplayMessage($"send succesful");
-            }
-            catch
-            {
-                _ps.DisplayMessage($"send failed");
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.Send, body);
+            if(response.IsFailed)
+                return Result.Failure();
+            return Result.Success();
         }
-        public async Task<List<SingleChange>> Update()
+        public async Task<Result<List<SingleChange>>> Update()
         {
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Update, string.Empty);
-                var changes = JsonSerializer.Deserialize<List<SingleChange>>(response.Payload);
-                if (changes is null)
-                    throw new Exception();
-                return changes;
-            }
-            catch
-            {
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.Update, string.Empty);
+            if (response.IsFailed)
+                return Result<List<SingleChange>>.Failure();
+            var changes = JsonSerializer.Deserialize<List<SingleChange>>(response.Value!.Payload);
+            if (changes is null)
+                return Result<List<SingleChange>>.Failure();
+            return Result<List<SingleChange>>.Success(changes);
         }
-        public async Task<Guid> CreatePrivateChat(string username)
+        public async Task<Result<Guid>> CreatePrivateChat(string username)
         {
             return await CreateChat(CreateChatRequestSettingsMethod.PrivateChat, username);
         }
-        private async Task<Guid> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
+        private async Task<Result<Guid>> CreateChat(CreateChatRequestSettingsMethod chatType, string chatParameter)
         {
             var body = JsonSerializer.Serialize(
                 new CreateChatRequestSettings(chatType, chatParameter));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
-                if (!Guid.TryParse(response.Payload, out var chatId))
-                    throw new Exception();
-                return chatId;
-            }
-            catch
-            {
-
-                MessageBox.Show("oh shit");
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.CreateChat, body);
+            if(response.IsFailed)
+                return Result<Guid>.Failure();
+            if (!Guid.TryParse(response.Value!.Payload, out var chatId))
+                return Result<Guid>.Failure();
+            return Result<Guid>.Success(chatId);
         }
-        public async Task<User> LoadUser(string username)
+        public async Task<Result<Models.UserInfo>> LoadUser(string username)
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.User, username));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Load, body);
-                var userinfo = JsonSerializer.Deserialize<UserInfo>(response.Payload);
-                if (userinfo is null)
-                    throw new Exception();
-                return new User(userinfo.name, userinfo.username,
-                    CacheManager.SetUserAvatarPathByUsername(userinfo.username, userinfo.avatar));
-            }
-            catch
-            {
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+            if (response.IsFailed)
+                return Result<Models.UserInfo>.Failure();
+            var userinfo = JsonSerializer.Deserialize<UserInfo>(response.Value!.Payload);
+            if (userinfo is null)
+                return Result<Models.UserInfo>.Failure();
+            return Result<Models.UserInfo>.Success(new Models.UserInfo(userinfo.name, userinfo.username,
+                CacheManager.SetUserAvatarPathByUsername(userinfo.username, userinfo.avatar)));
         }
-        public async Task<Chat> LoadChat(Guid chatId)
+        public async Task<Result<Chat>> LoadChat(Guid chatId)
         {
             var body = JsonSerializer.Serialize(
                 new LoadRequestSettings(LoadRequestSettingsMethod.Chat, chatId.ToString()));
-            try
-            {
-                var response = await SendAndVerifyAsync(RequestMethod.Load, body);
-                return new PrivateChat();//fixit
-            }
-            catch
-            {
-                throw new Exception();
-            }
+            var response = await SendAndVerifyAsync(RequestMethod.Load, body);
+            if (response.IsFailed)
+                return Result<Chat>.Failure();
+            return Result<Chat>.Success(new PrivateChat());//fixit
         }
-        private async Task<Response> SendAndVerifyAsync(RequestMethod method, string body)
+        private async Task<Result<Response>> SendAndVerifyAsync(RequestMethod method, string body)
         {
             try
             {
                 var response = await SendAsync(method, body);
-                if (!(response.Code is ResponseStatusCode.Ok))
-                    throw new VerificationException();
+                if (response.IsFailed)
+                    return Result<Response>.Failure();
+                if (!(response.Value!.Code is ResponseStatusCode.Ok))
+                    return Result<Response>.Failure();
                 return response;
-            }
-            catch(VerificationException)
-            {
-                throw new VerificationException();
             }
             catch
             {
-                throw new Exception();
+                return Result<Response>.Failure();
             }
         }
-        private async Task<Response> SendAsync(RequestMethod method, string body, TimeSpan timeout)
+        private async Task<Result<Response>> SendAsync(RequestMethod method, string body, TimeSpan timeout)
         {
             var correlationId = Guid.NewGuid();
             var request = new Request(sessionKey, correlationId, method, body);
@@ -166,20 +129,19 @@ namespace Client.Connection
                 udpConnection.Send(requestBytes, connectedServer);
                 using (var cts = new CancellationTokenSource(timeout))
                 {
-                    return Task.Run(async () => await tcs.Task.WaitAsync(cts.Token)).Result;
+                    return Result<Response>.Success(await Task.Run(async () => await tcs.Task.WaitAsync(cts.Token)));
                 }
-            }
-            catch (OperationCanceledException)
-            {
-                throw new TimeoutException();
             }
             catch
             {
+                return Result<Response>.Failure();
+            }
+            finally
+            {
                 RemovePendingRequest(correlationId);
-                throw new Exception();
             }
         }
-        private async Task<Response> SendAsync(RequestMethod method, string body)
+        private async Task<Result<Response>> SendAsync(RequestMethod method, string body)
         {
             return await SendAsync(method, body, TimeSpan.FromSeconds(3));
         }

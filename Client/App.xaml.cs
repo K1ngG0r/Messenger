@@ -8,6 +8,7 @@ using System.Data;
 using System.Net;
 using System.Windows;
 using Client.Views;
+using Client.ViewModels.Patterns.Services;
 
 namespace Client
 {

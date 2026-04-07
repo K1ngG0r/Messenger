@@ -13,7 +13,7 @@ namespace Client.Data
     {
         public DbSet<Chat> Chats { get; set; }
         public DbSet<ChatMessage> Messages { get; set; }
-        public DbSet<User> Users { get; set; }
+        public DbSet<UserInfo> Users { get; set; }
         public DbSet<Participant> Participants { get; set; }
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

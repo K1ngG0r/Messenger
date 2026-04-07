@@ -10,11 +10,11 @@ namespace Client.Models
     {
         public int Id { get; set; }
         public Chat Chat { get; set; } = null!;
-        public User Who { get; set; } = null!;
+        public UserInfo Who { get; set; } = null!;
         public string Message { get; set; } = null!;
         public DateTime When { get; set; }
         public ChatMessageState State { get; set; }
-        public ChatMessage(Chat chat, User who, string message, DateTime when, ChatMessageState state = ChatMessageState.NotDelivered)
+        public ChatMessage(Chat chat, UserInfo who, string message, DateTime when, ChatMessageState state = ChatMessageState.NotDelivered)
         {
             Chat = chat;
             Who = who;

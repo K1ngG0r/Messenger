@@ -27,8 +27,8 @@ namespace Client.Models
     }
     public class PrivateChat:Chat
     {
-        public User Correspondent { get; set; } = null!;
-        public PrivateChat(Guid chatId, User user, string imagePath = "")
+        public UserInfo Correspondent { get; set; } = null!;
+        public PrivateChat(Guid chatId, UserInfo user, string imagePath = "")
             : base(user.Name, chatId, new(), imagePath)
         {
             Correspondent = user;
@@ -41,10 +41,10 @@ namespace Client.Models
     public class Participant
     {
         public int Id { get; set; }
-        public User User { get; set; } = null!;
+        public UserInfo User { get; set; } = null!;
         public Chat Chat { get; set; } = null!;
         public ParticipantType ParticipantType { get; set; }
-        public Participant(User user, Chat chat, ParticipantType type = ParticipantType.Member)
+        public Participant(UserInfo user, Chat chat, ParticipantType type = ParticipantType.Member)
         {
             User = user;
             Chat = chat;
@@ -62,10 +62,10 @@ namespace Client.Models
     }
     public class ChannelChat : Chat
     {
-        public User Owner { get; set; } = null!;
+        public UserInfo Owner { get; set; } = null!;
         public List<Participant> Subscribers { get; set; } = new();
 
-        public ChannelChat(Guid chatId, User owner, string channelName, string imagePath = "")
+        public ChannelChat(Guid chatId, UserInfo owner, string channelName, string imagePath = "")
             : base(channelName, chatId, new(), imagePath)
         {
             Owner = owner;
@@ -77,9 +77,9 @@ namespace Client.Models
     }
     public class GroupChat : Chat
     {
-        public User Owner { get; set; } = null!;
+        public UserInfo Owner { get; set; } = null!;
         public List<Participant> Participants { get; set; } = new();
-        public GroupChat(Guid chatId, User owner, string groupName, string imagePath = "")
+        public GroupChat(Guid chatId, UserInfo owner, string groupName, string imagePath = "")
             : base(groupName, chatId, new(), imagePath)
         {
             Owner = owner;

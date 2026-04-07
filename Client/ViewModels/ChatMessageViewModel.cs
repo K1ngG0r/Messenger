@@ -1,5 +1,6 @@
 ﻿using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.ViewModels.Patterns.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;

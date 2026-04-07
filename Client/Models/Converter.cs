@@ -9,21 +9,15 @@ namespace Client.Models
 {
     public static class UserConverter
     {
-        public static User ConvertCurrentUserSettingsToUser(CurrentUserSettings settings)
+        public static UserInfo ConvertCurrentUserSettingsToUser(CurrentUserInfo settings)
         {
-            return new User(settings.Name,
+            return new UserInfo(settings.Name,
                 settings.Username,
                 CacheManager.GetUserAvatarPathByUsername(settings.Username));
         }
-        public static User ConvertUserSettingsToUser(UserSettings settings)
+        public static UserInfo ConvertUserSettingsToUser(UserSettings settings)
         {
-            return new User(settings.name,
-                settings.username,
-                CacheManager.SetUserAvatarPathByUsername(settings.username, settings.avatar));
-        }
-        public static CurrentUserSettings ConvertUserSettingsToCurrentUserSettings(UserSettings settings)
-        {
-            return new CurrentUserSettings(settings.name,
+            return new UserInfo(settings.name,
                 settings.username,
                 CacheManager.SetUserAvatarPathByUsername(settings.username, settings.avatar));
         }

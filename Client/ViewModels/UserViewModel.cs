@@ -9,11 +9,11 @@ namespace Client.ViewModels
 {
     public class UserViewModel : ViewModel
     {
-        public User User;
+        public UserInfo User;
         public string Name => User.Name;
         public string Username => User.Username;
         public AvatarImageViewModel Avatar => new AvatarImageViewModel(User.ImagePath);
-        public UserViewModel(User user)
+        public UserViewModel(UserInfo user)
         {
             User = user;
         }

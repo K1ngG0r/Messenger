@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Media;
 using Client.Models;
 using Client.ViewModels.Patterns;
+using Client.ViewModels.Patterns.Services;
 using Microsoft.Extensions.Primitives;
 
 namespace Client.ViewModels
