@@ -10,9 +10,10 @@ namespace Client.ViewModels.Patterns.Services
     public class CurrentUserService
     {
         public CurrentUserInfo UserInfo { get; set; }
-        public CurrentUserService(CurrentUserInfo userInfo) 
+        public CurrentUserService(CurrentUserInfo? userInfo) 
         {
-            UserInfo = userInfo;
+            UserInfo = userInfo is null ? 
+                new CurrentUserInfo(string.Empty, string.Empty, string.Empty) : userInfo;
         }
     }
 }

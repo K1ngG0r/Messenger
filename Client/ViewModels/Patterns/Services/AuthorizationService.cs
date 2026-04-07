@@ -18,14 +18,13 @@ namespace Client.ViewModels.Patterns.Services
             _connection = connection;
         }
 
-        public async Task<Result<CurrentUserInfo>> TryLogin(string username, string password)
+        public async Task<Result<LoginResponseSettings>> TryLogin(string username, string password)
         {
             var settings = await _connection
                 .Login(username, password);
-            CurrentUserSettings = UserConverter
-                .ConvertUserSettingsToCurrentUserSettings(settings.Item1);
-            UploadChatsFromConnection(settings.Item2);
-            return true;
+            if (settings.IsFailed)
+                return Result<LoginResponseSettings>.Failure();
+            return Result<LoginResponseSettings>.Success(settings.Value!);
         }
     }
 }

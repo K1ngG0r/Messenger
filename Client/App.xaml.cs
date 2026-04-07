@@ -14,21 +14,28 @@ namespace Client
 {
     public partial class App : Application
     {
+        private readonly IPEndPoint _serverEndPoint = IPEndPoint.Parse("90.188.16.58:4232");
         private LoginWindow? loginWindow;
         private MainWindow? mainWindow;
         private Mediator _mediator = null!;
         private ChatService _chatService = null!;
+        private AuthorizationService _loginService = null!;
+        private CurrentUserService _userService = null!;
+        private PollingService _pollingService = null!;
+        private LoadService _loadService = null!;
         private bool ShutdownOnClose = false;
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             ShutdownMode = ShutdownMode.OnExplicitShutdown;
-            //IPEndPoint serverIP = IPEndPoint.Parse("127.0.0.1:9000");
-            IPEndPoint serverIP = IPEndPoint.Parse("90.188.16.58:4232");
-            var clientConnection = new ClientConnection(serverIP, new WpfPresentationService());
+            var clientConnection = new ClientConnection(_serverEndPoint, new WpfPresentationService());
             var context = new AppDBContext();
             context.Database.EnsureCreated();
             _mediator = new Mediator();
             _chatService = new ChatService(context, clientConnection);
+            _loginService = new AuthorizationService(clientConnection);
+            _userService = new CurrentUserService(null);
+            _pollingService = new PollingService(clientConnection);
+            _loadService = new LoadService(context, clientConnection);
             _mediator.Register<LogoutRequestedMessage>(HandleLogoutRequestedMessage);
             _mediator.Register<LoginRequestedMessage>(HandleLoginRequestedMessage);
 
@@ -43,8 +50,10 @@ namespace Client
             }
             var username = previousLoginSettings.Value.Item1;
             var password = previousLoginSettings.Value.Item2;
-            if (_chatService.TryLogin(username, password))
+            var loginAttempt = await _loginService.TryLogin(username, password);
+            if (loginAttempt.IsSuccess)
             {
+                _userService.UserInfo = loginAttempt.Value!.settings.;
                 SwitchToMainWindow();
                 return;
             }
